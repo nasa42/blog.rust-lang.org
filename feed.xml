@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Team.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2019-12-19T16:09:35Z</updated>
+    <updated>2019-12-19T16:12:20Z</updated>
 
     
     <entry>
@@ -48,8 +48,10 @@ fn make_bar() -&amp;gt; Bar { ... }
 
 let x = Foo { a: true }; //~ ERROR
 let Foo { a } = make_foo(); //~ ERROR
+
+// `beta` will still compile when more fields are added.
 let Foo { a, .. } = make_foo(); //~ OK
-          // -- `beta` will still compile when more fields are added.
+
 
 let x = Bar::Variant { a: 42 }; //~ ERROR
 let Bar::Variant { b } = make_bar(); //~ ERROR
@@ -63,15 +65,18 @@ pub enum Ordering { Relaxed, Release, Acquire, AcqRel, SeqCst }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;The purpose of &lt;code&gt;#[non_exhaustive]&lt;/code&gt; in this context is to ensure that more variants can be added over time. This is achieved by preventing other crates from exhaustively pattern &lt;code&gt;match&lt;/code&gt;-ing on &lt;code&gt;Ordering&lt;/code&gt;. That is, the compiler would reject:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;match ordering {
-    Relaxed | Release | Acquire | AcqRel | SeqCst =&amp;gt; { /* logic */ }
-    //~^ ERROR; since if a new variant is added,
-    // this would suddenly break if there wasn't an error to begin with.
+    // This is an error, since if a new variant is added,
+    // this would suddenly break on an upgrade of the compiler.
+    Relaxed | Release | Acquire | AcqRel | SeqCst =&amp;gt; {
+        /* logic */
+    }
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Instead, other crates need to account for the possibility of more variants by adding a wildcard arm using e.g. &lt;code&gt;_&lt;/code&gt;:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;match ordering {
-    Relaxed | Release | Acquire | AcqRel | SeqCst =&amp;gt; { /* logic */ }
-    _ =&amp;gt; { /* logic */ } // OK; if more variants are added, nothing will break.
+    Relaxed | Release | Acquire | AcqRel | SeqCst =&amp;gt; { /* ... */ }
+    // OK; if more variants are added, nothing will break.
+    _ =&amp;gt; { /* logic */ }
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;For more details on the &lt;code&gt;#[non_exhaustive]&lt;/code&gt; attribute, see the &lt;a href=&quot;https://github.com/rust-lang/rust/issues/44109#issuecomment-533356866&quot;&gt;stabilization report&lt;/a&gt;.&lt;/p&gt;

@@ -110,8 +110,10 @@ fn make_bar() -&gt; Bar { ... }
 
 let x = Foo { a: true }; //~ ERROR
 let Foo { a } = make_foo(); //~ ERROR
+
+// `beta` will still compile when more fields are added.
 let Foo { a, .. } = make_foo(); //~ OK
-          // -- `beta` will still compile when more fields are added.
+
 
 let x = Bar::Variant { a: 42 }; //~ ERROR
 let Bar::Variant { b } = make_bar(); //~ ERROR
@@ -125,15 +127,18 @@ pub enum Ordering { Relaxed, Release, Acquire, AcqRel, SeqCst }
 </code></pre>
 <p>The purpose of <code>#[non_exhaustive]</code> in this context is to ensure that more variants can be added over time. This is achieved by preventing other crates from exhaustively pattern <code>match</code>-ing on <code>Ordering</code>. That is, the compiler would reject:</p>
 <pre><code class="language-rust">match ordering {
-    Relaxed | Release | Acquire | AcqRel | SeqCst =&gt; { /* logic */ }
-    //~^ ERROR; since if a new variant is added,
-    // this would suddenly break if there wasn't an error to begin with.
+    // This is an error, since if a new variant is added,
+    // this would suddenly break on an upgrade of the compiler.
+    Relaxed | Release | Acquire | AcqRel | SeqCst =&gt; {
+        /* logic */
+    }
 }
 </code></pre>
 <p>Instead, other crates need to account for the possibility of more variants by adding a wildcard arm using e.g. <code>_</code>:</p>
 <pre><code class="language-rust">match ordering {
-    Relaxed | Release | Acquire | AcqRel | SeqCst =&gt; { /* logic */ }
-    _ =&gt; { /* logic */ } // OK; if more variants are added, nothing will break.
+    Relaxed | Release | Acquire | AcqRel | SeqCst =&gt; { /* ... */ }
+    // OK; if more variants are added, nothing will break.
+    _ =&gt; { /* logic */ }
 }
 </code></pre>
 <p>For more details on the <code>#[non_exhaustive]</code> attribute, see the <a href="https://github.com/rust-lang/rust/issues/44109#issuecomment-533356866">stabilization report</a>.</p>
