@@ -156,7 +156,8 @@ extern {
 </code></pre>
 <p>Procedural macro attributes on items in <a href="https://doc.rust-lang.org/nightly/reference/items/external-blocks.html"><code>extern { ... }</code> blocks</a> are now also supported:</p>
 <pre><code class="language-rust">extern &quot;C&quot; {
-    #[my_identity_macro] //~ Let's assume that this expands to `fn foo();`.
+    // Let's assume that this expands to `fn foo();`.
+    #[my_identity_macro]
     fn foo();
 }
 </code></pre>

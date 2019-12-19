@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Team.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2019-12-19T16:05:32Z</updated>
+    <updated>2019-12-19T16:09:35Z</updated>
 
     
     <entry>
@@ -94,7 +94,8 @@ extern {
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Procedural macro attributes on items in &lt;a href=&quot;https://doc.rust-lang.org/nightly/reference/items/external-blocks.html&quot;&gt;&lt;code&gt;extern { ... }&lt;/code&gt; blocks&lt;/a&gt; are now also supported:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;extern &amp;quot;C&amp;quot; {
-    #[my_identity_macro] //~ Let's assume that this expands to `fn foo();`.
+    // Let's assume that this expands to `fn foo();`.
+    #[my_identity_macro]
     fn foo();
 }
 &lt;/code&gt;&lt;/pre&gt;
