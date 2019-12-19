@@ -10,8 +10,169 @@
         <name>Maintained by the Rust Team.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2019-12-18T10:56:00Z</updated>
+    <updated>2019-12-19T16:00:41Z</updated>
 
+    
+    <entry>
+        <title>Announcing Rust 1.40.0</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/12/19/Rust-1.40.0.html" type="text/html" title="Announcing Rust 1.40.0" />
+        <published>2019-12-19T00:00:00Z</published>
+        <updated>2019-12-19T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/2019/12/19/Rust-1.40.0.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/12/19/Rust-1.40.0.html">&lt;p&gt;The Rust team is happy to announce a new version of Rust, 1.40.0. Rust is a programming language that is empowering everyone to build reliable and efficient software.&lt;/p&gt;
+&lt;p&gt;If you have a previous version of Rust installed via rustup, getting Rust 1.40.0 is as easy as:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-console&quot;&gt;$ rustup update stable
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you don't have it already, you can &lt;a href=&quot;https://www.rust-lang.org/install.html&quot;&gt;get &lt;code&gt;rustup&lt;/code&gt;&lt;/a&gt; from the appropriate page on our website, and check out the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1400-2019-12-19&quot;&gt;detailed release notes for 1.40.0&lt;/a&gt; on GitHub.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#whats-in-1.40.0-stable&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;whats-in-1.40.0-stable&quot;&gt;&lt;/a&gt;What's in 1.40.0 stable&lt;/h2&gt;
+&lt;p&gt;The highlights of Rust 1.40.0 include &lt;code&gt;#[non_exhaustive]&lt;/code&gt; and improvements to &lt;code&gt;macros!()&lt;/code&gt; and &lt;code&gt;#[attribute]&lt;/code&gt;s. Finally, borrow-check migration warnings have become hard errors in Rust 2015. See the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1400-2019-12-19&quot;&gt;detailed release notes&lt;/a&gt; for additional information.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#[non_exhaustive]-structs,-enums,-and-variants&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;[non_exhaustive]-structs,-enums,-and-variants&quot;&gt;&lt;/a&gt;&lt;code&gt;#[non_exhaustive]&lt;/code&gt; structs, enums, and variants&lt;/h3&gt;
+&lt;p&gt;Suppose you're a library author of a crate &lt;code&gt;alpha&lt;/code&gt;, that has a &lt;code&gt;pub struct Foo&lt;/code&gt;. You would like to make &lt;code&gt;alpha::Foo&lt;/code&gt;'s fields &lt;code&gt;pub&lt;/code&gt; as well, but you're not sure whether you might be adding more fields to &lt;code&gt;Foo&lt;/code&gt; in future releases. So now you have a dilemma: either you make the fields private, with the drawbacks that follow, or you risk users depending on the exact fields, breaking their code when you add a new one. Rust 1.40.0 introduces a way to break the logjam: &lt;code&gt;#[non_exhaustive]&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The attribute &lt;code&gt;#[non_exhaustive]&lt;/code&gt;, when attached to a &lt;code&gt;struct&lt;/code&gt; or the variant of an &lt;code&gt;enum&lt;/code&gt;, will prevent code outside of the crate defining it from constructing said &lt;code&gt;struct&lt;/code&gt; or variant. To avoid future breakage, other crates are also prevented from exhaustively matching on the fields. The following example illustrates errors in &lt;code&gt;beta&lt;/code&gt; which depends on &lt;code&gt;alpha&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;// alpha/lib.rs:
+
+#[non_exhaustive]
+struct Foo {
+    pub a: bool,
+}
+
+enum Bar {
+    #[non_exhaustive]
+    Variant { b: u8 }
+}
+
+fn make_foo() -&amp;gt; Foo { ... }
+fn make_bar() -&amp;gt; Bar { ... }
+
+// beta/lib.rs:
+
+let x = Foo { a: true }; //~ ERROR
+let Foo { a } = make_foo(); //~ ERROR
+let Foo { a, .. } = make_foo(); //~ OK
+          // -- `beta` will still compile when more fields are added.
+
+let x = Bar::Variant { a: 42 }; //~ ERROR
+let Bar::Variant { b } = make_bar(); //~ ERROR
+let Bar::Variant { b, .. } = make_bar(); //~ OK
+                   // -- `beta` will still compile...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;What happens behind the scenes is that the visibility of the constructors for a &lt;code&gt;#[non_exhaustive]&lt;/code&gt; &lt;code&gt;struct&lt;/code&gt; or &lt;code&gt;enum&lt;/code&gt; variant is lowered to &lt;code&gt;pub(crate)&lt;/code&gt;, preventing access outside the crate defining it.&lt;/p&gt;
+&lt;p&gt;A perhaps more important aspect of &lt;code&gt;#[non_exhaustive]&lt;/code&gt; is that it can also be attached to &lt;code&gt;enum&lt;/code&gt;s themselves. An example, taken from the standard library, is &lt;a href=&quot;https://doc.rust-lang.org/std/sync/atomic/enum.Ordering.html&quot;&gt;&lt;code&gt;Ordering&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;#[non_exhaustive]
+pub enum Ordering { Relaxed, Release, Acquire, AcqRel, SeqCst }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The purpose of &lt;code&gt;#[non_exhaustive]&lt;/code&gt; in this context is to ensure that more variants can be added over time. This is achieved by preventing other crates from exhaustively pattern &lt;code&gt;match&lt;/code&gt;-ing on &lt;code&gt;Ordering&lt;/code&gt;. That is, the compiler would reject:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;match ordering {
+    Relaxed | Release | Acquire | AcqRel | SeqCst =&amp;gt; { /* logic */ }
+    //~^ ERROR; since if a new variant is added,
+    // this would suddenly break if there wasn't an error to begin with.
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Instead, other crates need to account for the possibility of more variants by adding a wildcard arm using e.g. &lt;code&gt;_&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;match ordering {
+    Relaxed | Release | Acquire | AcqRel | SeqCst =&amp;gt; { /* logic */ }
+    _ =&amp;gt; { /* logic */ } // OK; if more variants are added, nothing will break.
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;For more details on the &lt;code&gt;#[non_exhaustive]&lt;/code&gt; attribute, see the &lt;a href=&quot;https://github.com/rust-lang/rust/issues/44109#issuecomment-533356866&quot;&gt;stabilization report&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#macro-and-attribute-improvements&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;macro-and-attribute-improvements&quot;&gt;&lt;/a&gt;Macro and attribute improvements&lt;/h3&gt;
+&lt;p&gt;In 1.40.0, we have introduced several improvements to macros and attributes, including:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/63931/#issuecomment-526362396&quot;&gt;Calling procedural macros &lt;code&gt;mac!()&lt;/code&gt; in type contexts.&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;For example, you may write &lt;code&gt;type Foo = expand_to_type!(bar);&lt;/code&gt; where &lt;code&gt;expand_to_type&lt;/code&gt; would be a procedural macro.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/63931/#issuecomment-526362396&quot;&gt;Macros in &lt;code&gt;extern { ... }&lt;/code&gt; blocks.&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;This includes &lt;code&gt;bang!()&lt;/code&gt; macros, for example:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;macro_rules! make_item { ($name:ident) =&amp;gt; { fn $name(); } }
+
+extern {
+    make_item!(alpha);
+    make_item!(beta);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Procedural macro attributes on items in &lt;a href=&quot;https://doc.rust-lang.org/nightly/reference/items/external-blocks.html&quot;&gt;&lt;code&gt;extern { ... }&lt;/code&gt; blocks&lt;/a&gt; are now also supported:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;extern &amp;quot;C&amp;quot; {
+    #[my_identity_macro] //~ Let's assume that this expands to `fn foo();`.
+    fn foo();
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/64035#issuecomment-533890826&quot;&gt;Generating &lt;code&gt;macro_rules!&lt;/code&gt; items in procedural macros.&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Function-like (&lt;code&gt;mac!()&lt;/code&gt;) and attribute (&lt;code&gt;#[mac]&lt;/code&gt;) macros can both now generate &lt;code&gt;macro_rules!&lt;/code&gt; items. For details on hygiene, please refer to the attached stabilization report.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/63674&quot;&gt;The &lt;code&gt;$m:meta&lt;/code&gt; matcher&lt;/a&gt; supports &lt;a href=&quot;https://github.com/rust-lang/rust/pull/57367#issuecomment-457882109&quot;&gt;arbitrary token-stream values&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;That is, the following is now valid:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;macro_rules! accept_meta { ($m:meta) =&amp;gt; {} }
+accept_meta!( my::path );
+accept_meta!( my::path = &amp;quot;lit&amp;quot; );
+accept_meta!( my::path ( a b c ) );
+accept_meta!( my::path [ a b c ] );
+accept_meta!( my::path { a b c } );
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;a href=&quot;#borrow-check-migration-warnings-are-hard-errors-in-rust-2015&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;borrow-check-migration-warnings-are-hard-errors-in-rust-2015&quot;&gt;&lt;/a&gt;Borrow check migration warnings are hard errors in Rust 2015&lt;/h3&gt;
+&lt;p&gt;In the 1.35.0 release, &lt;a href=&quot;https://blog.rust-lang.org/2019/07/04/Rust-1.36.0.html#nll-for-rust-2015&quot;&gt;we announced&lt;/a&gt; that NLL had come to Rust 2015 after first being released for the 2018 edition in &lt;a href=&quot;https://blog.rust-lang.org/2018/12/06/Rust-1.31-and-rust-2018.html#non-lexical-lifetimes&quot;&gt;Rust 1.31&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;As we noted back then, the old borrow checker had some bugs which would allow memory unsafety, and the NLL borrow checker fixed them. As these fixes break some stable code, we decided to gradually phase in the errors, by checking if the old borrow checker would accept the program and the NLL checker would reject it. In those cases, the errors would be downgraded to warnings.&lt;/p&gt;
+&lt;p&gt;The previous release, Rust 1.39.0, changes these warnings into errors for code using the &lt;a href=&quot;https://github.com/rust-lang/rust/pull/63565&quot;&gt;2018 edition&lt;/a&gt;. Rust 1.40.0 applies the same change for users of the &lt;a href=&quot;https://github.com/rust-lang/rust/pull/64221&quot;&gt;2015 edition&lt;/a&gt;, closing those soundness holes for good. This also allows us to &lt;a href=&quot;https://github.com/rust-lang/rust/pull/64790&quot;&gt;clean up the old code from the compiler&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If your build breaks due to this change, or you want to learn more, check out &lt;a href=&quot;https://blog.rust-lang.org/2019/11/01/nll-hard-errors.html&quot;&gt;Niko Matsakis's blog post&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#more-const-fns-in-the-standard-library&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;more-const-fns-in-the-standard-library&quot;&gt;&lt;/a&gt;More &lt;code&gt;const fn&lt;/code&gt;s in the standard library&lt;/h3&gt;
+&lt;p&gt;With Rust 1.40.0, the following function became &lt;code&gt;const fn&lt;/code&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.u8.html#method.is_power_of_two&quot;&gt;&lt;code&gt;is_power_of_two&lt;/code&gt;&lt;/a&gt; for &lt;a href=&quot;https://github.com/rust-lang/rust/pull/65092&quot;&gt;unsigned integers&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;a href=&quot;#additions-to-the-standard-library&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;additions-to-the-standard-library&quot;&gt;&lt;/a&gt;Additions to the standard library&lt;/h3&gt;
+&lt;p&gt;In Rust 1.40.0 the following functions and macros were stabilized:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/macro.todo.html&quot;&gt;&lt;code&gt;todo!()&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;A macro, which is a shorter, more memorable, and convenient version of &lt;a href=&quot;https://doc.rust-lang.org/std/macro.unimplemented.html&quot;&gt;&lt;code&gt;unimplemented!()&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.slice.html#method.repeat&quot;&gt;&lt;code&gt;slice::repeat&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Creates a &lt;code&gt;Vec&amp;lt;T&amp;gt;&lt;/code&gt; by repeating a slice &lt;code&gt;n&lt;/code&gt; times.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/mem/fn.take.html&quot;&gt;&lt;code&gt;mem::take&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;This function &lt;code&gt;take&lt;/code&gt;s the value out of a mutable reference and replaces it with the type's default. This is similar to &lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.take&quot;&gt;&lt;code&gt;Option::take&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/cell/struct.Cell.html#method.take&quot;&gt;&lt;code&gt;Cell::take&lt;/code&gt; &lt;/a&gt; and provides a convenient short-hand for &lt;a href=&quot;https://doc.rust-lang.org/std/mem/fn.replace.html&quot;&gt;&lt;code&gt;mem::replace(&amp;amp;mut dst, Default::default())&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/collections/struct.BTreeMap.html#method.get_key_value&quot;&gt;&lt;code&gt;BTreeMap::get_key_value&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/collections/struct.HashMap.html#method.get_key_value&quot;&gt;&lt;code&gt;HashMap::get_key_value&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Returns the key-value pair corresponding to the supplied key.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.as_deref&quot;&gt;&lt;code&gt;Option::as_deref&lt;/code&gt;&lt;/a&gt;, &lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.as_deref_mut&quot;&gt;&lt;code&gt;Option::as_deref_mut&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;These work similarly to &lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.as_ref&quot;&gt;&lt;code&gt;Option::as_ref&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.as_mut&quot;&gt;&lt;code&gt;Option::as_mut&lt;/code&gt;&lt;/a&gt; but also use &lt;a href=&quot;https://doc.rust-lang.org/std/ops/trait.Deref.html&quot;&gt;&lt;code&gt;Deref&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/ops/trait.DerefMut.html&quot;&gt;&lt;code&gt;DerefMut&lt;/code&gt;&lt;/a&gt; respectively, so that &lt;code&gt;opt_box.as_deref()&lt;/code&gt; and &lt;code&gt;opt_box.as_deref_mut()&lt;/code&gt;, where &lt;code&gt;opt_box: Option&amp;lt;Box&amp;lt;T&amp;gt;&amp;gt;&lt;/code&gt;, produce an &lt;code&gt;Option&amp;lt;&amp;amp;T&amp;gt;&lt;/code&gt; and &lt;code&gt;Option&amp;lt;&amp;amp;mut T&amp;gt;&lt;/code&gt; respectively.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.flatten&quot;&gt;&lt;code&gt;Option::flatten&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;This function flattens an &lt;code&gt;Option&amp;lt;Option&amp;lt;T&amp;gt;&amp;gt;&lt;/code&gt; to &lt;code&gt;Option&amp;lt;T&amp;gt;&lt;/code&gt; producing &lt;code&gt;Some(x)&lt;/code&gt; for &lt;code&gt;Some(Some(x))&lt;/code&gt; and &lt;code&gt;None&lt;/code&gt; otherwise. The function is similar to &lt;a href=&quot;https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.flatten&quot;&gt;&lt;code&gt;Iterator::flatten&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/net/struct.UdpSocket.html#method.peer_addr&quot;&gt;&lt;code&gt;UdpSocket::peer_addr&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Returns the socket address of the remote peer this socket was connected to.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f32.html#method.to_be_bytes&quot;&gt;&lt;code&gt;{f32,f64}::to_be_bytes&lt;/code&gt;&lt;/a&gt;, &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f32.html#method.to_le_bytes&quot;&gt;&lt;code&gt;{f32,f64}::to_le_bytes&lt;/code&gt;&lt;/a&gt;,&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f32.html#method.to_ne_bytes&quot;&gt;&lt;code&gt;{f32,f64}::to_ne_bytes&lt;/code&gt;&lt;/a&gt;, &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f32.html#method.from_be_bytes&quot;&gt;&lt;code&gt;{f32,f64}::from_be_bytes&lt;/code&gt;&lt;/a&gt;, &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f32.html#method.from_le_bytes&quot;&gt;&lt;code&gt;{f32,f64}::from_le_bytes&lt;/code&gt;&lt;/a&gt;, and &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f32.html#method.from_ne_bytes&quot;&gt;&lt;code&gt;{f32,f64}::from_ne_bytes&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Return the memory representation of the floating point number as a byte array in big-endian (network), little-endian, and native-endian byte order.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;a href=&quot;#other-changes&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;other-changes&quot;&gt;&lt;/a&gt;Other changes&lt;/h3&gt;
+&lt;p&gt;There are other changes in the Rust 1.40.0 release: check out what changed in &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1400-2019-12-19&quot;&gt;Rust&lt;/a&gt;, &lt;a href=&quot;https://github.com/rust-lang/cargo/blob/master/CHANGELOG.md#cargo-140-2019-12-19&quot;&gt;Cargo&lt;/a&gt;, and &lt;a href=&quot;https://github.com/rust-lang/rust-clippy/blob/master/CHANGELOG.md#rust-140&quot;&gt;Clippy&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Please also see the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/stable/RELEASES.md#compatibility-notes&quot;&gt;compatability notes&lt;/a&gt; to check if you're affected by those changes.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#contributors-to-140.0&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;contributors-to-140.0&quot;&gt;&lt;/a&gt;Contributors to 1.40.0&lt;/h2&gt;
+&lt;p&gt;Many people came together to create Rust 1.40.0. We couldn't have done it
+without all of you. &lt;a href=&quot;https://thanks.rust-lang.org/rust/1.40.0/&quot;&gt;Thanks!&lt;/a&gt;&lt;/p&gt;
+</content>
+
+        <author>
+            <name>The Rust Release Team</name>
+        </author>
+    </entry>
     
     <entry>
         <title>Launching the 2019 State of Rust Survey</title>
@@ -653,92 +814,6 @@ problems, so we can improve the user experience!)&lt;/p&gt;
 
         <author>
             <name>Niko Matsakis</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Announcing Rust 1.38.0</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/09/26/Rust-1.38.0.html" type="text/html" title="Announcing Rust 1.38.0" />
-        <published>2019-09-26T00:00:00Z</published>
-        <updated>2019-09-26T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/09/26/Rust-1.38.0.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/09/26/Rust-1.38.0.html">&lt;p&gt;The Rust team is happy to announce a new version of Rust, 1.38.0. Rust is a programming language that is empowering everyone to build reliable and efficient software.&lt;/p&gt;
-&lt;p&gt;If you have a previous version of Rust installed via rustup, getting Rust 1.38.0 is as easy as:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-console&quot;&gt;rustup update stable
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If you don't have it already, you can &lt;a href=&quot;https://www.rust-lang.org/install.html&quot;&gt;get &lt;code&gt;rustup&lt;/code&gt;&lt;/a&gt; from the appropriate page on our website.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#whats-in-1.38.0-stable&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;whats-in-1.38.0-stable&quot;&gt;&lt;/a&gt;What's in 1.38.0 stable&lt;/h2&gt;
-&lt;p&gt;The highlight of this release is pipelined compilation.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#pipelined-compilation&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;pipelined-compilation&quot;&gt;&lt;/a&gt;Pipelined compilation&lt;/h3&gt;
-&lt;p&gt;To compile a crate, the compiler doesn't need the dependencies to be fully built. Instead, it just needs their &amp;quot;metadata&amp;quot; (i.e. the list of types, dependencies, exports...). This metadata is produced early in the compilation process. Starting with Rust 1.38.0, Cargo will take advantage of this by automatically starting to build dependent crates as soon as metadata is ready.&lt;/p&gt;
-&lt;p&gt;While the change doesn't have any effect on builds for a single crate, during testing &lt;a href=&quot;https://internals.rust-lang.org/t/evaluating-pipelined-rustc-compilation/10199&quot;&gt;we got reports&lt;/a&gt; of 10-20% compilation speed increases for optimized, clean builds of some crate graphs. Other ones did not improve much, and the speedup depends on the hardware running the build, so your mileage might vary. No code changes are needed to benefit from this.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#linting-some-incorrect-uses-of-mem:{uninitialized,-zeroed}&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;linting-some-incorrect-uses-of-mem:{uninitialized,-zeroed}&quot;&gt;&lt;/a&gt;Linting some incorrect uses of &lt;code&gt;mem::{uninitialized, zeroed}&lt;/code&gt;&lt;/h3&gt;
-&lt;p&gt;As &lt;a href=&quot;https://blog.rust-lang.org/2019/07/04/Rust-1.36.0.html#maybeuninitt%3E-instead-of-mem::uninitialized&quot;&gt;previously announced&lt;/a&gt;, &lt;code&gt;std::mem::uninitialized&lt;/code&gt; is essentially impossible to use safely. Instead, &lt;code&gt;MaybeUninit&amp;lt;T&amp;gt;&lt;/code&gt; should be used.&lt;/p&gt;
-&lt;p&gt;We have not yet deprecated &lt;code&gt;mem::uninitialized&lt;/code&gt;; this will be done in a future release. Starting in 1.38.0, however, &lt;code&gt;rustc&lt;/code&gt; will provide a lint for a narrow class of incorrect initializations using &lt;code&gt;mem::uninitialized&lt;/code&gt; or &lt;code&gt;mem::zeroed&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;It is undefined behavior for some types, such as &lt;code&gt;&amp;amp;T&lt;/code&gt; and &lt;code&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt;, to ever contain an all-&lt;code&gt;0&lt;/code&gt; bit pattern, because they represent pointer-like objects that cannot be &lt;code&gt;null&lt;/code&gt;. It is therefore an error to use &lt;code&gt;mem::uninitialized&lt;/code&gt; or &lt;code&gt;mem::zeroed&lt;/code&gt; to initialize one of these types, so the new lint will attempt to warn whenever one of those functions is used to initialize one of them, either directly or as a member of a larger &lt;code&gt;struct&lt;/code&gt;. The check is recursive, so the following code will emit a warning:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;struct Wrap&amp;lt;T&amp;gt;(T);
-struct Outer(Wrap&amp;lt;Wrap&amp;lt;Wrap&amp;lt;Box&amp;lt;i32&amp;gt;&amp;gt;&amp;gt;&amp;gt;);
-struct CannotBeZero {
-    outer: Outer,
-    foo: i32,
-    bar: f32
-}
-
-...
-
-let bad_value: CannotBeZero = unsafe { std::mem::uninitialized() };
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Astute readers may note that Rust has more types that cannot be zero, notably &lt;code&gt;NonNull&amp;lt;T&amp;gt;&lt;/code&gt; and &lt;code&gt;NonZero&amp;lt;T&amp;gt;&lt;/code&gt;. For now, initialization of these structs with &lt;code&gt;mem::uninitialized&lt;/code&gt; or &lt;code&gt;mem::zeroed&lt;/code&gt; is &lt;em&gt;not&lt;/em&gt; linted against.&lt;/p&gt;
-&lt;p&gt;These checks do not cover all cases of unsound use of &lt;code&gt;mem::uninitialized&lt;/code&gt; or &lt;code&gt;mem::zeroed&lt;/code&gt;, they merely help identify code that is definitely wrong. All code should still be moved to use &lt;code&gt;MaybeUninit&lt;/code&gt; instead.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#[deprecated]-macros&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;[deprecated]-macros&quot;&gt;&lt;/a&gt;&lt;code&gt;#[deprecated]&lt;/code&gt; macros&lt;/h3&gt;
-&lt;p&gt;The &lt;code&gt;#[deprecated]&lt;/code&gt; attribute, first introduced in Rust 1.9.0, allows crate authors to notify their users an item of their crate is deprecated and will be removed in a future release. Rust 1.38.0 extends the attribute, allowing it to be applied to macros as well.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#std:any::type_name&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;std:any::type_name&quot;&gt;&lt;/a&gt;&lt;code&gt;std::any::type_name&lt;/code&gt;&lt;/h3&gt;
-&lt;p&gt;For debugging, it is sometimes useful to get the name of a type. For instance, in generic code, you may want to see, at run-time, what concrete types a function's type parameters has been instantiated with. This can now be done using &lt;code&gt;std::any::type_name&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;fn gen_value&amp;lt;T: Default&amp;gt;() -&amp;gt; T {
-    println!(&amp;quot;Initializing an instance of {}&amp;quot;, std::any::type_name::&amp;lt;T&amp;gt;());
-    Default::default()
-}
-
-fn main() {
-    let _: i32 = gen_value();
-    let _: String = gen_value();
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This prints:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-text&quot;&gt;Initializing an instance of i32
-Initializing an instance of alloc::string::String
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Like all standard library functions intended only for debugging, the exact contents and format of the string are not guaranteed. The value returned is only a best-effort description of the type; multiple types may share the same &lt;code&gt;type_name&lt;/code&gt; value, and the value may change in future compiler releases.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#library-changes&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;library-changes&quot;&gt;&lt;/a&gt;Library changes&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/62528/&quot;&gt;&lt;code&gt;slice::{concat, connect, join}&lt;/code&gt; now accepts &lt;code&gt;&amp;amp;[T]&lt;/code&gt; in addition to &lt;code&gt;&amp;amp;T&lt;/code&gt;.&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/62583/&quot;&gt;&lt;code&gt;*const T&lt;/code&gt; and &lt;code&gt;*mut T&lt;/code&gt; now implement &lt;code&gt;marker::Unpin&lt;/code&gt;.&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/61953/&quot;&gt;&lt;code&gt;Arc&amp;lt;[T]&amp;gt;&lt;/code&gt; and &lt;code&gt;Rc&amp;lt;[T]&amp;gt;&lt;/code&gt; now implement &lt;code&gt;FromIterator&amp;lt;T&amp;gt;&lt;/code&gt;.&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/61457/&quot;&gt;&lt;code&gt;iter::{StepBy, Peekable, Take}&lt;/code&gt; now implement &lt;code&gt;DoubleEndedIterator&lt;/code&gt;.&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Additionally, these functions have been stabilized:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.pointer.html#method.cast&quot;&gt;&lt;code&gt;&amp;lt;*const T&amp;gt;::cast&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.pointer.html#method.cast-1&quot;&gt;&lt;code&gt;&amp;lt;*mut T&amp;gt;::cast&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.as_secs_f32&quot;&gt;&lt;code&gt;Duration::as_secs_f32&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.as_secs_f64&quot;&gt;&lt;code&gt;Duration::as_secs_f64&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.div_f32&quot;&gt;&lt;code&gt;Duration::div_f32&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.div_f64&quot;&gt;&lt;code&gt;Duration::div_f64&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.from_secs_f32&quot;&gt;&lt;code&gt;Duration::from_secs_f32&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.from_secs_f64&quot;&gt;&lt;code&gt;Duration::from_secs_f64&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.mul_f32&quot;&gt;&lt;code&gt;Duration::mul_f32&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.mul_f64&quot;&gt;&lt;code&gt;Duration::mul_f64&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Euclidean remainder and division operations -- &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.i32.html#method.div_euclid&quot;&gt;&lt;code&gt;div_euclid&lt;/code&gt;&lt;/a&gt;,
-&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.i32.html#method.rem_euclid&quot;&gt;&lt;code&gt;rem_euclid&lt;/code&gt;&lt;/a&gt; -- for all integer primitives. &lt;code&gt;checked&lt;/code&gt;,
-&lt;code&gt;overflowing&lt;/code&gt;, and &lt;code&gt;wrapping&lt;/code&gt; versions are also available.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;a href=&quot;#other-changes&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;other-changes&quot;&gt;&lt;/a&gt;Other changes&lt;/h3&gt;
-&lt;p&gt;There are other changes in the Rust 1.38 release: check out what changed in &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1380-2019-09-26&quot;&gt;Rust&lt;/a&gt;, &lt;a href=&quot;https://github.com/rust-lang/cargo/blob/master/CHANGELOG.md#cargo-138-2019-09-26&quot;&gt;Cargo&lt;/a&gt;, and &lt;a href=&quot;https://github.com/rust-lang/rust-clippy/blob/master/CHANGELOG.md#rust-138&quot;&gt;Clippy&lt;/a&gt;.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#corrections&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;corrections&quot;&gt;&lt;/a&gt;Corrections&lt;/h3&gt;
-&lt;p&gt;A Previous version of this post mistakenly marked these functions as stable. They are not yet stable.
-&lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.div_duration_f32&quot;&gt;&lt;code&gt;Duration::div_duration_f32&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.div_duration_f64&quot;&gt;&lt;code&gt;Duration::div_duration_f64&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#contributors-to-138.0&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;contributors-to-138.0&quot;&gt;&lt;/a&gt;Contributors to 1.38.0&lt;/h2&gt;
-&lt;p&gt;Many people came together to create Rust 1.38.0. We couldn't have done it
-without all of you. &lt;a href=&quot;https://thanks.rust-lang.org/rust/1.38.0/&quot;&gt;Thanks!&lt;/a&gt;&lt;/p&gt;
-</content>
-
-        <author>
-            <name>The Rust Release Team</name>
         </author>
     </entry>
     
