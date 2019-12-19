@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Team.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2019-12-19T16:12:20Z</updated>
+    <updated>2019-12-19T16:22:53Z</updated>
 
     
     <entry>
@@ -53,7 +53,7 @@ let Foo { a } = make_foo(); //~ ERROR
 let Foo { a, .. } = make_foo(); //~ OK
 
 
-let x = Bar::Variant { a: 42 }; //~ ERROR
+let x = Bar::Variant { b: 42 }; //~ ERROR
 let Bar::Variant { b } = make_bar(); //~ ERROR
 let Bar::Variant { b, .. } = make_bar(); //~ OK
                    // -- `beta` will still compile...
