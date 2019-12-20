@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2019-12-20T14:00:32Z</updated>
+    <updated>2019-12-20T17:18:00Z</updated>
 
     
     <entry>
@@ -130,6 +130,31 @@ applications not to use the filesystem anymore.&lt;/p&gt;
 
         <author>
             <name>Pietro Albini</name>
+        </author>
+    </entry>
+    
+    <entry>
+        <title>Governance Working Group Update: Meeting 17 December 2019</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/20/governance-wg-meeting.html" type="text/html" title="Governance Working Group Update: Meeting 17 December 2019" />
+        <published>2019-12-20T00:00:00Z</published>
+        <updated>2019-12-20T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2019/12/20/governance-wg-meeting.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/20/governance-wg-meeting.html">&lt;p&gt;Hello everyone!&lt;/p&gt;
+&lt;p&gt;On Tuesday 17 December the working group met and built an outline of an RFC to introduce project groups. If you would like to watch, a recording is available on &lt;a href=&quot;https://www.youtube.com/watch?v=q6us8yhDDUU&amp;feature=youtu.be&quot;&gt;YouTube&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#project-groups&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;project-groups&quot;&gt;&lt;/a&gt;Project groups&lt;/h2&gt;
+&lt;p&gt;You can see the &lt;a href=&quot;https://github.com/rust-lang/wg-governance/blob/master/minutes/2019.12.17.md&quot;&gt;detailed minutes&lt;/a&gt; on the &lt;a href=&quot;https://github.com/rust-lang/wg-governance/&quot;&gt;wg-governance&lt;/a&gt; repository, but here is a quick summary of what we would like to do with the RFC:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Introduce the project group concept, creation workflow, and lifecycle&lt;/li&gt;
+&lt;li&gt;Provide guidance for how project groups use RFCs&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Goals served by introducing project groups include improved visibility into and follow-through on projects,
+as well as supporting better documentation of the design process.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#next-meeting&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;next-meeting&quot;&gt;&lt;/a&gt;Next meeting&lt;/h2&gt;
+&lt;p&gt;Our next meeting will be Jan 14. The topic is to be determined, but it is planned to discuss that on January 7th on the Rust Discord in the &lt;code&gt;#wg-governance&lt;/code&gt; channel.&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Val Grimm</name>
         </author>
     </entry>
     
@@ -492,90 +517,6 @@ call with Zoom, but we use the Discord channel to organise ourselves).&lt;/p&gt;
 
         <author>
             <name>Nell Shamrell-Harrington</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Constant propagation is now on by default in nightly</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/02/const-prop-on-by-default.html" type="text/html" title="Constant propagation is now on by default in nightly" />
-        <published>2019-12-02T00:00:00Z</published>
-        <updated>2019-12-02T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2019/12/02/const-prop-on-by-default.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/02/const-prop-on-by-default.html">&lt;p&gt;I'm pleased to announce that the &lt;a href=&quot;https://blog.rust-lang.org/2016/04/19/MIR.html&quot;&gt;Mid-level IR&lt;/a&gt; (MIR) constant propagation pass has been &lt;a href=&quot;https://github.com/rust-lang/rust/pull/66074&quot;&gt;switched on&lt;/a&gt; by default on Rust nightly which will eventually become Rust 1.41!&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#what-is-constant-propagation&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;what-is-constant-propagation&quot;&gt;&lt;/a&gt;What is constant propagation?&lt;/h2&gt;
-&lt;p&gt;Constant propagation is an optimization where the compiler recognizes code that can be run at compile time, evaluates it, and replaces the original code with the result.&lt;/p&gt;
-&lt;p&gt;For example:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;const X: u32 = 2;
-
-let y = X + X;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Rather than evaluating &lt;code&gt;X + X&lt;/code&gt; at runtime, the compiler can recognize that the value of &lt;code&gt;X&lt;/code&gt; is known at compile time and replace it with the correct value resulting in:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;const X: u32 = 2;
-
-let y = 4;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This optimization is opportunistic and automatically recognizes constants even when they are not declared as such:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;struct Point {
-  x: u32,
-  y: u32,
-}
-
-let a = 2 + 2; // optimizes to 4
-let b = [0, 1, 2, 3, 4, 5][3]; // optimizes to 3
-let c = (Point { x: 21, y: 42 }).y; // optimizes to 42
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h2&gt;&lt;a href=&quot;#propagation-into-control-flow&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;propagation-into-control-flow&quot;&gt;&lt;/a&gt;Propagation into control flow&lt;/h2&gt;
-&lt;p&gt;The constant propagation pass also handles propagating into control flow.
-For example:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;const Foo: Option&amp;lt;u8&amp;gt; = Some(12);
-
-let x = match Foo {
-   None =&amp;gt; panic!(&amp;quot;no value&amp;quot;),
-   Some(v) =&amp;gt; v,
-};
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;becomes:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;const Foo: Option&amp;lt;u8&amp;gt; = Some(12);
-
-let x = 12;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This is very helpful for checked math, the default in &lt;code&gt;debug&lt;/code&gt; mode, which introduces additional control flow after every operation:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;let x = 2 + 4 * 6;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;actually operates like this with overflow checking enabled:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;let (_tmp0, overflowed) = CheckedMultiply(4, 6);
-assert!(!overflowed, &amp;quot;attempt to multiply with overflow&amp;quot;);
-
-let (_tmp1, overflowed) = CheckedAdd(_tmp0, 2);
-assert!(!overflowed, &amp;quot;attempt to add with overflow&amp;quot;);
-
-let x = _temp1;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;which adds quite a bit of control flow!
-Constant propagation evaluates the math at compile time and reduces this to:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;let _tmp0 = 24;
-assert!(!false, &amp;quot;attempt to multiply with overflow&amp;quot;);
-
-let _tmp1 = 26;
-assert!(!false, &amp;quot;attempt to add with overflow&amp;quot;);
-
-let x = 26;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;which is further reduced to just:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;let x = 26;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h2&gt;&lt;a href=&quot;#compiler-performance&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;compiler-performance&quot;&gt;&lt;/a&gt;Compiler performance&lt;/h2&gt;
-&lt;p&gt;As you might have guessed, reducing the amount of control flow processed by the Rust compiler has a positive effect on compile times.
-We're seeing 2-10% improvement on a variety of test cases in both debug and release mode.
-Even though LLVM has its own constant propagation pass, we see improvements because our pass operates on MIR while it is still generic.
-The more concrete instances of a generic function that are instantiated, the larger the payoff from this optimization.&lt;/p&gt;
-&lt;p&gt;We've suspected for a while that the verbose LLVM IR the Rust compiler generates contributes considerably to long compilation times.
-By implementing optimizations like this, we believe there is significant potential to lower compile times by generating better LLVM IR.
-If you'd like to get involved with the MIR Optimizations working group, stop by our &lt;a href=&quot;https://rust-lang.zulipchat.com/#narrow/stream/189540-t-compiler.2Fwg-mir-opt&quot;&gt;Zulip channel&lt;/a&gt; and say hello!&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Wesley Wiser</name>
         </author>
     </entry>
     
