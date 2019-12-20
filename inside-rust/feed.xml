@@ -10,8 +10,66 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2019-12-20T03:00:47Z</updated>
+    <updated>2019-12-20T09:29:43Z</updated>
 
+    
+    <entry>
+        <title>2019-12-17 Infrastructure Team Meeting</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/20/infra-team-meeting.html" type="text/html" title="2019-12-17 Infrastructure Team Meeting" />
+        <published>2019-12-20T00:00:00Z</published>
+        <updated>2019-12-20T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2019/12/20/infra-team-meeting.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/20/infra-team-meeting.html">&lt;p&gt;Meeting run by pietroalbini. Minutes written by pietroalbini.&lt;br /&gt;
+Attending: aidanhs, alexcrichton, kennytm, Mark-Simulacrum, pietroalbini,
+shepmaster&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#spurious-chocolatey-failures&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;spurious-chocolatey-failures&quot;&gt;&lt;/a&gt;Spurious Chocolatey failures&lt;/h2&gt;
+&lt;p&gt;Since a few days ago, Chocolatey started returning 503 error codes at random,
+preventing some Windows CI runners from downloading MSYS2, and the tree was
+closed to prevent the failures from affecting a bunch of PRs. There were a few
+proposals on how to work around them, spanning from a proper mirroring
+implementation to just a quick fix to get CI working again.&lt;/p&gt;
+&lt;p&gt;After the discussion the team agreed to prioritize getting CI working
+consistently rather than implement the correct solution from the start. aidanhs
+is going to look into that during the weekend, if nobody else finishes the work
+before.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#progress-on-moving-the-infrastructure-to-terraform&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;progress-on-moving-the-infrastructure-to-terraform&quot;&gt;&lt;/a&gt;Progress on moving the infrastructure to Terraform&lt;/h2&gt;
+&lt;p&gt;In the past few months pietroalbini started exploring moving the configuration
+of Rust’s AWS infrastructure to Terraform, to allow for better collaboration
+and auditability. So far a few services have been moved over to Terraform, and
+pietroalbini proposed in the meeting to evaluate moving dynamic applications
+over to ECS and configure those with Terraform.&lt;/p&gt;
+&lt;p&gt;alexcrichton brought up the point that pietroalbini is at the moment the only
+person in the team familiar with our Terraform setup, and while it’s probably a
+better solution than the status quo we need more people able to work with it
+before we decide to fully commit to using it. He acknowledged the current
+solution (services manually configured through the console) is not scalable nor
+long term, but we can’t jump to Terraform if most of the team doesn’t know how
+to work with it.&lt;/p&gt;
+&lt;p&gt;shepmaster said that this is not much different than the situation in the past,
+where alexcrichton was the only one knowing how our infrastructure worked
+(since then other people in the team got up to speed). aidanhs pointed out that
+we had a case in the past like that, when only alexcrichton knew how a system
+worked and it broke while he was on holiday.&lt;/p&gt;
+&lt;p&gt;alexcrichton proposed to pause investing time into Terraform until at least
+another team member gets familiar with it, and Mark-Simulacrum said he’s
+willing to pair with pietroalbini for a few hours to migrate one of the
+services to Terraform, learning how it works in the process.&lt;/p&gt;
+&lt;p&gt;The feelings about ECS turned up to be mostly the same: everyone agreed it’s
+surely a better solution than the setup we have right now, but only
+pietroalbini is familiar with it. We agreed that pietroalbini and
+Mark-Simulacrum are going to deploy one of the small applications to ECS using
+Terraform while pairing, testing both the new things in one go.&lt;/p&gt;
+&lt;p&gt;In the end, pietroalbini reminded the team that not every application we
+currently host is going to fit into ECS + Fargate without changes, especially
+because you can’t really persist data on the filesystem with it, but he
+mentioned he’s willing to do the implementation work to adapt those
+applications not to use the filesystem anymore.&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Pietro Albini</name>
+        </author>
+    </entry>
     
     <entry>
         <title>Congrats to compiler team members matthewjasper and wesleywiser</title>
@@ -589,46 +647,6 @@ users that have no need for more expressiveness.&lt;/p&gt;
 
         <author>
             <name>Dylan MacKenzie</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Upcoming compiler-team design meetings</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/11/22/upcoming-compiler-team-design-meetings.html" type="text/html" title="Upcoming compiler-team design meetings" />
-        <published>2019-11-22T00:00:00Z</published>
-        <updated>2019-11-22T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2019/11/22/upcoming-compiler-team-design-meetings.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/11/22/upcoming-compiler-team-design-meetings.html">&lt;p&gt;In our &lt;a href=&quot;https://zulip-archive.rust-lang.org/131828tcompiler/03407planningmeeting20191122.html&quot;&gt;planning meeting today&lt;/a&gt;, the &lt;a href=&quot;https://www.rust-lang.org/governance/teams/compiler&quot;&gt;compiler team&lt;/a&gt; has scheduled our
-next batch of upcoming design meetings. You can find the exact times
-on the compiler team's &lt;a href=&quot;https://rust-lang.github.io/compiler-team/#meeting-calendar&quot;&gt;meeting calendar&lt;/a&gt;:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;On Nov 29 (&lt;a href=&quot;https://calendar.google.com/event?action=TEMPLATE&amp;tmeid=MjM3aGsxdXY0dHBybXBxZ3ZxOGp1ZjdicjEgNnU1cnJ0Y2U2bHJ0djA3cGZpM2RhbWdqdXNAZw&amp;tmsrc=6u5rrtce6lrtv07pfi3damgjus%40group.calendar.google.com&quot;&gt;calendar event&lt;/a&gt;), we will discuss
-&lt;a href=&quot;https://github.com/rust-lang/compiler-team/issues/213&quot;&gt;rust-lang/compiler-team#213&lt;/a&gt;, a proposal to extend rustc's data
-structures to enable outside crates to experiment with building a
-Rust REPL.&lt;/li&gt;
-&lt;li&gt;On Dec 6 (&lt;a href=&quot;https://calendar.google.com/event?action=TEMPLATE&amp;tmeid=MTByaTZsZG1pZGI1Y2RqdGZ1cHV2djNncTEgNnU1cnJ0Y2U2bHJ0djA3cGZpM2RhbWdqdXNAZw&amp;tmsrc=6u5rrtce6lrtv07pfi3damgjus%40group.calendar.google.com&quot;&gt;calendar event&lt;/a&gt;), we will discuss
-&lt;a href=&quot;https://github.com/rust-lang/compiler-team/issues/175&quot;&gt;rust-lang/compiler-team#175&lt;/a&gt;, which is a plan to modify the
-&lt;code&gt;rustc_interface&lt;/code&gt; trait to enable end-to-end query support in the
-compiler.&lt;/li&gt;
-&lt;li&gt;On Dec 13 (&lt;a href=&quot;https://calendar.google.com/event?action=TEMPLATE&amp;tmeid=MGxrb2p2cG9lNGFnYTIybWVtcGRoZzdjdmogNnU1cnJ0Y2U2bHJ0djA3cGZpM2RhbWdqdXNAZw&amp;tmsrc=6u5rrtce6lrtv07pfi3damgjus%40group.calendar.google.com&quot;&gt;calendar event&lt;/a&gt;), we will discuss
-&lt;a href=&quot;https://github.com/rust-lang/compiler-team/issues/222&quot;&gt;rust-lang/compiler-team#222&lt;/a&gt;, which is a roadmap and strategy for
-eventually merging rustc, &lt;a href=&quot;https://github.com/rust-analyzer/rust-analyzer/&quot;&gt;rust-analyzer&lt;/a&gt;, and the RLS into one
-coherent set of projects.&lt;/li&gt;
-&lt;li&gt;On Dec 20 (&lt;a href=&quot;https://calendar.google.com/event?action=TEMPLATE&amp;tmeid=MW12ZWI4NW9zZ2s2dHRkbW5wbjdjMG43Zm8gNnU1cnJ0Y2U2bHJ0djA3cGZpM2RhbWdqdXNAZw&amp;tmsrc=6u5rrtce6lrtv07pfi3damgjus%40group.calendar.google.com&quot;&gt;calendar event&lt;/a&gt;), we will discuss
-&lt;a href=&quot;https://github.com/rust-lang/compiler-team/issues/209&quot;&gt;rust-lang/compiler-team#209&lt;/a&gt;, which is a proposal to create a
-&amp;quot;major changes process&amp;quot; for the compiler, to augment these design
-meetings.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;a href=&quot;#did-you-know&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;did-you-know&quot;&gt;&lt;/a&gt;Did you know?&lt;/h3&gt;
-&lt;p&gt;Most weeks, the compiler team has some sort of design meeting. These
-meetings take place on Zulip and are open to all. Every 4 weeks, we do
-a planning meeting to pick the next few meetings from the list of open
-proposals. You can find &lt;a href=&quot;https://rust-lang.github.io/compiler-team/about/steering-meeting/&quot;&gt;more details about how the compiler-team
-steering meeting process here&lt;/a&gt;.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Niko Matsakis</name>
         </author>
     </entry>
     
