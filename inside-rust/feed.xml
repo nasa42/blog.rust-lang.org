@@ -10,8 +10,63 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2019-12-20T17:18:00Z</updated>
+    <updated>2019-12-23T15:36:53Z</updated>
 
+    
+    <entry>
+        <title>Formatting the compiler tree</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/23/formatting-the-compiler.html" type="text/html" title="Formatting the compiler tree" />
+        <published>2019-12-23T00:00:00Z</published>
+        <updated>2019-12-23T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2019/12/23/formatting-the-compiler.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/23/formatting-the-compiler.html">&lt;h2&gt;&lt;a href=&quot;#what-happened&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;what-happened&quot;&gt;&lt;/a&gt;What happened&lt;/h2&gt;
+&lt;p&gt;We recently landed two PRs which together reformatted essentially all code in the compiler tree.&lt;/p&gt;
+&lt;p&gt;The first one, &lt;a href=&quot;https://github.com/rust-lang/rust/pull/65939&quot;&gt;#65939&lt;/a&gt;, contained the initial formatting infrastructure. We currently use &lt;code&gt;rustfmt&lt;/code&gt;
+directly, pinned to a version specified in &lt;code&gt;src/stage0.txt&lt;/code&gt;. We expect to update it as needed, and
+otherwise once per cycle (coinciding with the bootstrap bump, most likely).&lt;/p&gt;
+&lt;p&gt;The second one which reformatted the majority of the codebase is &lt;a href=&quot;https://github.com/rust-lang/rust/pull/67540&quot;&gt;#67540&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;This change landed with the following rustfmt config. Note that this this configuration is subject
+to change (in particular, merge_derives may be removed in the future), but should be fairly stable.
+Your editor should automatically pick this configuration up inside the rust-lang/rust repository (it
+is located in the &lt;code&gt;rustfmt.toml&lt;/code&gt; file in the root).&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;version = &amp;quot;Two&amp;quot;
+use_small_heuristics = &amp;quot;Max&amp;quot;
+merge_derives = false
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;&lt;a href=&quot;#how-to-use-formatting&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;how-to-use-formatting&quot;&gt;&lt;/a&gt;How to use formatting&lt;/h2&gt;
+&lt;p&gt;You can reformat the repository with &lt;code&gt;x.py fmt&lt;/code&gt; and &lt;code&gt;x.py fmt --check&lt;/code&gt; to verify formatting; these
+commands are unfortunately somewhat slow today. Tidy will also currently run the latter of these two
+checks (&lt;code&gt;x.py fmt --check&lt;/code&gt;) internally, but this may change in the future if we can't improve the
+speed of formatting the entire codebase.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#resolving-conflicts&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;resolving-conflicts&quot;&gt;&lt;/a&gt;Resolving conflicts&lt;/h2&gt;
+&lt;p&gt;If you have an ongoing branch, you're likely to have merge conflicts. The following should help you
+resolve them:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# This should be the name of the remote for rust-lang/rust
+git fetch upstream
+# This rebases up to the bors merge right before formatting landed;
+# it needs to be done manually.
+git rebase -i 9b98af84c4aa66392236fff59c86da2130d46d46
+# This rebases onto the formatting PR (given the previous command, only that).
+# We tell git to resolve all conflicts in favor of your code (`-Xtheirs`),
+# and the `--exec` command specifies that after each commit lands, it will be formatted.
+# This command will fail if your PR has intermediary commits with syntax conflicts.
+git rebase -i a916ac22b9f7f1f0f7aba0a41a789b3ecd765018 \
+    --exec './x.py fmt &amp;amp;&amp;amp; git add -u &amp;amp;&amp;amp; git commit --amend` \
+    # This exec is optional, and won't work if your intermediate commits don't build,
+    # but it helps make sure that the formatting resolution didn't introduce any errors.
+    # It's recommended to run it afterwards before pushing at least.
+    --exec './x.py check' \
+    -Xtheirs
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This should mostly resolve conflicts correctly, but occasionally if you've edited something in
+imports (a common case I've encountered) or otherwise this will not resolve quite right. Usually
+though this will solve 99% of the problems and the rest can be fixed up manually afterwards.&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Mark Rousskov</name>
+        </author>
+    </entry>
     
     <entry>
         <title>An Update from WG-Learning</title>
@@ -493,30 +548,6 @@ The goal is to use library-ification to gradually reduce the amount of duplicate
 
         <author>
             <name>Aleksey Kladov, Igor Matuszewski</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Governance Working Group Update</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/03/governance-wg-meeting.html" type="text/html" title="Governance Working Group Update" />
-        <published>2019-12-03T00:00:00Z</published>
-        <updated>2019-12-03T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2019/12/03/governance-wg-meeting.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/03/governance-wg-meeting.html">&lt;p&gt;Hello everyone! Two weeks ago the governance working group met. Here are the large issues we discussed and information on our next meeting.&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;Edit:&lt;/em&gt; This post was prepared last week but was accidentally not merged. Apologies for the short notice about the topic of this week's meeting! --nikomatsakis&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#large-issues-discussed&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;large-issues-discussed&quot;&gt;&lt;/a&gt;Large Issues Discussed&lt;/h2&gt;
-&lt;p&gt;We reviewed the &lt;a href=&quot;https://rust-lang.github.io/rfcs/1068-rust-governance.html&quot;&gt;current governance RFC&lt;/a&gt; and noted governance items that have been added since the RFC was written. We also noted things that have changed or have just not happened, as well as things that could be improved. Please see the &lt;a href=&quot;https://github.com/rust-lang/wg-governance/blob/master/minutes/2019.11.19.md&quot;&gt;full notes&lt;/a&gt; for more details.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#next-meeting&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;next-meeting&quot;&gt;&lt;/a&gt;Next Meeting&lt;/h2&gt;
-&lt;p&gt;Next meeting will be at &lt;strong&gt;22:00 UTC on Tuesday, December 3&lt;/strong&gt; and will be focused on the need for a &lt;a href=&quot;https://github.com/rust-lang/wg-governance/issues/4&quot;&gt;GitHub Access Policy&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;We'd like to encourage anyone who's interested, regardless of their
-previous experience to come to the &lt;code&gt;#wg-governance&lt;/code&gt;
-channel on Discord to attend the meeting. (Our meetings are done over a video
-call with Zoom, but we use the Discord channel to organise ourselves).&lt;/p&gt;
-&lt;p&gt;If there are other issues you would like to see us discuss or discuss with us, please mention them in a comment on &lt;a href=&quot;https://github.com/rust-lang/wg-governance/issues/29&quot;&gt;this GitHub issue&lt;/a&gt;.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Nell Shamrell-Harrington</name>
         </author>
     </entry>
     
