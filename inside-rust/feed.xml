@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2019-12-27T08:16:21Z</updated>
+    <updated>2019-12-27T23:38:53Z</updated>
 
     
     <entry>
@@ -41,23 +41,36 @@ speed of formatting the entire codebase.&lt;/p&gt;
 &lt;h2&gt;&lt;a href=&quot;#resolving-conflicts&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;resolving-conflicts&quot;&gt;&lt;/a&gt;Resolving conflicts&lt;/h2&gt;
 &lt;p&gt;If you have an ongoing branch, you're likely to have merge conflicts. The following should help you
 resolve them:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;# This should be the name of the remote for rust-lang/rust
-git fetch upstream
-# This rebases up to the bors merge right before formatting landed;
-# it needs to be done manually.
-git rebase -i 9b98af84c4aa66392236fff59c86da2130d46d46
-# This rebases onto the formatting PR (given the previous command, only that).
-# We tell git to resolve all conflicts in favor of your code (`-Xtheirs`),
-# and the `--exec` command specifies that after each commit lands, it will be formatted.
-# This command will fail if your PR has intermediary commits with syntax conflicts.
-git rebase -i a916ac22b9f7f1f0f7aba0a41a789b3ecd765018 \
-    --exec './x.py fmt &amp;amp;&amp;amp; git add -u &amp;amp;&amp;amp; git commit --amend' \
-    # This exec is optional, and won't work if your intermediate commits don't build,
-    # but it helps make sure that the formatting resolution didn't introduce any errors.
-    # It's recommended to run it afterwards before pushing at least.
-    --exec './x.py check' \
-    -Xtheirs
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;#!/bin/bash
+
+set -xeo pipefail
+
+if [ &amp;quot;$1&amp;quot; = &amp;quot;from-rebase&amp;quot; ] ; then
+	git rev-parse HEAD &amp;gt; /tmp/commit
+	git rev-parse HEAD &amp;gt;&amp;gt; /tmp/old.shas
+	./x.py fmt
+	git commit -a --amend --no-edit
+	git rev-parse HEAD &amp;gt;&amp;gt; /tmp/new.shas
+	git reset --hard $(cat /tmp/commit)
+else
+	rm -f /tmp/old.shas /tmp/commit /tmp/new.shas
+	git rebase 8eb7c58dbb7 --exec '../format.sh from-rebase'
+	branch=$(git rev-parse --abbrev-ref HEAD) # get branch name
+	git reset --hard 8eb7c58dbb7
+	for sha in $(cat /tmp/new.shas); do
+		git cherry-pick $sha -Xtheirs
+	done
+	git branch -f $branch HEAD
+  # put yourself atop the format the world PR
+  git rebase -Xtheirs a916ac22b9f7f1f0f7aba0a41a789b3ecd765018
+fi
 &lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This script should be saved to &lt;code&gt;format.sh&lt;/code&gt; in the parent directory of your Rust
+checkout, and then run &lt;code&gt;git fetch upstream &amp;amp;&amp;amp; ../format.sh&lt;/code&gt;. &lt;code&gt;upstream&lt;/code&gt; should
+be the name of the rust-lang/rust remote.&lt;/p&gt;
+&lt;p&gt;Once the script runs, you will be based on the &lt;code&gt;a916ac22b9f7f&lt;/code&gt; commit. You
+likely want to then run &lt;code&gt;git rebase -i upstream/master&lt;/code&gt; or so to finish, but the
+script above gets you past the formatting PR at least.&lt;/p&gt;
 &lt;p&gt;This should mostly resolve conflicts correctly, but occasionally if you've edited something in
 imports (a common case I've encountered) or otherwise this will not resolve quite right. Usually
 though this will solve 99% of the problems and the rest can be fixed up manually afterwards.&lt;/p&gt;
