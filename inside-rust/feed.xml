@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2019-12-31T20:43:19Z</updated>
+    <updated>2019-12-31T22:34:25Z</updated>
 
     
     <entry>
@@ -60,7 +60,6 @@ else
 	for sha in $(cat /tmp/new.shas); do
 		git cherry-pick $sha -Xtheirs
 	done
-	git branch -f $branch HEAD
   # put yourself atop the format the world PR
   git rebase -Xtheirs a916ac22b9f7f1f0f7aba0a41a789b3ecd765018
 fi
