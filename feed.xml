@@ -10,8 +10,105 @@
         <name>Maintained by the Rust Team.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2019-12-31T22:34:26Z</updated>
+    <updated>2020-01-03T19:14:46Z</updated>
 
+    
+    <entry>
+        <title>Reducing support for 32-bit Apple targets</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/2020/01/03/reducing-support-for-32-bit-apple-targets.html" type="text/html" title="Reducing support for 32-bit Apple targets" />
+        <published>2020-01-03T00:00:00Z</published>
+        <updated>2020-01-03T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/2020/01/03/reducing-support-for-32-bit-apple-targets.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2020/01/03/reducing-support-for-32-bit-apple-targets.html">&lt;p&gt;The Rust team regrets to announce that Rust 1.41.0 (to be released on January
+30th, 2020) will be the last release with the current level of support for
+32-bit Apple targets. Starting from Rust 1.42.0, those targets will be demoted
+to Tier 3.&lt;/p&gt;
+&lt;p&gt;The decision was made on &lt;a href=&quot;https://github.com/rust-lang/rfcs/pull/2837&quot;&gt;RFC 2837&lt;/a&gt;, and was accepted by the compiler and
+release teams. This post explains what the change means, why we did it, and how
+your project is affected.&lt;/p&gt;
+&lt;h1&gt;&lt;a href=&quot;#whats-a-support-tier?&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;whats-a-support-tier?&quot;&gt;&lt;/a&gt;What’s a support tier?&lt;/h1&gt;
+&lt;p&gt;The Rust compiler can build code targeting &lt;a href=&quot;https://forge.rust-lang.org/release/platform-support.html&quot;&gt;a lot of
+platforms&lt;/a&gt; (also called “targets”), but the team doesn't have
+the resources or manpower to provide the same level of support and testing for
+each of them.
+To make our commitments clear, we follow a tiered support policy (currently
+being formalized and revised in &lt;a href=&quot;https://github.com/rust-lang/rfcs/pull/2803&quot;&gt;RFC 2803&lt;/a&gt;), explaining what we guarantee:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Tier 1 targets can be downloaded through rustup and are fully tested
+during the project’s automated builds. A bug or a regression affecting one of
+these targets is usually prioritized more than bugs only affecting platforms
+in other tiers.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Tier 2 targets can also be downloaded through rustup, but our
+automated builds don’t execute the test suite for them. While we guarantee a
+standard library build (and for some of them a full compiler build) will be
+available, we don’t ensure it will actually work without bugs (or even work
+at all).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Tier 3 targets are not available for download through rustup, and are
+ignored during our automated builds. You can still build their standard
+library for cross-compiling (or the full compiler in some cases) from source
+on your own, but you might encounter build errors, bugs, or missing features.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;&lt;a href=&quot;#which-targets-are-affected&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;which-targets-are-affected&quot;&gt;&lt;/a&gt;Which targets are affected?&lt;/h1&gt;
+&lt;p&gt;The main target affected by this change is 32-bit macOS (&lt;code&gt;i686-apple-darwin&lt;/code&gt;),
+which will be demoted from Tier 1 to Tier 3. This will affect both using the
+compiler on 32-bit Mac hardware, and cross-compiling 32-bit macOS binaries from
+any other platform.&lt;/p&gt;
+&lt;p&gt;Additionally, the following 32-bit iOS targets will be demoted from Tier 2 to
+Tier 3:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;armv7-apple-ios&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;armv7s-apple-ios&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;i386-apple-ios&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;We will continue to provide the current level of support for all Apple 64bit
+targets.&lt;/p&gt;
+&lt;h1&gt;&lt;a href=&quot;#why-are-those-targets-being-demoted&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;why-are-those-targets-being-demoted&quot;&gt;&lt;/a&gt;Why are those targets being demoted?&lt;/h1&gt;
+&lt;p&gt;Apple dropped support for running 32-bit binaries starting from &lt;a href=&quot;https://support.apple.com/en-us/HT208436&quot;&gt;macOS
+10.15&lt;/a&gt; and &lt;a href=&quot;https://developer.apple.com/documentation/uikit/app_and_environment/updating_your_app_from_32-bit_to_64-bit_architecture&quot;&gt;iOS 11&lt;/a&gt;. They also prevented all
+developers from cross-compiling 32-bit programs and apps starting from Xcode 10
+(the platform’s IDE, containing the SDKs).&lt;/p&gt;
+&lt;p&gt;Due to those decisions from Apple, the targets are no longer useful to our users,
+and their choice to prevent cross-compiling makes it hard for the
+project to continue supporting the 32-bit platform in the long term.&lt;/p&gt;
+&lt;h1&gt;&lt;a href=&quot;#how-will-this-affect-my-project&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;how-will-this-affect-my-project&quot;&gt;&lt;/a&gt;How will this affect my project?&lt;/h1&gt;
+&lt;p&gt;If you don’t build 32-bit Apple binaries this change won’t affect you at all.&lt;/p&gt;
+&lt;p&gt;If you still need to build them, you’ll be able to continue using Rust 1.41.0
+without issues. As usual the Rust project will provide critical bugfixes and
+security patches until the next stable version is released (on March 12th,
+2020), and we plan to keep the release available for download for the
+foreseeable future (as we do with all the releases shipped so far).&lt;/p&gt;
+&lt;p&gt;The code implementing the targets won’t be removed from the compiler codebase,
+so you’ll also be able to build future releases from source on your own
+(keeping in mind they might have bugs or be broken, as that code will be
+completly untested).&lt;/p&gt;
+&lt;h1&gt;&lt;a href=&quot;#what-about-the-nightly-channel&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;what-about-the-nightly-channel&quot;&gt;&lt;/a&gt;What about the nightly channel?&lt;/h1&gt;
+&lt;p&gt;We will demote the targets on the nightly channel soon, but we don't have an
+exact date for when that will happen. We recommend pinning a nightly version
+beforehand though, to prevent &lt;code&gt;rustup toolchain install&lt;/code&gt; from failing once we
+apply the demotion.&lt;/p&gt;
+&lt;p&gt;To pin a nightly version you need to use &amp;quot;nightly&amp;quot; followed by the day the
+nightly was released, as the toolchain name. For example, to install the nightly
+released on December 1st, 2019 and to use it you can run:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-plain&quot;&gt;rustup toolchain install nightly-2019-12-01
+
+# Default to this nightly system-wide...
+rustup default nightly-2019-12-01
+
+# ...or use this nightly for a single build
+cargo +nightly-2019-12-01 build
+&lt;/code&gt;&lt;/pre&gt;
+</content>
+
+        <author>
+            <name>Pietro Albini</name>
+        </author>
+    </entry>
     
     <entry>
         <title>Announcing Rust 1.40.0</title>
@@ -695,131 +792,6 @@ with our &lt;a href=&quot;https://www.rust-lang.org/policies/security&quot;&gt;s
 
         <author>
             <name>The Rust Security Team</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Async-await hits beta!</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/09/30/Async-await-hits-beta.html" type="text/html" title="Async-await hits beta!" />
-        <published>2019-09-30T00:00:00Z</published>
-        <updated>2019-09-30T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/09/30/Async-await-hits-beta.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/09/30/Async-await-hits-beta.html">&lt;p&gt;Big news! As of this writing, &lt;strong&gt;syntactic support for async-await is
-available in the Rust beta channel!&lt;/strong&gt; It will be available in the 1.39
-release, which is expected to be released on &lt;strong&gt;November 7th, 2019&lt;/strong&gt;.
-Once async-await hits stable, that will mark the culmination of a
-&lt;strong&gt;multi-year effort to enable efficient and ergonomic asynchronous I/O
-in Rust&lt;/strong&gt;. It will not, however, mark the end of the road: there is
-still more work to do, both in terms of polish (some of the error
-messages we get today are, um, &lt;a href=&quot;https://github.com/rust-lang/rust/issues/64130&quot;&gt;not great&lt;/a&gt;) and in terms of feature
-set (&lt;a href=&quot;https://github.com/dtolnay/async-trait&quot;&gt;async fn in traits&lt;/a&gt;, anyone?).&lt;/p&gt;
-&lt;p&gt;(If you're not familiar with what async-await is, don't despair!
-There's a primer and other details later on in this post!)&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#async-await-support-in-the-ecosystem-growing-rapidly&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;async-await-support-in-the-ecosystem-growing-rapidly&quot;&gt;&lt;/a&gt;Async-await support in the ecosystem growing rapidly&lt;/h3&gt;
-&lt;p&gt;But async-await has never been the entire story. To make good use of
-async-await, you also need strong libraries and a vibrant ecosystem.
-&lt;strong&gt;Fortunately, you've got a lot of good choices, and they keep getting
-better:&lt;/strong&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;the async runtime &lt;a href=&quot;https://tokio.rs/&quot;&gt;tokio&lt;/a&gt;, for example, recently announced an &lt;a href=&quot;https://tokio.rs/blog/2019-08-alphas/&quot;&gt;alpha
-release&lt;/a&gt; based on async-await;&lt;/li&gt;
-&lt;li&gt;the &lt;a href=&quot;https://async.rs/blog/announcing-async-std/&quot;&gt;recently announced&lt;/a&gt; &lt;a href=&quot;https://async.rs/&quot;&gt;async-std&lt;/a&gt; library was built from the
-start on the new async-await syntax;&lt;/li&gt;
-&lt;li&gt;using &lt;a href=&quot;https://docs.rs/crate/wasm-bindgen-futures/0.2.16&quot;&gt;wasm-bindgen-futures&lt;/a&gt;, you can even bridge Rust Futures with
-&lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises&quot;&gt;JavaScript promises&lt;/a&gt;;&lt;/li&gt;
-&lt;li&gt;the &lt;a href=&quot;https://hyper.rs&quot;&gt;hyper library&lt;/a&gt; has &lt;a href=&quot;https://github.com/hyperium/hyper/issues/1805&quot;&gt;migrated&lt;/a&gt; to adopt standard Rust futures;&lt;/li&gt;
-&lt;li&gt;the 0.3.0 version of the &lt;a href=&quot;https://crates.io/crates/futures-preview&quot;&gt;futures-rs library&lt;/a&gt; will support
-async-await and will be released by the time async-await hits stable
-(you can use the &lt;a href=&quot;https://rust-lang-nursery.github.io/futures-rs/blog/2018/07/19/futures-0.3.0-alpha.1.html&quot;&gt;0.3.0-alpha&lt;/a&gt; releases now);&lt;/li&gt;
-&lt;li&gt;finally, async-await support is starting to become available in higher-level
-&lt;a href=&quot;https://www.arewewebyet.org/topics/frameworks/&quot;&gt;web frameworks&lt;/a&gt; as well.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;a href=&quot;#restructuring-async-io-in-the-rust-org&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;restructuring-async-io-in-the-rust-org&quot;&gt;&lt;/a&gt;Restructuring Async I/O in the Rust org&lt;/h3&gt;
-&lt;p&gt;Now that async-await is approaching stable, we are taking the
-opportunity to make some changes to our Rust team structure. The
-current structure includes two working groups: the &lt;a href=&quot;https://rust-lang.github.io/compiler-team/working-groups/async-await/&quot;&gt;Async Foundations
-WG&lt;/a&gt;, focused on building up core language support, and the &lt;a href=&quot;https://github.com/rustasync/team&quot;&gt;Async
-Ecosystem WG&lt;/a&gt;, focused on supporting the ecosystem develop.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;In light of all the activity going on in the ecosystem, however,
-there it not as much need for the &lt;a href=&quot;https://github.com/rustasync/team&quot;&gt;Async Ecosystem WG&lt;/a&gt;, and as such
-we've decided to spin it down.&lt;/strong&gt; We'll be deprecating the &lt;a href=&quot;https://github.com/rustasync/&quot;&gt;rustasync
-github org&lt;/a&gt;. The &lt;a href=&quot;https://areweasyncyet.rs/&quot;&gt;areweasyncyet.rs&lt;/a&gt; and &lt;a href=&quot;https://www.arewewebyet.org/&quot;&gt;arewewebyet.org&lt;/a&gt; websites
-will move to the main &lt;a href=&quot;https://github.com/rust-lang/&quot;&gt;rust-lang org&lt;/a&gt;, but the fate of the other
-projects will be decided by the people who built them. A few will
-likely be deprecated, and the remainder will be moving out to be
-maintained independently.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;The &lt;a href=&quot;https://rust-lang.github.io/compiler-team/working-groups/async-await/&quot;&gt;Async Foundations WG&lt;/a&gt;, meanwhile, will continue, but with a
-shift in focus.&lt;/strong&gt; Now that async-await is en route to stabilization,
-the focus will be on polish, such as improving diagnostics, fixing
-smaller bugs, and improving documentation such as the &lt;a href=&quot;https://github.com/rust-lang/async-book&quot;&gt;async
-book&lt;/a&gt;. Once progress is made on that, we'll be considering what
-features to implement next.&lt;/p&gt;
-&lt;p&gt;(An aside: this is the first time that we've ever opted to spin &lt;em&gt;down&lt;/em&gt;
-a working group, and we realized that we don't have a formal policy
-for that. We've &lt;a href=&quot;https://github.com/rust-lang/wg-governance/issues/25&quot;&gt;created an issue&lt;/a&gt; with the &lt;a href=&quot;https://github.com/rust-lang/wg-governance/&quot;&gt;governance working
-group&lt;/a&gt; to look into that for the future.)&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#async-await-a-quick-primer&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;async-await-a-quick-primer&quot;&gt;&lt;/a&gt;Async await: a quick primer&lt;/h3&gt;
-&lt;p&gt;So, what is async await? Async-await is a way to write functions that
-can &amp;quot;pause&amp;quot;, return control to the runtime, and then pick up from
-where they left off.  Typically those pauses are to wait for I/O, but
-there can be any number of uses.&lt;/p&gt;
-&lt;p&gt;You may be familiar with the async-await from other languages, such as
-JavaScript or C#. Rust's version of the feature is similar, but with a
-few key differences.&lt;/p&gt;
-&lt;p&gt;To use async-await, you start by writing &lt;code&gt;async fn&lt;/code&gt; instead of &lt;code&gt;fn&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;async fn first_function() -&amp;gt; u32 { .. }
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Unlike a regular function, calling an &lt;code&gt;async fn&lt;/code&gt; doesn't do anything
-to start -- instead, it returns a &lt;code&gt;Future&lt;/code&gt;. This is a suspended
-computation that is waiting to be executed. To actually &lt;em&gt;execute&lt;/em&gt;
-the future, you have to use the &lt;code&gt;.await&lt;/code&gt; operator:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;async fn another_function() {
-    // Create the future:
-    let future = first_function();
-    
-    // Await the future, which will execute it (and suspend
-    // this function if we encounter a need to wait for I/O): 
-    let result: u32 = future.await;
-    ...
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This example shows the first difference between Rust and other
-languages: we write &lt;code&gt;future.await&lt;/code&gt; instead of &lt;code&gt;await future&lt;/code&gt;. This
-syntax integrates better with Rust's &lt;code&gt;?&lt;/code&gt; operator for propagating
-errors (which, after all, are very common in I/O). One can simply
-write &lt;code&gt;future.await?&lt;/code&gt; to await the result of a future and propagate
-errors. It also has the advantage of making method chaining painless.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#zero-cost-futures&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;zero-cost-futures&quot;&gt;&lt;/a&gt;Zero-cost futures&lt;/h3&gt;
-&lt;p&gt;The other difference between Rust futures and futures in other
-languages is that they are based on a &amp;quot;poll&amp;quot; model, which makes them
-&lt;strong&gt;zero cost&lt;/strong&gt;. In other languages, invoking an async function
-immediately creates a future and schedules it for execution: awaiting
-the future isn't really necessary for it to execute. But this implies
-some overhead for each future that is created.&lt;/p&gt;
-&lt;p&gt;In contrast, in Rust, calling an async function does not do any
-scheduling in and of itself, which means that we can compose a complex
-nest of futures without incurring a per-future cost. As an end-user,
-though, the main thing you'll notice is that &lt;strong&gt;futures feel &amp;quot;lazy&amp;quot;&lt;/strong&gt;:
-they don't do anything until you await them.&lt;/p&gt;
-&lt;p&gt;If you'd like a closer look at how futures work under the hood, take a
-look at &lt;a href=&quot;https://rust-lang.github.io/async-book/02_execution/04_executor.html&quot;&gt;the executor section&lt;/a&gt; of the &lt;a href=&quot;https://github.com/rust-lang/async-book&quot;&gt;async book&lt;/a&gt;, or watch the
-&lt;a href=&quot;https://www.youtube.com/watch?v=skos4B5x7qE&quot;&gt;excellent talk&lt;/a&gt; that &lt;a href=&quot;https://github.com/withoutboats&quot;&gt;withoutboats&lt;/a&gt; gave at &lt;a href=&quot;https://rustlatam.org/&quot;&gt;Rust LATAM 2019&lt;/a&gt;
-on the topic.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#summary&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;summary&quot;&gt;&lt;/a&gt;Summary&lt;/h3&gt;
-&lt;p&gt;In summary, if you've an interest in using Async I/O in Rust, this is
-a very exciting time! With async-await syntax hitting stable in
-November, it's going to be easier than ever to write futures (in
-particular, if you tried using the combinator-based futures in the
-past, you'll find &lt;a href=&quot;http://aturon.github.io/tech/2018/04/24/async-borrowing/&quot;&gt;async-await integrates much better with Rust's
-borrowing system&lt;/a&gt;). Moreover, there are now a number of great
-runtimes and other libraries available in the ecosystem to work with.
-So get out there and build stuff!&lt;/p&gt;
-&lt;p&gt;(Oh, yeah, and please file bugs when you hit confusing or surprising
-problems, so we can improve the user experience!)&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Niko Matsakis</name>
         </author>
     </entry>
     
