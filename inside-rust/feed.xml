@@ -10,8 +10,64 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-01-10T23:30:52Z</updated>
+    <updated>2020-01-10T23:33:41Z</updated>
 
+    
+    <entry>
+        <title>Lang Team Design Meetings</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/10/lang-team-design-meetings.html" type="text/html" title="Lang Team Design Meetings" />
+        <published>2020-01-10T00:00:00Z</published>
+        <updated>2020-01-10T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2020/01/10/lang-team-design-meetings.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/10/lang-team-design-meetings.html">&lt;p&gt;Hi all! I wanted to give a quick update about the lang team. We're
+starting something new this year: a regular &lt;strong&gt;design meeting&lt;/strong&gt;.  The
+idea of the design meeting is that it's a time for us to have in-depth
+discussions on some particular topic. This might be a burning problem
+that we've discovered, an update on some existing design work, or a
+forward looking proposal.&lt;/p&gt;
+&lt;p&gt;The meetings will be scheduled in advance. Ideally, each meeting
+should also have a blog post before-hand giving background material,
+although that may be difficult to achieve in practice. Similarly,
+after each meeting, we'll typically post minutes and a recording, and
+ideally try to write up a summary blog post with major
+points. (Sometimes recordings are hard to achieve, either for
+technical reasons or because we wanted the ability to discuss more
+sensitive topics.)&lt;/p&gt;
+&lt;p&gt;The meetings are open for anyone to listen in and attend. They
+generally take place on Mondays at &amp;quot;noon Boston time&amp;quot; -- but for the
+precise scheduling you should check the &lt;a href=&quot;https://github.com/rust-lang/lang-team/#meeting-calendar&quot;&gt;lang team calendar&lt;/a&gt;. We'll
+try to keep the calendar up to date with the topic to be discussed in
+each meeting, as well.  Meetings might not happen every week, if we
+don't have a topic in mind.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#first-design-meeting&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;first-design-meeting&quot;&gt;&lt;/a&gt;First design meeting&lt;/h2&gt;
+&lt;p&gt;Our first design meeting was actually last Monday! We discussed the
+soundness hole that was found some time ago in &lt;code&gt;Pin&lt;/code&gt;.  You can read
+the &lt;a href=&quot;https://github.com/rust-lang/lang-team/blob/master/design-meeting-minutes/2020-01-06-Pin-unsoundness.md&quot;&gt;minutes&lt;/a&gt; from our discussion and a &lt;a href=&quot;https://youtu.be/MX_GRNLhlY8&quot;&gt;recording&lt;/a&gt; is also
+available. You might also find it easier to read the &lt;a href=&quot;https://internals.rust-lang.org/t/unsoundness-in-pin/11311/112?u=nikomatsakis&quot;&gt;comments in the
+internals thread&lt;/a&gt;. The good news is that we seem to be
+centralizing on a &lt;a href=&quot;https://internals.rust-lang.org/t/explicit-negative-impls-to-fix-pin-soundness-hole/11587&quot;&gt;solution based on negative impls&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#next-design-meeting&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;next-design-meeting&quot;&gt;&lt;/a&gt;Next design meeting&lt;/h2&gt;
+&lt;p&gt;The next design meeting will take place this coming Monday. The topic
+will be how to fix &lt;a href=&quot;https://github.com/rust-lang/rust/issues/57893&quot;&gt;rust-lang/rust#57893&lt;/a&gt;, which is a soundness bug
+related to &lt;code&gt;dyn&lt;/code&gt; types. There is a &lt;a href=&quot;https://gist.github.com/0cf84ac05ce7751b5759cbf335c4d327&quot;&gt;prepared writeup describing the
+problem and a possible solution&lt;/a&gt; to guide the meeting. It is
+maybe worth noting that one of the proposed solutions involved a Rust
+2021 edition as well (although there are smaller, more targeted fixes
+that do not require a new edition).&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#design-meetings-after-that&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;design-meetings-after-that&quot;&gt;&lt;/a&gt;Design meetings after that&lt;/h2&gt;
+&lt;p&gt;The next two weeks are likely to not have design meetings:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;January 20th is Martin Luther King, Jr. day in the US.&lt;/li&gt;
+&lt;li&gt;January 27th is the Mozilla All Hands.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;As a result, in both cases, many of the lang team members will be
+unable to attend.&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Niko Matsakis</name>
+        </author>
+    </entry>
     
     <entry>
         <title>Cargo in 2020</title>
@@ -568,34 +624,6 @@ progress.&lt;/p&gt;
 
         <author>
             <name>Niko Matsakis</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Announcing the Docs.rs Team</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/09/announcing-the-docsrs-team.html" type="text/html" title="Announcing the Docs.rs Team" />
-        <published>2019-12-09T00:00:00Z</published>
-        <updated>2019-12-09T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2019/12/09/announcing-the-docsrs-team.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/09/announcing-the-docsrs-team.html">&lt;p&gt;Today we're announcing a brand new team: The Docs.rs Team!&lt;/p&gt;
-&lt;p&gt;Previously, &lt;a href=&quot;https://docs.rs/&quot;&gt;Docs.rs&lt;/a&gt; has been managed by the Rustdoc Team, as many of the initial concerns of
-Docs.rs were shared by Rustdoc as Docs.rs was being brought into team maintainership. However, as
-time went on, those concerns started to diverge more and more, and so did the people who contributed
-to either tool.&lt;/p&gt;
-&lt;p&gt;The new Docs.rs Team will be responsible for the operations and development for &lt;a href=&quot;https://docs.rs/&quot;&gt;Docs.rs&lt;/a&gt;, leaving
-the Rustdoc Team to be responsible for the Rustdoc tool itself. &lt;a href=&quot;https://github.com/QuietMisdreavus&quot;&gt;@QuietMisdreavus&lt;/a&gt; will be leading
-the new Docs.rs Team, leaving &lt;a href=&quot;https://github.com/GuillaumeGomez&quot;&gt;@GuillaumeGomez&lt;/a&gt; to lead the Rustdoc Team.&lt;/p&gt;
-&lt;p&gt;Joining QuietMisdreavus on the Docs.rs Team is GuillaumeGomez, coordinating work between Rustdoc and
-Docs.rs; &lt;a href=&quot;https://github.com/onur&quot;&gt;@onur&lt;/a&gt;, the original creator of Docs.rs; &lt;a href=&quot;https://github.com/pietroalbini&quot;&gt;@pietroalbini&lt;/a&gt;, who has coordinated work in
-Docs.rs from the perspective of the Infrastrucure Team; and introducing &lt;a href=&quot;https://github.com/jyn514&quot;&gt;@jyn514&lt;/a&gt;, who has worked to
-improve the developer experience of contributing to Docs.rs by converting the local development
-configuration to use &lt;code&gt;docker-compose&lt;/code&gt;!&lt;/p&gt;
-&lt;p&gt;To get involved with either team, join us on Discord! The Rustdoc Team hangs out in &lt;a href=&quot;https://discord.gg/4yEYPuT&quot;&gt;&lt;code&gt;#rustdoc&lt;/code&gt;&lt;/a&gt;,
-and the Docs.rs Team hangs out in &lt;a href=&quot;https://discord.gg/2k5vVWn&quot;&gt;&lt;code&gt;#docs-rs&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>QuietMisdreavus</name>
         </author>
     </entry>
     
