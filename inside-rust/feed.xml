@@ -10,8 +10,98 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-01-03T19:14:45Z</updated>
+    <updated>2020-01-10T23:30:52Z</updated>
 
+    
+    <entry>
+        <title>Cargo in 2020</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/10/cargo-in-2020.html" type="text/html" title="Cargo in 2020" />
+        <published>2020-01-10T00:00:00Z</published>
+        <updated>2020-01-10T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2020/01/10/cargo-in-2020.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/10/cargo-in-2020.html">&lt;p&gt;This post is an overview of the major projects the Cargo team is interested in
+tackling in 2020.&lt;/p&gt;
+&lt;p&gt;It can be difficult to plan and predict around a volunteer-based open-source
+project with limited resources. Instead of trying to present a wish list,
+these are projects that already have a solid effort planned to push them
+forward. That doesn't mean that we are not interested in other projects. We
+have compiled a more detailed wish list at
+&lt;a href=&quot;https://github.com/rust-lang/cargo/projects/1&quot;&gt;https://github.com/rust-lang/cargo/projects/1&lt;/a&gt; that gives an outline of
+things we would like to see, but are unlikely to have significant progress
+this year.&lt;/p&gt;
+&lt;p&gt;If you are interested in helping, please let us know! We may not have time to
+shepherd additional projects, but we may have time to give some amount of
+feedback and review, particularly for well-motivated people who can do the
+legwork of design and gathering a consensus.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#features&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;features&quot;&gt;&lt;/a&gt;Features&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section&quot;&gt;Features&lt;/a&gt; provide a way to express optional dependencies and conditional
+compilation of code. Fixes and enhancements to Features are one of the
+most requested things we hear. In the beginning of 2020, we plan to implement
+a new feature resolver which will make it easier to make progress on
+implementing and experimenting with new behavior. There is a wide variety of
+different enhancements that we are looking at, which we hope to make
+incremental progress on while retaining a the full picture of the long-term
+plan.&lt;/p&gt;
+&lt;p&gt;Initially we plan to address the issues of decoupling shared dependencies
+built with different features. Currently, features are unified for all uses of
+a dependency, even when it is not necessary. This causes problems when a
+feature intended for one context is incompatible with another. This often
+happens for packages which have conditional &lt;code&gt;no_std&lt;/code&gt; support. This appears
+with build-dependencies, dev-dependencies, target-specific dependencies, and
+large workspaces, each of which have their unique challenges.&lt;/p&gt;
+&lt;p&gt;Beyond that, the following is a brief view of the other major enhancements we
+are tracking for the future:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Workspace feature selection and unification&lt;/li&gt;
+&lt;li&gt;Automatic features&lt;/li&gt;
+&lt;li&gt;Namespaced features&lt;/li&gt;
+&lt;li&gt;Mutually exclusive features&lt;/li&gt;
+&lt;li&gt;Private/unstable features&lt;/li&gt;
+&lt;li&gt;Profile and target default features&lt;/li&gt;
+&lt;li&gt;And working through some of the 50+ feature issues.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;There are some significant challenges around retaining backwards
+compatibility, and being sensitive to increased build times. We hope that we
+can address some of the major pain points while balancing those concerns.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#std-aware-cargo&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;std-aware-cargo&quot;&gt;&lt;/a&gt;std aware Cargo&lt;/h2&gt;
+&lt;p&gt;The &amp;quot;std aware Cargo&amp;quot; project is to make Cargo aware of the Rust standard
+library, and to build it from source instead of using the pre-built binaries
+that ship with &lt;code&gt;rustc&lt;/code&gt;. Some of the notable benefits are:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Customizing the compile-time flags of the standard library, such as using
+different optimizations, target-cpu, debug settings, etc.&lt;/li&gt;
+&lt;li&gt;Supporting cross-compiling to new targets which do not have official
+distributions.&lt;/li&gt;
+&lt;li&gt;Paving the road for future enhancements, such as compiling with different
+features, and using custom sources.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;A significant amount of work has already been finished in 2019 with the
+&lt;a href=&quot;https://doc.rust-lang.org/nightly/cargo/reference/unstable.html#build-std&quot;&gt;&lt;code&gt;-Zbuild-std&lt;/code&gt;&lt;/a&gt; feature available on the nightly channel. There is still a
+long road to bring it to a state where it can be stabilized. Work is being
+tracked in the &lt;a href=&quot;https://github.com/rust-lang/wg-cargo-std-aware/&quot;&gt;&lt;code&gt;wg-cargo-std-aware&lt;/code&gt; repo&lt;/a&gt;, and anyone interested is
+encouraged to leave feedback on the issue tracker.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#profiles&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;profiles&quot;&gt;&lt;/a&gt;Profiles&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/nightly/cargo/reference/profiles.html&quot;&gt;Profiles&lt;/a&gt; have received a significant amount of work in 2018 and 2019.
+&lt;a href=&quot;https://doc.rust-lang.org/nightly/cargo/reference/profiles.html#overrides&quot;&gt;Overrides&lt;/a&gt; are now stable (shipping in Rust 1.41). &lt;a href=&quot;https://doc.rust-lang.org/nightly/cargo/reference/unstable.html#custom-named-profiles&quot;&gt;Custom named profiles&lt;/a&gt;
+are available on the nightly channel. In 2020 we hope to continue pushing
+these enhancements forward. Some of the efforts we are working towards are:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Stabilizing &lt;a href=&quot;https://doc.rust-lang.org/nightly/cargo/reference/unstable.html#config-profiles&quot;&gt;config-based profiles&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Stabilizing &lt;a href=&quot;https://doc.rust-lang.org/nightly/cargo/reference/unstable.html#custom-named-profiles&quot;&gt;custom-named profiles&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Implementing the &lt;code&gt;build&lt;/code&gt; profile which can make it easier to define build-script settings.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;&lt;a href=&quot;#ongoing-projects&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;ongoing-projects&quot;&gt;&lt;/a&gt;Ongoing projects&lt;/h2&gt;
+&lt;p&gt;Some ongoing efforts don't have an end, and we intend to continue making
+progress with them. Several new chapters have been added to the documentation,
+and there is more to come. The JSON APIs are continually expanding with new
+information making it easier to integrate tools and extract information. And
+of course, trying to stay on top of bugs and issues!&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Eric Huss</name>
+        </author>
+    </entry>
     
     <entry>
         <title>Formatting the compiler tree</title>
@@ -506,60 +596,6 @@ and the Docs.rs Team hangs out in &lt;a href=&quot;https://discord.gg/2k5vVWn&qu
 
         <author>
             <name>QuietMisdreavus</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>2019-11-18 IDE team meeting</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/04/ide-future.html" type="text/html" title="2019-11-18 IDE team meeting" />
-        <published>2019-12-04T00:00:00Z</published>
-        <updated>2019-12-04T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2019/12/04/ide-future.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/04/ide-future.html">&lt;p&gt;Meeting run by nikomatsakis. Minutes written by nikomatsakis.
-Attending: nikomatsakis, pnkfelix, Xanewok, matklad
-&lt;a href=&quot;https://hackmd.io/fAnj6pNqRRGIyDQ4el5tcQ&quot;&gt;Notes&lt;/a&gt;&lt;/p&gt;
-&lt;h1&gt;&lt;a href=&quot;#the-rust-ide&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;the-rust-ide&quot;&gt;&lt;/a&gt;The Rust IDE&lt;/h1&gt;
-&lt;p&gt;In the last compiler/IDE team meeting we've discussed the overall direction for IDE support in Rust.&lt;/p&gt;
-&lt;p&gt;At the moment, the two IDEs developed as part of the Rust project are Rust Language Server (RLS) and rust-analyzer.
-The former is currently being shipped with the Rust distribution while the latter serves as a foundation for the &amp;quot;RLS 2.0&amp;quot; working group.&lt;/p&gt;
-&lt;p&gt;Unfortunately, these are actively developed in separation without much code-sharing between the two.
-We'd like to change that and to find out how we can unify these efforts.
-Therefore, we've been having a series of talks with the aim of elaborating the design space and creating a proposal for how to improve the situation going forward.&lt;/p&gt;
-&lt;p&gt;This blog post gives a short summary from our most recent meeting.&lt;/p&gt;
-&lt;h1&gt;&lt;a href=&quot;#why-2-ides&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;why-2-ides&quot;&gt;&lt;/a&gt;Why 2 IDEs?&lt;/h1&gt;
-&lt;p&gt;The main benefits of rust-analyzer is greater performance (because of fully-lazy compilation model) and somewhat richer feature-set (due to more flexible analysis API).
-The main benefits of RLS is precision (it uses &lt;code&gt;rustc&lt;/code&gt; under the hood).
-Additionally, RLS is the main consumer of save-analysis infrastructure, which is a good fit for tools which need a static view of the codebase, such as &lt;a href=&quot;https://github.com/rust-dev-tools/cargo-src&quot;&gt;cargo-src&lt;/a&gt; or &lt;a href=&quot;https://code.visualstudio.com/blogs/2019/02/19/lsif&quot;&gt;lsif&lt;/a&gt;.&lt;/p&gt;
-&lt;h1&gt;&lt;a href=&quot;#save-analysis&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;save-analysis&quot;&gt;&lt;/a&gt;Save-analysis&lt;/h1&gt;
-&lt;p&gt;What is &amp;quot;save-analysis&amp;quot;?
-It is an unstable format which rustc uses to record information about the compiled code.
-It contains a pretty high-level information.
-For example, for each identifier in the source-crate, save-analyzer will map this identifier to a definition and list of usages.
-&lt;code&gt;env RUSTFLAGS=&amp;quot;-Zunstable-options -Zsave-analysis&amp;quot; cargo check&lt;/code&gt; can be used to instruct &lt;code&gt;rustc&lt;/code&gt; to produce save-analysis files (in JSON format).
-Because save-analysis is produced directly from rustc iternal data structures, it is guaranteed to be correct (modulo bugs in rustc itself).&lt;/p&gt;
-&lt;h1&gt;&lt;a href=&quot;#query-model&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;query-model&quot;&gt;&lt;/a&gt;Query model&lt;/h1&gt;
-&lt;p&gt;The fundamental problem with save-analysis is that it is computed for the whole crate at once.
-This is pretty slow for non-trivial crates, and is also wasteful.
-At any given moment in time, only a small fraction of analysis information is really required.
-rust-analyzer solves this by using &lt;a href=&quot;https://github.com/salsa-rs/salsa&quot;&gt;&lt;code&gt;salsa&lt;/code&gt;&lt;/a&gt; queries for code analysis.
-The result is a compilation model which is fully lazy across the whole crate graph.
-This model is similar to what rustc is using internally, but is more lazy both &amp;quot;vertically&amp;quot; and &amp;quot;horizontally&amp;quot;.
-Vertically, &lt;code&gt;rustc&lt;/code&gt; starts to be incremental only after parsing and macro expansion; rust-analyzer is incremental on per-file basis.
-Horizontally, &lt;code&gt;rustc&lt;/code&gt; compiles one crate at a time; rust-analyzer uses queries for the whole crate graph.&lt;/p&gt;
-&lt;h1&gt;&lt;a href=&quot;#way-forward&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;way-forward&quot;&gt;&lt;/a&gt;Way forward&lt;/h1&gt;
-&lt;p&gt;Our current hypothesis is that it is possible to integrate both approaches without doubling the engineering effort.
-Specifically, we will add an option to rust-analyzer to use save-analysis for find-usages and rename functionality.
-That way, we'll get precise results for most important queries, without slowing down completion.
-Unlike RLS, however, rust-analyzer will not link to rustc and instead will rely on cargo for running the compiler and producing save-analysis data.
-If this approach works, we will consider freezing RLS and focusing fully on rust-analyzer.
-Long term, the plan is to unify the save-analysis fallback path and the lazy analysis.&lt;/p&gt;
-&lt;p&gt;In parallel to this RLS/rust-analyzer unification effort, we continue to pursue rustc library-ification, with a specific focus on traits solving (via chalk) and type inference.
-&amp;quot;Library-ification&amp;quot; is a term we've been using for the process of extracting code out of rustc into re-usable libaries which can be shared by both rustc and rust-analyzer.
-The goal is to use library-ification to gradually reduce the amount of duplicated code between rustc and rust-analyzer, with the goal of eventually either having a single code-base, or having the vast majority of the logic be shared.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Aleksey Kladov, Igor Matuszewski</name>
         </author>
     </entry>
     
