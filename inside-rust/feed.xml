@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-01-15T15:16:28Z</updated>
+    <updated>2020-01-21T22:46:33Z</updated>
 
     
     <entry>
@@ -121,7 +121,7 @@ most requested things we hear. In the beginning of 2020, we plan to implement
 a new feature resolver which will make it easier to make progress on
 implementing and experimenting with new behavior. There is a wide variety of
 different enhancements that we are looking at, which we hope to make
-incremental progress on while retaining a the full picture of the long-term
+incremental progress on while retaining a full picture of the long-term
 plan.&lt;/p&gt;
 &lt;p&gt;Initially we plan to address the issues of decoupling shared dependencies
 built with different features. Currently, features are unified for all uses of
