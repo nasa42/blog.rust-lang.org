@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-01-23T21:49:39Z</updated>
+    <updated>2020-01-23T21:58:54Z</updated>
 
     
     <entry>
@@ -23,8 +23,7 @@
 &lt;p&gt;This post describes the new features in the 0.11 release of &lt;code&gt;cargo-audit&lt;/code&gt;.&lt;/p&gt;
 &lt;h2&gt;&lt;a href=&quot;#cargo-audit-fix-automatically-update-vulnerable-dependencies&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;cargo-audit-fix-automatically-update-vulnerable-dependencies&quot;&gt;&lt;/a&gt;&lt;code&gt;cargo audit fix&lt;/code&gt;: automatically update vulnerable dependencies&lt;/h2&gt;
 &lt;p&gt;One of our &lt;a href=&quot;https://github.com/RustSec/cargo-audit/issues/23&quot;&gt;most requested features&lt;/a&gt; (especially by fans of the similar &lt;a href=&quot;https://docs.npmjs.com/cli/audit&quot;&gt;&lt;code&gt;npm audit fix&lt;/code&gt;&lt;/a&gt; command), the &lt;a href=&quot;https://github.com/RustSec/cargo-audit#cargo-audit-fix-subcommand&quot;&gt;new &lt;code&gt;cargo audit fix&lt;/code&gt; subcommand&lt;/a&gt; will attempt to automatically update version requirements for vulnerable dependencies to non-vulnerable versions.&lt;/p&gt;
-&lt;p&gt;Note that this is an experimental new feature which isn't enabled by default. To try it out, install `cargo-audit with the following.&lt;/p&gt;
-&lt;p&gt;You can install &lt;code&gt;cargo-audit&lt;/code&gt; and run it against your project with the following commands:&lt;/p&gt;
+&lt;p&gt;Note that this is an experimental new feature which isn't enabled by default. To try it out, install &lt;code&gt;cargo-audit&lt;/code&gt; with the following:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;$ cargo install cargo-audit --features=fix
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;This will perform the same audit process as &lt;code&gt;cargo audit&lt;/code&gt; initially, and then attempt to apply fixes to your &lt;code&gt;Cargo.toml&lt;/code&gt;:&lt;/p&gt;
