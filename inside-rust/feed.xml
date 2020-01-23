@@ -10,8 +10,48 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-01-21T22:46:33Z</updated>
+    <updated>2020-01-23T21:49:39Z</updated>
 
+    
+    <entry>
+        <title>cargo-audit v0.11: Introducing the `fix` feature, yanked crate detection, and more</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/23/Introducing-cargo-audit-fix-and-more.html" type="text/html" title="cargo-audit v0.11: Introducing the `fix` feature, yanked crate detection, and more" />
+        <published>2020-01-23T00:00:00Z</published>
+        <updated>2020-01-23T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2020/01/23/Introducing-cargo-audit-fix-and-more.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/23/Introducing-cargo-audit-fix-and-more.html">&lt;p&gt;&lt;a href=&quot;https://github.com/rustsec/cargo-audit&quot;&gt;cargo-audit&lt;/a&gt; is a command-line utility which inspects &lt;code&gt;Cargo.lock&lt;/code&gt; files and compares them against the &lt;a href=&quot;https://rustsec.org&quot;&gt;RustSec Advisory Database&lt;/a&gt;, a community database of security vulnerabilities maintained by the &lt;a href=&quot;https://github.com/rust-secure-code/wg&quot;&gt;Rust Secure Code Working Group&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;This post describes the new features in the 0.11 release of &lt;code&gt;cargo-audit&lt;/code&gt;.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#cargo-audit-fix-automatically-update-vulnerable-dependencies&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;cargo-audit-fix-automatically-update-vulnerable-dependencies&quot;&gt;&lt;/a&gt;&lt;code&gt;cargo audit fix&lt;/code&gt;: automatically update vulnerable dependencies&lt;/h2&gt;
+&lt;p&gt;One of our &lt;a href=&quot;https://github.com/RustSec/cargo-audit/issues/23&quot;&gt;most requested features&lt;/a&gt; (especially by fans of the similar &lt;a href=&quot;https://docs.npmjs.com/cli/audit&quot;&gt;&lt;code&gt;npm audit fix&lt;/code&gt;&lt;/a&gt; command), the &lt;a href=&quot;https://github.com/RustSec/cargo-audit#cargo-audit-fix-subcommand&quot;&gt;new &lt;code&gt;cargo audit fix&lt;/code&gt; subcommand&lt;/a&gt; will attempt to automatically update version requirements for vulnerable dependencies to non-vulnerable versions.&lt;/p&gt;
+&lt;p&gt;Note that this is an experimental new feature which isn't enabled by default. To try it out, install `cargo-audit with the following.&lt;/p&gt;
+&lt;p&gt;You can install &lt;code&gt;cargo-audit&lt;/code&gt; and run it against your project with the following commands:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ cargo install cargo-audit --features=fix
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This will perform the same audit process as &lt;code&gt;cargo audit&lt;/code&gt; initially, and then attempt to apply fixes to your &lt;code&gt;Cargo.toml&lt;/code&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/RustSec/cargo-audit/c857beb/img/screenshot-fix.png&quot; alt=&quot;cargo audit fix screenshot&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;Under the hood, it uses &lt;a href=&quot;https://github.com/killercup/cargo-edit&quot;&gt;cargo-edit&lt;/a&gt; (as a library) to perform modifications to your &lt;code&gt;Cargo.toml&lt;/code&gt; file, using the fixed version requirements listed in the advisory to try to perform an automatic upgrade to a non-vulnerable version of a dependency for each advisory.&lt;/p&gt;
+&lt;p&gt;Note once more that this is a &lt;em&gt;new, experimental feature&lt;/em&gt; and as such it's bound to have bugs. If you're worried, you can use &lt;code&gt;cargo audit fix --dry-run&lt;/code&gt; to perform a dry run only. And if you do encounter bugs, please &lt;a href=&quot;https://github.com/rustsec/cargo-audit/issues&quot;&gt;file a bug report&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;We'd like to thank Reza Fatahi and Hanif Ariffin for their work in contributing this feature.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#warnings-for-yanked-crates&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;warnings-for-yanked-crates&quot;&gt;&lt;/a&gt;Warnings for yanked crates&lt;/h2&gt;
+&lt;p&gt;As you can see in the screenshot above, &lt;code&gt;cargo audit&lt;/code&gt; now checks each of the crates in your &lt;code&gt;Cargo.lock&lt;/code&gt; file against the &lt;a href=&quot;https://crates.io&quot;&gt;crates.io&lt;/a&gt; index to determine if any of them have been yanked. If they have, it will emit a warning as per above.&lt;/p&gt;
+&lt;p&gt;If you'd like for yanked crates to be a hard failure, you can run &lt;code&gt;cargo audit&lt;/code&gt; with the &lt;code&gt;-D&lt;/code&gt; command-line argument:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ cargo audit -D
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;or if you prefer to be more explicit:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ cargo audit --deny-warnings
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;&lt;a href=&quot;#compatibility-with-the-new-v2&quot;-format-for-cargo.lock&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;compatibility-with-the-new-v2&quot;-format-for-cargo.lock&quot;&gt;&lt;/a&gt;Compatibility with the new &amp;quot;V2&amp;quot; format for &lt;code&gt;Cargo.lock&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;Rust 1.39 shipped support for a new &lt;a href=&quot;https://github.com/rust-lang/cargo/pull/7070&quot;&gt;merge-friendly &lt;code&gt;Cargo.lock&lt;/code&gt; format&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;cargo audit&lt;/code&gt; consumes &lt;code&gt;Cargo.lock&lt;/code&gt; directly, and while the V2 format change didn't break the core vulnerability-auditing functionality of &lt;code&gt;cargo audit&lt;/code&gt;, several minor features regressed because of this, such as displaying dependency trees for vulnerable dependencies.&lt;/p&gt;
+&lt;p&gt;This release also upgrades to version 4.0 of the &lt;a href=&quot;https://github.com/RustSec/cargo-lock&quot;&gt;&lt;code&gt;cargo-lock&lt;/code&gt; crate&lt;/a&gt;, which includes full support for the V2 &lt;code&gt;Cargo.lock&lt;/code&gt; format and constructs a representation of a lockfile which is the same across the V1 and V2 formats.&lt;/p&gt;
+&lt;p&gt;If you noticed dependency trees failing to display after upgrading to the V2 &lt;code&gt;Cargo.lock&lt;/code&gt; format, they should now be working again!&lt;/p&gt;
+&lt;p&gt;Thanks for reading, and we hope you enjoy &lt;code&gt;cargo-audit&lt;/code&gt; 0.11!&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Tony Arcieri</name>
+        </author>
+    </entry>
     
     <entry>
         <title>Governance Working Group Update: Meeting 14 January 2020</title>
@@ -560,29 +600,6 @@ start.&lt;/p&gt;
 
         <author>
             <name>Santiago Pastorino</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>2019-12-10 Infrastructure Team Meeting</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/11/infra-team-meeting.html" type="text/html" title="2019-12-10 Infrastructure Team Meeting" />
-        <published>2019-12-11T00:00:00Z</published>
-        <updated>2019-12-11T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2019/12/11/infra-team-meeting.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/11/infra-team-meeting.html">&lt;p&gt;Meeting run by pietroalbini. Minutes written by pietroalbini.&lt;br /&gt;
-Attending: aidanhs, kennytm, Mark-Simulacrum, pietroalbini, shepmaster&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#feedback-on-the-rfc-2837-draft&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;feedback-on-the-rfc-2837-draft&quot;&gt;&lt;/a&gt;Feedback on the RFC 2837 draft&lt;/h2&gt;
-&lt;p&gt;pietroalbini gave the team a draft of &lt;a href=&quot;https://github.com/rust-lang/rfcs/pull/2837&quot;&gt;RFC
-2837&lt;/a&gt; (then published shortly
-after the meeting), about the demotion of Apple 32bit targets to Tier 3 from
-Tier 1 and 2 (see the RFC for the motivations leading to that). The team was
-largely onboard with it, and everyone gave useful feedback, which was
-incorporated into the RFC text. Kinnison also jumped in to clarify the rustup
-behavior when a target is removed.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Pietro Albini</name>
         </author>
     </entry>
     
