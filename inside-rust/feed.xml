@@ -10,8 +10,67 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-01-23T21:58:54Z</updated>
+    <updated>2020-01-24T23:58:10Z</updated>
 
+    
+    <entry>
+        <title>Upcoming compiler-team design meetings</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/24/upcoming-compiler-team-design-meetings.html" type="text/html" title="Upcoming compiler-team design meetings" />
+        <published>2020-01-24T00:00:00Z</published>
+        <updated>2020-01-24T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2020/01/24/upcoming-compiler-team-design-meetings.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/24/upcoming-compiler-team-design-meetings.html">&lt;p&gt;In our &lt;a href=&quot;https://rust-lang.zulipchat.com/#narrow/stream/131828-t-compiler/topic/planning.20meeting.202019.2E01.2E17&quot;&gt;planning meeting on January 17&lt;/a&gt;, the &lt;a href=&quot;https://www.rust-lang.org/governance/teams/compiler&quot;&gt;compiler team&lt;/a&gt; has scheduled our
+next batch of upcoming design meetings. You can find the exact times
+on the compiler team's &lt;a href=&quot;https://rust-lang.github.io/compiler-team/#meeting-calendar&quot;&gt;meeting calendar&lt;/a&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;On Feb 7th (&lt;a href=&quot;https://calendar.google.com/event?action=TEMPLATE&amp;tmeid=Mmk4NmZqaWVtcHVmZDRmanZob3ZrMXJ1N28gNnU1cnJ0Y2U2bHJ0djA3cGZpM2RhbWdqdXNAZw&amp;tmsrc=6u5rrtce6lrtv07pfi3damgjus%40group.calendar.google.com&quot;&gt;calendar event&lt;/a&gt;), we will discuss
+&lt;a href=&quot;https://github.com/rust-lang/compiler-team/issues/237&quot;&gt;rust-lang/compiler-team#237&lt;/a&gt;, which describes some potential ways
+to extract a Rust parser that can be shared between rustc and
+rust-analyzer.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;a href=&quot;#did-you-know&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;did-you-know&quot;&gt;&lt;/a&gt;Did you know?&lt;/h3&gt;
+&lt;p&gt;Most weeks, the compiler team has some sort of design meeting. These
+meetings take place on Zulip and are open to all. Every 4 weeks, we do
+a planning meeting to pick the next few meetings from the list of open
+proposals. You can find &lt;a href=&quot;https://rust-lang.github.io/compiler-team/about/steering-meeting/&quot;&gt;more details about how the compiler-team
+steering meeting process here&lt;/a&gt;.&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Niko Matsakis</name>
+        </author>
+    </entry>
+    
+    <entry>
+        <title>February Lang Team Design Meetings</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/24/feb-lang-team-design-meetings.html" type="text/html" title="February Lang Team Design Meetings" />
+        <published>2020-01-24T00:00:00Z</published>
+        <updated>2020-01-24T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2020/01/24/feb-lang-team-design-meetings.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/24/feb-lang-team-design-meetings.html">&lt;p&gt;We've scheduled our &lt;strong&gt;language team design meetings&lt;/strong&gt; for February. The current plans are as follows:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;February 3rd -- we will do an overview of &lt;strong&gt;specialization&lt;/strong&gt;. We'll cover details from the RFC but in particular talk about the &lt;a href=&quot;http://aturon.github.io/tech/2018/04/05/sound-specialization/&quot;&gt;as-yet-unimplemented plans to make it sound&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;February 10th -- we will cover interactions between the &lt;code&gt;&amp;amp;T&lt;/code&gt; type and LLVM's dereferenceable attribute, such as &lt;a href=&quot;https://github.com/rust-lang/rust/issues/55005&quot;&gt;rust-lang/rust#55005&lt;/a&gt; and &lt;a href=&quot;https://github.com/japaric/volatile-register/issues/10&quot;&gt;problems modeling MMIO&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;February 17th -- no meeting, it is President's Day in the US and many of us are absent&lt;/li&gt;
+&lt;li&gt;February 24th -- we will summarize discussions from &lt;a href=&quot;https://github.com/rust-lang/project-ffi-unwind&quot;&gt;the ffi-unwind project group&lt;/a&gt; about whether we should permit foreign exceptions to propagate across the &amp;quot;C&amp;quot; ABI boundary, or establish a separate ABI (e.g., &amp;quot;C unwind&amp;quot;) for such cases.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;&lt;a href=&quot;#about-the-language-team-design-meetings&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;about-the-language-team-design-meetings&quot;&gt;&lt;/a&gt;About the language team design meetings&lt;/h2&gt;
+&lt;p&gt;The idea of the design meeting is that it's a time for us to have
+in-depth discussions on some particular topic. This might be a burning
+problem that we've discovered, an update on some existing design work,
+or a forward looking proposal.&lt;/p&gt;
+&lt;p&gt;The meetings are open for anyone to listen in and attend. They are
+typically also recorded and posted online, along with minutes, after
+the fact. They generally take place on Mondays at &amp;quot;noon Boston time&amp;quot;
+-- but for the precise scheduling you should check the &lt;a href=&quot;https://github.com/rust-lang/lang-team/#meeting-calendar&quot;&gt;lang team
+calendar&lt;/a&gt;. Scheduled meetings are subject to change and
+cancelation. In that case, the calendar events will be updated.&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Niko Matsakis</name>
+        </author>
+    </entry>
     
     <entry>
         <title>cargo-audit v0.11: Introducing the `fix` feature, yanked crate detection, and more</title>
@@ -432,173 +491,6 @@ as well as supporting better documentation of the design process.&lt;/p&gt;
 
         <author>
             <name>Val Grimm</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Congrats to compiler team members matthewjasper and wesleywiser</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/19/jasper-and-wiser-full-members-of-compiler-team.html" type="text/html" title="Congrats to compiler team members matthewjasper and wesleywiser" />
-        <published>2019-12-19T00:00:00Z</published>
-        <updated>2019-12-19T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2019/12/19/jasper-and-wiser-full-members-of-compiler-team.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/19/jasper-and-wiser-full-members-of-compiler-team.html">&lt;p&gt;I am pleased to announce that &lt;a href=&quot;https://github.com/matthewjasper/&quot;&gt;@matthewjasper&lt;/a&gt; and &lt;a href=&quot;https://github.com/wesleywiser/&quot;&gt;@wesleywiser&lt;/a&gt;
-have been made full members of the &lt;a href=&quot;https://www.rust-lang.org/governance/teams/compiler&quot;&gt;compiler team&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/matthewjasper/&quot;&gt;@matthewjasper&lt;/a&gt; has been a huge contributor to the Non-Lexical
-Lifetimes (NLL) work, filing issues and fixing bugs starting way back in
-2017. Matthew has also been fixing compiler soundness bugs and making
-miscellaneous improvements to Rust's Middle Intermediate
-Representation (MIR). Most recently, Matthew has removed all uses of
-&lt;code&gt;gensym&lt;/code&gt; from the compiler, as well as the &lt;code&gt;gensym&lt;/code&gt; functionality
-itself (which was implemented in a way that injected
-&lt;a href=&quot;https://github.com/rust-lang/rust/issues/49300&quot;&gt;subtle bugs&lt;/a&gt; with incremental compilation).&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/wesleywiser/&quot;&gt;@wesleywiser&lt;/a&gt; first started contributing to Rust way back in 2015,
-before even the 1.0 release, with various documentation &lt;a href=&quot;https://github.com/rust-lang/rust/pull/22633&quot;&gt;fixes&lt;/a&gt;.
-Since then, Wesley has improved the incremental compilation system,
-added MIR optimization passes like constant-propagation and inlining,
-and has been part of the compiler's self-profiler effort, starting with its
-&lt;a href=&quot;https://github.com/rust-lang/rust/pull/51657&quot;&gt;first version&lt;/a&gt; and
-continuing today as a co-lead of &lt;a href=&quot;https://rust-lang.github.io/compiler-team/working-groups/self-profile/&quot;&gt;WG-self-profile&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Congratulations to both &lt;a href=&quot;https://github.com/matthewjasper/&quot;&gt;@matthewjasper&lt;/a&gt; and &lt;a href=&quot;https://github.com/wesleywiser/&quot;&gt;@wesleywiser&lt;/a&gt;, and thanks
-for all of your contributions to the project!&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Felix S. Klock II</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Bisecting Rust Compiler Regressions with cargo-bisect-rustc</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/18/bisecting-rust-compiler.html" type="text/html" title="Bisecting Rust Compiler Regressions with cargo-bisect-rustc" />
-        <published>2019-12-18T00:00:00Z</published>
-        <updated>2019-12-18T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2019/12/18/bisecting-rust-compiler.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/18/bisecting-rust-compiler.html">&lt;p&gt;Let's say that you've just updated the Rust compiler version and have
-tried to compile your application and see a failure that wasn't there
-before. That's likely due to a regression in the compiler.  We've just
-released
-&lt;a href=&quot;https://github.com/rust-lang/cargo-bisect-rustc&quot;&gt;&lt;code&gt;cargo-bisect-rustc&lt;/code&gt;&lt;/a&gt;,
-a tool that makes it super easy to find exactly when the regression
-happened.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;cargo-bisect-rustc&lt;/code&gt; automatically downloads rustc artifacts and tests
-them against a project you provide until it finds the regression. At
-minimum, it will identify the nightly release which triggered the
-regression; but if the regression occurred in the last 168 days, it will
-even figure out the exact PR, which is often very useful in helping us
-fix the problem.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;cargo-bisect-rustc&lt;/code&gt; was created originally by Mark Rousskov. I extended
-it recently to make it easier to use.&lt;/p&gt;
-&lt;p&gt;To install the tool run:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;cargo install cargo-bisect-rustc
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h2&gt;&lt;a href=&quot;#finding-a-regression&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;finding-a-regression&quot;&gt;&lt;/a&gt;Finding a regression&lt;/h2&gt;
-&lt;p&gt;We are going to use &lt;a href=&quot;https://github.com/rust-lang/rust/issues/64945&quot;&gt;this &amp;quot;old&amp;quot; reported rustc
-regression&lt;/a&gt; as an
-example:&lt;/p&gt;
-&lt;p&gt;Our application consists only of this file:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;pub struct Slice&amp;lt;'a, T&amp;gt;(&amp;amp;'a [T]);
-
-impl&amp;lt;'a, T: 'a&amp;gt; Slice&amp;lt;'a, T&amp;gt; {
-    pub const EMPTY: Self = Slice ({
-        let v: &amp;amp;[T] = &amp;amp;[];
-        v
-    });
-}
-
-fn main() {
-    let s = Slice(&amp;amp;[1, 2]);
-    assert!(s.0 != Slice::EMPTY.0);
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Then we run &lt;code&gt;cargo bisect-rustc --end=2019-10-02&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;Since this bug was fixed on 2019-10-03, we're using 2019-10-02 as the
-end We need to provide the end point for this particular example, given
-that this bug was fixed on 2019-10-03, we're using 2019-10-02 as the end
-point. If you don't provide an ending point it assumes that the end
-point is today's nightly or your currently installed nightly. If you
-don't provide a start point as we're doing it tries to find one by
-regressing in time.  If you know if a failing starting point it would be
-faster if you just provide that one.&lt;/p&gt;
-&lt;p&gt;By default it will run &lt;code&gt;cargo build&lt;/code&gt; in the project and check whether or
-not it fails. After finding a nightly that has regressed it is going to
-automatically search for the commit that introduced the regression.&lt;/p&gt;
-&lt;p&gt;Let's see the tool in action:&lt;/p&gt;
-&lt;p&gt;The tool starts by downloading various nightly compilers, trying to find
-a date when the program worked ...&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;checking nightly-2019-10-02
-std for x86_64-unknown-linux-gnu: 172.87 MB / 172.87 MB [===============================================================================================================================================================] 100.00 % 10.67 MB/s uninstalling nightly-2019-10-02
-checking nightly-2019-09-30
-...
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Once it has one failing and working point it starts bisecting ...&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;std for x86_64-unknown-linux-gnu: 173.43 MB / 173.43 MB [===============================================================================================================================================================] 100.00 % 12.82 MB/s uninstalling nightly-2019-09-29
-tested nightly-2019-09-29, got No
-searched toolchains nightly-2019-09-28 through nightly-2019-09-30
-regression in nightly-2019-09-30
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Once it finds a nightly, it starts to search the PRs that went into that
-nightly build ...&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;looking for regression commit between 2019-09-30 and 2019-09-29
-fetching commits from 488381ce9ef0ceabe83b73127c659e5d38137df0 to 8431f261dd160021b6af85916f161a13dd101ca0
-...
-searched toolchains 488381ce9ef0ceabe83b73127c659e5d38137df0 through 8431f261dd160021b6af85916f161a13dd101ca0
-regression in 0bbab7d99dde8620604fb265706dc8bff20345a7
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Finally, when it finds the PR that broke the compiler, it generates a
-bug report that you can copy and paste!&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;==================================================================================
-= Please open an issue on Rust's github repository                               =
-= https://github.com/rust-lang/rust/issues/new                                   =
-= Below you will find a text that would serve as a starting point of your report =
-==================================================================================
-
-# Regression found in the compiler
-
-searched nightlies: from nightly-2019-09-28 to nightly-2019-09-30
-regressed nightly: nightly-2019-09-30
-searched commits: from https://github.com/rust-lang/rust/commit/488381ce9ef0ceabe83b73127c659e5d38137df0 to https://github.com/rust-lang/rust/commit/8431f261dd160021b6af85916f161a13dd101ca0
-regressed commit: https://github.com/rust-lang/rust/commit/0bbab7d99dde8620604fb265706dc8bff20345a7
-source code: URL OF A REPOSITORY THAT REPRODUCES THE ERROR
-
-## Instructions
-
-Please give the steps for how to build your repository (platform, system dependencies, etc.)
-## Error
-
-&amp;lt;details&amp;gt;&amp;lt;summary&amp;gt;COLLAPSIBLE ERROR STACKTRACE&amp;lt;/summary&amp;gt;
-&amp;lt;p&amp;gt;
-
-```bash
-Paste the error the compiler is giving
-```
-
-&amp;lt;/p&amp;gt;&amp;lt;/details&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This tells us that the regression started with
-&lt;a href=&quot;https://github.com/rust-lang/rust/commit/0bbab7d99dde8620604fb265706dc8bff20345a7&quot;&gt;&lt;code&gt;0bbab7d99dde8620604fb265706dc8bff20345a7&lt;/code&gt;&lt;/a&gt;
-and you can look at the git log to find the PR. In this case is
-&lt;a href=&quot;https://github.com/rust-lang/rust/pull/64470&quot;&gt;#64470&lt;/a&gt;.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#call-for-action-try-the-tool&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;call-for-action-try-the-tool&quot;&gt;&lt;/a&gt;Call for action: try the tool&lt;/h2&gt;
-&lt;p&gt;Please, give this tool a try and if you find yourself updating your
-application and it stops building, it's likely that you're hitting a
-regression. As you can see at the end of the execution of the tool, if a
-regression is found the tool gives you a report that you can paste on a
-github issue on the &lt;a href=&quot;https://github.com/rust-lang/rust&quot;&gt;Rust repo&lt;/a&gt;.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#call-for-action-get-involved-in-the-development-of-cargo-bisect-rustc&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;call-for-action-get-involved-in-the-development-of-cargo-bisect-rustc&quot;&gt;&lt;/a&gt;Call for action: get involved in the development of cargo-bisect-rustc&lt;/h2&gt;
-&lt;p&gt;There are also a lot of things to improve in the tool and a lot of bugs
-to fix. There are a bunch of reported issues that are easy to fix,
-&lt;a href=&quot;https://github.com/rust-lang/cargo-bisect-rustc/issues&quot;&gt;check them
-out&lt;/a&gt;.  You can
-also, reach us out. You can find me and the rest of the compiler
-contributors and members in &lt;a href=&quot;https://rust-lang.zulipchat.com/#narrow/stream/217417-t-compiler.2Fcargo-bisect-rustc&quot;&gt;Zulip's #t-compiler/cargo-bisect-rustc
-stream&lt;/a&gt;.
-Sign up there if you haven't already and do not hesitate to ask
-questions or even to send me a direct message if you don't know where to
-start.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Santiago Pastorino</name>
         </author>
     </entry>
     
