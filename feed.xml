@@ -10,16 +10,16 @@
         <name>Maintained by the Rust Team.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-01-24T23:58:10Z</updated>
+    <updated>2020-01-25T23:55:41Z</updated>
 
     
     <entry>
         <title>Reducing support for 32-bit Apple targets</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2020/01/03/reducing-support-for-32-bit-apple-targets.html" type="text/html" title="Reducing support for 32-bit Apple targets" />
+        <link rel="alternate" href="https://blog.rust-lang.org/2020/1/3/reducing-support-for-32-bit-apple-targets.html" type="text/html" title="Reducing support for 32-bit Apple targets" />
         <published>2020-01-03T00:00:00Z</published>
         <updated>2020-01-03T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2020/01/03/reducing-support-for-32-bit-apple-targets.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2020/01/03/reducing-support-for-32-bit-apple-targets.html">&lt;p&gt;The Rust team regrets to announce that Rust 1.41.0 (to be released on January
+        <id>https://blog.rust-lang.org/2020/1/3/reducing-support-for-32-bit-apple-targets.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2020/1/3/reducing-support-for-32-bit-apple-targets.html">&lt;p&gt;The Rust team regrets to announce that Rust 1.41.0 (to be released on January
 30th, 2020) will be the last release with the current level of support for
 32-bit Apple targets. Starting from Rust 1.42.0, those targets will be demoted
 to Tier 3.&lt;/p&gt;
@@ -111,647 +111,12 @@ cargo +nightly-2019-12-01 build
     </entry>
     
     <entry>
-        <title>Announcing Rust 1.40.0</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/12/19/Rust-1.40.0.html" type="text/html" title="Announcing Rust 1.40.0" />
-        <published>2019-12-19T00:00:00Z</published>
-        <updated>2019-12-19T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/12/19/Rust-1.40.0.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/12/19/Rust-1.40.0.html">&lt;p&gt;The Rust team is happy to announce a new version of Rust, 1.40.0. Rust is a programming language that is empowering everyone to build reliable and efficient software.&lt;/p&gt;
-&lt;p&gt;If you have a previous version of Rust installed via rustup, getting Rust 1.40.0 is as easy as:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-console&quot;&gt;rustup update stable
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If you don't have it already, you can &lt;a href=&quot;https://www.rust-lang.org/install.html&quot;&gt;get &lt;code&gt;rustup&lt;/code&gt;&lt;/a&gt; from the appropriate page on our website, and check out the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1400-2019-12-19&quot;&gt;detailed release notes for 1.40.0&lt;/a&gt; on GitHub.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#whats-in-1.40.0-stable&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;whats-in-1.40.0-stable&quot;&gt;&lt;/a&gt;What's in 1.40.0 stable&lt;/h2&gt;
-&lt;p&gt;The highlights of Rust 1.40.0 include &lt;code&gt;#[non_exhaustive]&lt;/code&gt; and improvements to &lt;code&gt;macros!()&lt;/code&gt; and &lt;code&gt;#[attribute]&lt;/code&gt;s. Finally, borrow-check migration warnings have become hard errors in Rust 2015. See the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1400-2019-12-19&quot;&gt;detailed release notes&lt;/a&gt; for additional information.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#[non_exhaustive]-structs,-enums,-and-variants&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;[non_exhaustive]-structs,-enums,-and-variants&quot;&gt;&lt;/a&gt;&lt;code&gt;#[non_exhaustive]&lt;/code&gt; structs, enums, and variants&lt;/h3&gt;
-&lt;p&gt;Suppose you're a library author of a crate &lt;code&gt;alpha&lt;/code&gt;, that has a &lt;code&gt;pub struct Foo&lt;/code&gt;. You would like to make &lt;code&gt;alpha::Foo&lt;/code&gt;'s fields &lt;code&gt;pub&lt;/code&gt; as well, but you're not sure whether you might be adding more fields to &lt;code&gt;Foo&lt;/code&gt; in future releases. So now you have a dilemma: either you make the fields private, with the drawbacks that follow, or you risk users depending on the exact fields, breaking their code when you add a new one. Rust 1.40.0 introduces a way to break the logjam: &lt;code&gt;#[non_exhaustive]&lt;/code&gt;.&lt;/p&gt;
-&lt;p&gt;The attribute &lt;code&gt;#[non_exhaustive]&lt;/code&gt;, when attached to a &lt;code&gt;struct&lt;/code&gt; or the variant of an &lt;code&gt;enum&lt;/code&gt;, will prevent code outside of the crate defining it from constructing said &lt;code&gt;struct&lt;/code&gt; or variant. To avoid future breakage, other crates are also prevented from exhaustively matching on the fields. The following example illustrates errors in &lt;code&gt;beta&lt;/code&gt; which depends on &lt;code&gt;alpha&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;// alpha/lib.rs:
-
-#[non_exhaustive]
-struct Foo {
-    pub a: bool,
-}
-
-enum Bar {
-    #[non_exhaustive]
-    Variant { b: u8 }
-}
-
-fn make_foo() -&amp;gt; Foo { ... }
-fn make_bar() -&amp;gt; Bar { ... }
-
-// beta/lib.rs:
-
-let x = Foo { a: true }; //~ ERROR
-let Foo { a } = make_foo(); //~ ERROR
-
-// `beta` will still compile when more fields are added.
-let Foo { a, .. } = make_foo(); //~ OK
-
-
-let x = Bar::Variant { b: 42 }; //~ ERROR
-let Bar::Variant { b } = make_bar(); //~ ERROR
-let Bar::Variant { b, .. } = make_bar(); //~ OK
-                   // -- `beta` will still compile...
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;What happens behind the scenes is that the visibility of the constructors for a &lt;code&gt;#[non_exhaustive]&lt;/code&gt; &lt;code&gt;struct&lt;/code&gt; or &lt;code&gt;enum&lt;/code&gt; variant is lowered to &lt;code&gt;pub(crate)&lt;/code&gt;, preventing access outside the crate defining it.&lt;/p&gt;
-&lt;p&gt;A perhaps more important aspect of &lt;code&gt;#[non_exhaustive]&lt;/code&gt; is that it can also be attached to &lt;code&gt;enum&lt;/code&gt;s themselves. An example, taken from the standard library, is &lt;a href=&quot;https://doc.rust-lang.org/std/sync/atomic/enum.Ordering.html&quot;&gt;&lt;code&gt;Ordering&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;#[non_exhaustive]
-pub enum Ordering { Relaxed, Release, Acquire, AcqRel, SeqCst }
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The purpose of &lt;code&gt;#[non_exhaustive]&lt;/code&gt; in this context is to ensure that more variants can be added over time. This is achieved by preventing other crates from exhaustively pattern &lt;code&gt;match&lt;/code&gt;-ing on &lt;code&gt;Ordering&lt;/code&gt;. That is, the compiler would reject:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;match ordering {
-    // This is an error, since if a new variant is added,
-    // this would suddenly break on an upgrade of the compiler.
-    Relaxed | Release | Acquire | AcqRel | SeqCst =&amp;gt; {
-        /* logic */
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Instead, other crates need to account for the possibility of more variants by adding a wildcard arm using e.g. &lt;code&gt;_&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;match ordering {
-    Relaxed | Release | Acquire | AcqRel | SeqCst =&amp;gt; { /* ... */ }
-    // OK; if more variants are added, nothing will break.
-    _ =&amp;gt; { /* logic */ }
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;For more details on the &lt;code&gt;#[non_exhaustive]&lt;/code&gt; attribute, see the &lt;a href=&quot;https://github.com/rust-lang/rust/issues/44109#issuecomment-533356866&quot;&gt;stabilization report&lt;/a&gt;.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#macro-and-attribute-improvements&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;macro-and-attribute-improvements&quot;&gt;&lt;/a&gt;Macro and attribute improvements&lt;/h3&gt;
-&lt;p&gt;In 1.40.0, we have introduced several improvements to macros and attributes, including:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/63931/#issuecomment-526362396&quot;&gt;Calling procedural macros &lt;code&gt;mac!()&lt;/code&gt; in type contexts.&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;For example, you may write &lt;code&gt;type Foo = expand_to_type!(bar);&lt;/code&gt; where &lt;code&gt;expand_to_type&lt;/code&gt; would be a procedural macro.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/63931/#issuecomment-526362396&quot;&gt;Macros in &lt;code&gt;extern { ... }&lt;/code&gt; blocks.&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;This includes &lt;code&gt;bang!()&lt;/code&gt; macros, for example:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;macro_rules! make_item { ($name:ident) =&amp;gt; { fn $name(); } }
-
-extern {
-    make_item!(alpha);
-    make_item!(beta);
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Procedural macro attributes on items in &lt;a href=&quot;https://doc.rust-lang.org/nightly/reference/items/external-blocks.html&quot;&gt;&lt;code&gt;extern { ... }&lt;/code&gt; blocks&lt;/a&gt; are now also supported:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;extern &amp;quot;C&amp;quot; {
-    // Let's assume that this expands to `fn foo();`.
-    #[my_identity_macro]
-    fn foo();
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/64035#issuecomment-533890826&quot;&gt;Generating &lt;code&gt;macro_rules!&lt;/code&gt; items in procedural macros.&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Function-like (&lt;code&gt;mac!()&lt;/code&gt;) and attribute (&lt;code&gt;#[mac]&lt;/code&gt;) macros can both now generate &lt;code&gt;macro_rules!&lt;/code&gt; items. For details on hygiene, please refer to the attached stabilization report.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/63674&quot;&gt;The &lt;code&gt;$m:meta&lt;/code&gt; matcher&lt;/a&gt; supports &lt;a href=&quot;https://github.com/rust-lang/rust/pull/57367#issuecomment-457882109&quot;&gt;arbitrary token-stream values&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;That is, the following is now valid:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;macro_rules! accept_meta { ($m:meta) =&amp;gt; {} }
-accept_meta!( my::path );
-accept_meta!( my::path = &amp;quot;lit&amp;quot; );
-accept_meta!( my::path ( a b c ) );
-accept_meta!( my::path [ a b c ] );
-accept_meta!( my::path { a b c } );
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;a href=&quot;#borrow-check-migration-warnings-are-hard-errors-in-rust-2015&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;borrow-check-migration-warnings-are-hard-errors-in-rust-2015&quot;&gt;&lt;/a&gt;Borrow check migration warnings are hard errors in Rust 2015&lt;/h3&gt;
-&lt;p&gt;In the 1.35.0 release, &lt;a href=&quot;https://blog.rust-lang.org/2019/07/04/Rust-1.36.0.html#nll-for-rust-2015&quot;&gt;we announced&lt;/a&gt; that NLL had come to Rust 2015 after first being released for the 2018 edition in &lt;a href=&quot;https://blog.rust-lang.org/2018/12/06/Rust-1.31-and-rust-2018.html#non-lexical-lifetimes&quot;&gt;Rust 1.31&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;As we noted back then, the old borrow checker had some bugs which would allow memory unsafety, and the NLL borrow checker fixed them. As these fixes break some stable code, we decided to gradually phase in the errors, by checking if the old borrow checker would accept the program and the NLL checker would reject it. In those cases, the errors would be downgraded to warnings.&lt;/p&gt;
-&lt;p&gt;The previous release, Rust 1.39.0, changes these warnings into errors for code using the &lt;a href=&quot;https://github.com/rust-lang/rust/pull/63565&quot;&gt;2018 edition&lt;/a&gt;. Rust 1.40.0 applies the same change for users of the &lt;a href=&quot;https://github.com/rust-lang/rust/pull/64221&quot;&gt;2015 edition&lt;/a&gt;, closing those soundness holes for good. This also allows us to &lt;a href=&quot;https://github.com/rust-lang/rust/pull/64790&quot;&gt;clean up the old code from the compiler&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;If your build breaks due to this change, or you want to learn more, check out &lt;a href=&quot;https://blog.rust-lang.org/2019/11/01/nll-hard-errors.html&quot;&gt;Niko Matsakis's blog post&lt;/a&gt;.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#more-const-fns-in-the-standard-library&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;more-const-fns-in-the-standard-library&quot;&gt;&lt;/a&gt;More &lt;code&gt;const fn&lt;/code&gt;s in the standard library&lt;/h3&gt;
-&lt;p&gt;With Rust 1.40.0, the following function became &lt;code&gt;const fn&lt;/code&gt;:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.u8.html#method.is_power_of_two&quot;&gt;&lt;code&gt;is_power_of_two&lt;/code&gt;&lt;/a&gt; for &lt;a href=&quot;https://github.com/rust-lang/rust/pull/65092&quot;&gt;unsigned integers&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;a href=&quot;#additions-to-the-standard-library&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;additions-to-the-standard-library&quot;&gt;&lt;/a&gt;Additions to the standard library&lt;/h3&gt;
-&lt;p&gt;In Rust 1.40.0 the following functions and macros were stabilized:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/macro.todo.html&quot;&gt;&lt;code&gt;todo!()&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;A macro, which is a shorter, more memorable, and convenient version of &lt;a href=&quot;https://doc.rust-lang.org/std/macro.unimplemented.html&quot;&gt;&lt;code&gt;unimplemented!()&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.slice.html#method.repeat&quot;&gt;&lt;code&gt;slice::repeat&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Creates a &lt;code&gt;Vec&amp;lt;T&amp;gt;&lt;/code&gt; by repeating a slice &lt;code&gt;n&lt;/code&gt; times.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/mem/fn.take.html&quot;&gt;&lt;code&gt;mem::take&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;This function &lt;code&gt;take&lt;/code&gt;s the value out of a mutable reference and replaces it with the type's default. This is similar to &lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.take&quot;&gt;&lt;code&gt;Option::take&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/cell/struct.Cell.html#method.take&quot;&gt;&lt;code&gt;Cell::take&lt;/code&gt; &lt;/a&gt; and provides a convenient short-hand for &lt;a href=&quot;https://doc.rust-lang.org/std/mem/fn.replace.html&quot;&gt;&lt;code&gt;mem::replace(&amp;amp;mut dst, Default::default())&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/collections/struct.BTreeMap.html#method.get_key_value&quot;&gt;&lt;code&gt;BTreeMap::get_key_value&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/collections/struct.HashMap.html#method.get_key_value&quot;&gt;&lt;code&gt;HashMap::get_key_value&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Returns the key-value pair corresponding to the supplied key.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.as_deref&quot;&gt;&lt;code&gt;Option::as_deref&lt;/code&gt;&lt;/a&gt;, &lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.as_deref_mut&quot;&gt;&lt;code&gt;Option::as_deref_mut&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;These work similarly to &lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.as_ref&quot;&gt;&lt;code&gt;Option::as_ref&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.as_mut&quot;&gt;&lt;code&gt;Option::as_mut&lt;/code&gt;&lt;/a&gt; but also use &lt;a href=&quot;https://doc.rust-lang.org/std/ops/trait.Deref.html&quot;&gt;&lt;code&gt;Deref&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/ops/trait.DerefMut.html&quot;&gt;&lt;code&gt;DerefMut&lt;/code&gt;&lt;/a&gt; respectively, so that &lt;code&gt;opt_box.as_deref()&lt;/code&gt; and &lt;code&gt;opt_box.as_deref_mut()&lt;/code&gt;, where &lt;code&gt;opt_box: Option&amp;lt;Box&amp;lt;T&amp;gt;&amp;gt;&lt;/code&gt;, produce an &lt;code&gt;Option&amp;lt;&amp;amp;T&amp;gt;&lt;/code&gt; and &lt;code&gt;Option&amp;lt;&amp;amp;mut T&amp;gt;&lt;/code&gt; respectively.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.flatten&quot;&gt;&lt;code&gt;Option::flatten&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;This function flattens an &lt;code&gt;Option&amp;lt;Option&amp;lt;T&amp;gt;&amp;gt;&lt;/code&gt; to &lt;code&gt;Option&amp;lt;T&amp;gt;&lt;/code&gt; producing &lt;code&gt;Some(x)&lt;/code&gt; for &lt;code&gt;Some(Some(x))&lt;/code&gt; and &lt;code&gt;None&lt;/code&gt; otherwise. The function is similar to &lt;a href=&quot;https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.flatten&quot;&gt;&lt;code&gt;Iterator::flatten&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/net/struct.UdpSocket.html#method.peer_addr&quot;&gt;&lt;code&gt;UdpSocket::peer_addr&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Returns the socket address of the remote peer this socket was connected to.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f32.html#method.to_be_bytes&quot;&gt;&lt;code&gt;{f32,f64}::to_be_bytes&lt;/code&gt;&lt;/a&gt;, &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f32.html#method.to_le_bytes&quot;&gt;&lt;code&gt;{f32,f64}::to_le_bytes&lt;/code&gt;&lt;/a&gt;,&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f32.html#method.to_ne_bytes&quot;&gt;&lt;code&gt;{f32,f64}::to_ne_bytes&lt;/code&gt;&lt;/a&gt;, &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f32.html#method.from_be_bytes&quot;&gt;&lt;code&gt;{f32,f64}::from_be_bytes&lt;/code&gt;&lt;/a&gt;, &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f32.html#method.from_le_bytes&quot;&gt;&lt;code&gt;{f32,f64}::from_le_bytes&lt;/code&gt;&lt;/a&gt;, and &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f32.html#method.from_ne_bytes&quot;&gt;&lt;code&gt;{f32,f64}::from_ne_bytes&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Return the memory representation of the floating point number as a byte array in big-endian (network), little-endian, and native-endian byte order.&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;a href=&quot;#other-changes&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;other-changes&quot;&gt;&lt;/a&gt;Other changes&lt;/h3&gt;
-&lt;p&gt;There are other changes in the Rust 1.40.0 release: check out what changed in &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1400-2019-12-19&quot;&gt;Rust&lt;/a&gt;, &lt;a href=&quot;https://github.com/rust-lang/cargo/blob/master/CHANGELOG.md#cargo-140-2019-12-19&quot;&gt;Cargo&lt;/a&gt;, and &lt;a href=&quot;https://github.com/rust-lang/rust-clippy/blob/master/CHANGELOG.md#rust-140&quot;&gt;Clippy&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Please also see the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#compatibility-notes&quot;&gt;compatibility notes&lt;/a&gt; to check if you're affected by those changes.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#contributors-to-140.0&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;contributors-to-140.0&quot;&gt;&lt;/a&gt;Contributors to 1.40.0&lt;/h2&gt;
-&lt;p&gt;Many people came together to create Rust 1.40.0. We couldn't have done it
-without all of you. &lt;a href=&quot;https://thanks.rust-lang.org/rust/1.40.0/&quot;&gt;Thanks!&lt;/a&gt;&lt;/p&gt;
-</content>
-
-        <author>
-            <name>The Rust Release Team</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Launching the 2019 State of Rust Survey</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/12/03/survey-launch.html" type="text/html" title="Launching the 2019 State of Rust Survey" />
-        <published>2019-12-03T00:00:00Z</published>
-        <updated>2019-12-03T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/12/03/survey-launch.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/12/03/survey-launch.html">&lt;p&gt;It's that time again! Time for us to take a look at how the Rust project is doing, and what we should plan for the future. The Rust Community Team is pleased to announce our &lt;a href=&quot;https://docs.google.com/forms/d/1iGnf8Mmf4JRggOJ3E7iZlBLsgeLxIYzaI1caiFHQ6OQ/viewform&quot;&gt;2019 State of Rust Survey&lt;/a&gt;! Whether or not you use Rust today, we want to know your opinions. Your responses will help the project understand its strengths and weaknesses and establish development priorities for the future.&lt;/p&gt;
-&lt;p&gt;Completing this survey should take about 10–15 minutes and is anonymous unless you choose to give us your contact information. We will be accepting submissions until December 16th, and we will write up our findings a month or so afterwards to &lt;a href=&quot;https://blog.rust-lang.org&quot;&gt;blog.rust-lang.org&lt;/a&gt;. You can also check out &lt;a href=&quot;https://blog.rust-lang.org/2018/11/27/Rust-survey-2018.html&quot;&gt;last year’s results&lt;/a&gt;.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;https://docs.google.com/forms/d/1iGnf8Mmf4JRggOJ3E7iZlBLsgeLxIYzaI1caiFHQ6OQ/viewform&quot;&gt;English&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://wj.qq.com/s2/5080757/5237&quot;&gt;Simplified Chinese&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLSfMugzbkuwY_x2sKm1Jt2Y569ULG2mLE_hOzZFIUpjO1vXmzg/viewform?hl=zh-TW&quot;&gt;Traditional Chinese&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLSeiIlKDo-3PGS4yxAQ2PwIL1NmPSua0AnktgaaI2ZWa1iOC2g/viewform?hl=fr&quot;&gt;French&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLScjz_tD9UQQPbxeiQVMbD5RIHvoob5Du9VQp8yjatfcE6CuCw/viewform?hl=de&quot;&gt;German&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLSdtFimO_-WL8Ja7PdG0MgLJJKIau9qOtBZLLca9TeK1tiA19g/viewform?hl=it&quot;&gt;Italian&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLSe-AakTxBDKSBZUk1zTqvZ749M-wAPHUU45Pnj12-0-Y_Qxaw/viewform?hl=jp&quot;&gt;Japanese&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLScPqYek5LKDyLBnB3NM3X5YTLjLolIjc_j0SFewAzBgUZd5Wg/viewform?hl=ko&quot;&gt;Korean&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLSdyZ6Xg7d-VIJpRCdLaTocSYOWd1eDI6VryS954fl_ESJYx4Q/viewform?hl=pl&quot;&gt;Polish&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLScIZI8qtS1BMBaOIIirwp_NngKWgr_GTnow6Fp32M8_IySaPw/viewform?hl=pt&quot;&gt;Portuguese&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLSd6nhdpmopSM_3xikVEDnHAem1yKq76ymQx0nINUFHqkqC-LA/viewform?hl=ru&quot;&gt;Russian&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLSekNvJgid_RrixnHm2aOAqLf4sCFUVOVVakTh97ILLNyTsQSA/viewform?hl=es&quot;&gt;Spanish&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLSdw5T3chMuQi72QiMk_Nu6Kb44qSIRKrjxcHBQVVK6RpebpvQ/viewform?hl=sv&quot;&gt;Swedish&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLSe5eEQxuf38XQEKPUXjdCgsB8WinsnC2NpA17Bq1WyPkX8TXg/viewform?hl=vn&quot;&gt;Vietnamese&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;(If you speak multiple languages, please pick one)&lt;/p&gt;
-&lt;p&gt;Please help us spread the word by sharing the survey link on your social network feeds, at meetups, around your office, and in other communities.&lt;/p&gt;
-&lt;p&gt;If you have any questions, please see our &lt;a href=&quot;https://forge.rust-lang.org/community/survey-faq.html&quot;&gt;frequently asked questions&lt;/a&gt; or email the Rust Community team at &lt;a href=&quot;mailto:community-team@rust-lang.org&quot;&gt;community-team@rust-lang.org&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Finally, we wanted to thank everyone who helped develop, polish, and test the survey. In particular we'd like to thank &lt;a href=&quot;https://isu.edu/cmp/faculty-and-staff/facultyandstaff/d-jasun-carr.html&quot;&gt;Dr. Jasun Carr&lt;/a&gt;, for providing their expertise in communication processes with helping to create this year's survey, and all of the volunteers who worked to provide all of the translations available this year.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>The Rust Community Team</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Announcing Rust 1.39.0</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/11/07/Rust-1.39.0.html" type="text/html" title="Announcing Rust 1.39.0" />
-        <published>2019-11-07T00:00:00Z</published>
-        <updated>2019-11-07T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/11/07/Rust-1.39.0.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/11/07/Rust-1.39.0.html">&lt;p&gt;The Rust team is happy to announce a new version of Rust, 1.39.0. Rust is a programming language that is empowering everyone to build reliable and efficient software.&lt;/p&gt;
-&lt;p&gt;If you have a previous version of Rust installed via rustup, getting Rust 1.39.0 is as easy as:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-console&quot;&gt;rustup update stable
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If you don't have it already, you can &lt;a href=&quot;https://www.rust-lang.org/install.html&quot;&gt;get &lt;code&gt;rustup&lt;/code&gt;&lt;/a&gt; from the appropriate page on our website, and check out the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/stable/RELEASES.md#version-1390-2019-11-07&quot;&gt;detailed release notes for 1.39.0&lt;/a&gt; on GitHub.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#whats-in-1.39.0-stable&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;whats-in-1.39.0-stable&quot;&gt;&lt;/a&gt;What's in 1.39.0 stable&lt;/h2&gt;
-&lt;p&gt;The highlights of Rust 1.39.0 include &lt;code&gt;async&lt;/code&gt;/&lt;code&gt;.await&lt;/code&gt;, shared references to by-move bindings in &lt;code&gt;match&lt;/code&gt; guards, and attributes on function parameters. Also, see the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/stable/RELEASES.md#version-1390-2019-11-07&quot;&gt;detailed release notes&lt;/a&gt; for additional information.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#the-await-is-over,-async-fns-are-here&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;the-await-is-over,-async-fns-are-here&quot;&gt;&lt;/a&gt;The &lt;code&gt;.await&lt;/code&gt; is over, &lt;code&gt;async fn&lt;/code&gt;s are here&lt;/h3&gt;
-&lt;p&gt;Previously in Rust 1.36.0, &lt;a href=&quot;https://blog.rust-lang.org/2019/07/04/Rust-1.36.0.html#the-future-is-here&quot;&gt;we announced&lt;/a&gt; that the &lt;a href=&quot;https://doc.rust-lang.org/nightly/std/future/trait.Future.html&quot;&gt;&lt;code&gt;Future&lt;/code&gt;&lt;/a&gt; trait is here. Back then, we noted that:&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;With this stabilization, we hope to give important crates, libraries, and the ecosystem time to prepare for &lt;code&gt;async&lt;/code&gt; / &lt;code&gt;.await&lt;/code&gt;, which we'll tell you more about in the future.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;A promise made is a promise kept. So in Rust 1.39.0, we are pleased to announce that &lt;code&gt;async&lt;/code&gt; / &lt;code&gt;.await&lt;/code&gt; is stabilized! Concretely, this means that you can define &lt;code&gt;async&lt;/code&gt; functions and blocks and &lt;code&gt;.await&lt;/code&gt; them.&lt;/p&gt;
-&lt;p&gt;An &lt;code&gt;async&lt;/code&gt; function, which you can introduce by writing &lt;code&gt;async fn&lt;/code&gt; instead of &lt;code&gt;fn&lt;/code&gt;, does nothing other than to return a &lt;code&gt;Future&lt;/code&gt; when called. This &lt;code&gt;Future&lt;/code&gt; is a suspended computation which you can drive to completion by &lt;code&gt;.await&lt;/code&gt;ing it. Besides &lt;code&gt;async fn&lt;/code&gt;, &lt;code&gt;async { ... }&lt;/code&gt; and &lt;code&gt;async move { ... }&lt;/code&gt; blocks, which act like closures, can be used to define &amp;quot;async literals&amp;quot;.&lt;/p&gt;
-&lt;p&gt;For more on the release of &lt;code&gt;async&lt;/code&gt; / &lt;code&gt;.await&lt;/code&gt;, read &lt;a href=&quot;https://blog.rust-lang.org/2019/11/07/Async-await-stable.html&quot;&gt;Niko Matsakis's blog post&lt;/a&gt;.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#references-to-by-move-bindings-in-match-guards&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;references-to-by-move-bindings-in-match-guards&quot;&gt;&lt;/a&gt;References to by-move bindings in &lt;code&gt;match&lt;/code&gt; guards&lt;/h3&gt;
-&lt;p&gt;When pattern matching in Rust, a variable, also known as a &amp;quot;binding&amp;quot;, can be bound in the following ways:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;by-reference, either immutably or mutably. This can be achieved explicitly e.g. through &lt;code&gt;ref my_var&lt;/code&gt; or &lt;code&gt;ref mut my_var&lt;/code&gt; respectively. Most of the time though, the binding mode will be inferred automatically.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;by-value -- either by-copy, when the bound variable's type implements &lt;code&gt;Copy&lt;/code&gt;, or otherwise &lt;strong&gt;&lt;em&gt;by-move&lt;/em&gt;&lt;/strong&gt;.&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Previously, Rust would forbid taking shared references to &lt;strong&gt;&lt;em&gt;by-move&lt;/em&gt;&lt;/strong&gt; bindings in the &lt;code&gt;if&lt;/code&gt; guards of &lt;code&gt;match&lt;/code&gt; expressions. This meant that the following code would be rejected:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;fn main() {
-    let array: Box&amp;lt;[u8; 4]&amp;gt; = Box::new([1, 2, 3, 4]);
-
-    match array {
-        nums
-//      ---- `nums` is bound by move.
-            if nums.iter().sum::&amp;lt;u8&amp;gt;() == 10
-//                 ^------ `.iter()` implicitly takes a reference to `nums`.
-        =&amp;gt; {
-            drop(nums);
-//          ----------- `nums` was bound by move and so we have ownership.
-        }
-        _ =&amp;gt; unreachable!(),
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/63118/#issuecomment-522823925&quot;&gt;With Rust 1.39.0&lt;/a&gt;, the snippet above is now accepted by the compiler. We hope that this will give a smoother and more consistent experience with &lt;code&gt;match&lt;/code&gt; expressions overall.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#attributes-on-function-parameters&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;attributes-on-function-parameters&quot;&gt;&lt;/a&gt;Attributes on function parameters&lt;/h3&gt;
-&lt;p&gt;With Rust 1.39.0, attributes are now allowed on parameters of functions, closures, and function pointers. Whereas before, you might have written:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;#[cfg(windows)]
-fn len(slice: &amp;amp;[u16]) -&amp;gt; usize {
-    slice.len()
-}
-#[cfg(not(windows))] 
-fn len(slice: &amp;amp;[u8]) -&amp;gt; usize {
-    slice.len()
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;...&lt;a href=&quot;https://github.com/rust-lang/rust/pull/64010/&quot;&gt;you can now&lt;/a&gt;, more succinctly, write:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;fn len(
-    #[cfg(windows)] slice: &amp;amp;[u16], // This parameter is used on Windows.
-    #[cfg(not(windows))] slice: &amp;amp;[u8], // Elsewhere, this one is used.
-) -&amp;gt; usize {
-    slice.len()
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The attributes you can use in this position include:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;
-&lt;p&gt;Conditional compilation: &lt;code&gt;cfg&lt;/code&gt; and &lt;code&gt;cfg_attr&lt;/code&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Controlling lints: &lt;code&gt;allow&lt;/code&gt;, &lt;code&gt;warn&lt;/code&gt;, &lt;code&gt;deny&lt;/code&gt;, and &lt;code&gt;forbid&lt;/code&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Helper attributes used by procedural macro attributes applied to items.&lt;/p&gt;
-&lt;p&gt;Our hope is that this will be used to provide more readable and ergonomic macro-based DSLs throughout the ecosystem.&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3&gt;&lt;a href=&quot;#borrow-check-migration-warnings-are-hard-errors-in-rust-2018&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;borrow-check-migration-warnings-are-hard-errors-in-rust-2018&quot;&gt;&lt;/a&gt;Borrow check migration warnings are hard errors in Rust 2018&lt;/h3&gt;
-&lt;p&gt;In the 1.35.0 release, &lt;a href=&quot;https://blog.rust-lang.org/2019/07/04/Rust-1.36.0.html#nll-for-rust-2015&quot;&gt;we announced&lt;/a&gt; that NLL had come to Rust 2015 after first being released for Rust 2018 in &lt;a href=&quot;https://blog.rust-lang.org/2018/12/06/Rust-1.31-and-rust-2018.html#non-lexical-lifetimes&quot;&gt;1.31&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;As noted in the 1.35.0 release, the old borrow checker had some bugs which would allow memory unsafety. These bugs were fixed by the NLL borrow checker. As these fixes broke some stable code, we decided to gradually phase in the errors by checking if the old borrow checker would accept the program and the NLL checker would reject it. If so, the errors would instead become warnings.&lt;/p&gt;
-&lt;p&gt;With Rust 1.39.0, these warnings are now &lt;a href=&quot;https://github.com/rust-lang/rust/pull/63565&quot;&gt;errors in Rust 2018&lt;/a&gt;.
-In the next release, Rust 1.40.0, &lt;a href=&quot;https://github.com/rust-lang/rust/pull/64221&quot;&gt;this will also apply to Rust 2015&lt;/a&gt;, which will finally allow us to &lt;a href=&quot;https://github.com/rust-lang/rust/pull/64790&quot;&gt;remove the old borrow checker&lt;/a&gt;, and keep the compiler clean.&lt;/p&gt;
-&lt;p&gt;If you are affected, or want to hear more, read &lt;a href=&quot;https://blog.rust-lang.org/2019/11/01/nll-hard-errors.html&quot;&gt;Niko Matsakis's blog post&lt;/a&gt;.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#more-const-fns-in-the-standard-library&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;more-const-fns-in-the-standard-library&quot;&gt;&lt;/a&gt;More &lt;code&gt;const fn&lt;/code&gt;s in the standard library&lt;/h3&gt;
-&lt;p&gt;With Rust 1.39.0, the following functions became &lt;code&gt;const fn&lt;/code&gt;:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/vec/struct.Vec.html#method.new&quot;&gt;&lt;code&gt;Vec::new&lt;/code&gt;&lt;/a&gt;, &lt;a href=&quot;https://doc.rust-lang.org/std/string/struct.String.html#method.new&quot;&gt;&lt;code&gt;String::new&lt;/code&gt;&lt;/a&gt;, and &lt;a href=&quot;https://doc.rust-lang.org/std/collections/linked_list/struct.LinkedList.html#method.new&quot;&gt;&lt;code&gt;LinkedList::new&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.str.html#method.len&quot;&gt;&lt;code&gt;str::len&lt;/code&gt;&lt;/a&gt;, &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.slice.html#method.len&quot;&gt;&lt;code&gt;[T]::len&lt;/code&gt;&lt;/a&gt;, and &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.str.html#method.as_bytes&quot;&gt;&lt;code&gt;str::as_bytes&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.i8.html#method.abs&quot;&gt;&lt;code&gt;abs&lt;/code&gt;&lt;/a&gt;, &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.i8.html#method.wrapping_abs&quot;&gt;&lt;code&gt;wrapping_abs&lt;/code&gt;&lt;/a&gt;, and &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.i8.html#method.overflowing_abs&quot;&gt;&lt;code&gt;overflowing_abs&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;a href=&quot;#additions-to-the-standard-library&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;additions-to-the-standard-library&quot;&gt;&lt;/a&gt;Additions to the standard library&lt;/h3&gt;
-&lt;p&gt;In Rust 1.39.0 the following functions were stabilized:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/pin/struct.Pin.html#method.into_inner&quot;&gt;&lt;code&gt;Pin::into_inner&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Instant.html#method.checked_duration_since&quot;&gt;&lt;code&gt;Instant::checked_duration_since&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Instant.html#method.saturating_duration_since&quot;&gt;&lt;code&gt;Instant::saturating_duration_since&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;a href=&quot;#other-changes&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;other-changes&quot;&gt;&lt;/a&gt;Other changes&lt;/h3&gt;
-&lt;p&gt;There are other changes in the Rust 1.39.0 release: check out what changed in &lt;a href=&quot;https://github.com/rust-lang/rust/blob/stable/RELEASES.md#version-1390-2019-11-07&quot;&gt;Rust&lt;/a&gt;, &lt;a href=&quot;https://github.com/rust-lang/cargo/blob/master/CHANGELOG.md#cargo-139-2019-11-07&quot;&gt;Cargo&lt;/a&gt;, and &lt;a href=&quot;https://github.com/rust-lang/rust-clippy/blob/master/CHANGELOG.md#rust-139&quot;&gt;Clippy&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Please also see the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/stable/RELEASES.md#compatibility-notes&quot;&gt;compatibility notes&lt;/a&gt; to check if you're affected by those changes.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#contributors-to-139.0&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;contributors-to-139.0&quot;&gt;&lt;/a&gt;Contributors to 1.39.0&lt;/h2&gt;
-&lt;p&gt;Many people came together to create Rust 1.39.0. We couldn't have done it
-without all of you. &lt;a href=&quot;https://thanks.rust-lang.org/rust/1.39.0/&quot;&gt;Thanks!&lt;/a&gt;&lt;/p&gt;
-</content>
-
-        <author>
-            <name>The Rust Release Team</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Async-await on stable Rust!</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/11/07/Async-await-stable.html" type="text/html" title="Async-await on stable Rust!" />
-        <published>2019-11-07T00:00:00Z</published>
-        <updated>2019-11-07T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/11/07/Async-await-stable.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/11/07/Async-await-stable.html">&lt;p&gt;&lt;strong&gt;On this coming Thursday, November 7, async-await syntax hits stable
-Rust, as part of the 1.39.0 release.&lt;/strong&gt; This work has been a long time
-in development -- the key ideas for zero-cost futures, for example,
-were &lt;a href=&quot;https://aturon.github.io/blog/2016/08/11/futures/&quot;&gt;first proposed by Aaron Turon and Alex Crichton in
-2016&lt;/a&gt;! -- and we are very proud of the end result. We believe
-that Async I/O is going to be an increasingly important part of Rust's
-story.&lt;/p&gt;
-&lt;p&gt;While this first release of &amp;quot;async-await&amp;quot; is a momentous event, it's
-also only the beginning. The current support for async-await marks a
-kind of &amp;quot;Minimum Viable Product&amp;quot; (MVP). We expect to be polishing,
-improving, and extending it for some time.&lt;/p&gt;
-&lt;p&gt;Already, in the time since &lt;a href=&quot;https://blog.rust-lang.org/2019/09/30/Async-await-hits-beta.html&quot;&gt;async-await hit beta&lt;/a&gt;, we've made
-a lot of great progress, including making some &lt;a href=&quot;https://blog.rust-lang.org/inside-rust/2019/10/11/AsyncAwait-Not-Send-Error-Improvements.html&quot;&gt;key diagnostic
-improvements&lt;/a&gt; that help to make async-await errors far more
-approachable. To get involved in that work, check out
-the &lt;a href=&quot;https://rust-lang.github.io/compiler-team/working-groups/async-await/&quot;&gt;Async Foundations Working Group&lt;/a&gt;; if nothing else, you can
-help us by filing bugs about polish issues or by &lt;a href=&quot;https://rust-lang.github.io/compiler-team/working-groups/async-await/#nominating-issues&quot;&gt;nominating those
-bugs that are bothering you the most&lt;/a&gt;, to help direct our
-efforts.&lt;/p&gt;
-&lt;p&gt;Many thanks are due to the people who made async-await a reality. The
-implementation and design would never have happened without the
-leadership of cramertj and withoutboats, the implementation and polish
-work from the compiler side (davidtwco, tmandry, gilescope, csmoe),
-the core generator support that futures builds on (Zoxc), the
-foundational work on &lt;code&gt;Future&lt;/code&gt; and the &lt;code&gt;Pin&lt;/code&gt; APIs (aturon,
-alexcrichton, RalfJ, pythonesque), and of course the input provided by
-so many community members on RFC threads and discussions.&lt;/p&gt;
-&lt;h1&gt;&lt;a href=&quot;#major-developments-in-the-async-ecosystem&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;major-developments-in-the-async-ecosystem&quot;&gt;&lt;/a&gt;Major developments in the async ecosystem&lt;/h1&gt;
-&lt;p&gt;Now that async-await is approaching stabilization, all the major Async
-I/O runtimes are at work adding and extending their support for the
-new syntax:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;the &lt;a href=&quot;https://tokio.rs/&quot;&gt;tokio&lt;/a&gt; runtime &lt;a href=&quot;https://tokio.rs/blog/2019-10-scheduler/&quot;&gt;recently announced a number of scheduler
-improvements&lt;/a&gt;, and they are planning a stable release
-in November that supports async-await syntax;&lt;/li&gt;
-&lt;li&gt;the &lt;a href=&quot;https://async.rs/&quot;&gt;async-std&lt;/a&gt; runtime &lt;a href=&quot;https://github.com/async-rs/async-std/releases&quot;&gt;has been putting out weekly releases for the past few months&lt;/a&gt;, and plans to make their
-1.0 release shortly after async-await hits stable;&lt;/li&gt;
-&lt;li&gt;using &lt;a href=&quot;https://docs.rs/crate/wasm-bindgen-futures/0.2.16&quot;&gt;wasm-bindgen-futures&lt;/a&gt;, you can even bridge Rust Futures with
-&lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises&quot;&gt;JavaScript promises&lt;/a&gt;;&lt;/li&gt;
-&lt;li&gt;the &lt;a href=&quot;https://hyper.rs&quot;&gt;hyper library&lt;/a&gt; has &lt;a href=&quot;https://github.com/hyperium/hyper/issues/1805&quot;&gt;migrated&lt;/a&gt; to adopt standard Rust futures;&lt;/li&gt;
-&lt;li&gt;the newly released 0.3.0 version of the &lt;a href=&quot;https://crates.io/crates/futures&quot;&gt;futures-rs library&lt;/a&gt; includes support
-for async-await;&lt;/li&gt;
-&lt;li&gt;finally, async-await support is starting to become available in higher-level
-&lt;a href=&quot;https://www.arewewebyet.org/topics/frameworks/&quot;&gt;web frameworks&lt;/a&gt; as well, as well as other interesting applications such
-as the &lt;a href=&quot;https://docs.rs/futures-intrusive/0.2.0/futures_intrusive/&quot;&gt;&lt;code&gt;futures_intrusive&lt;/code&gt;&lt;/a&gt;
-crate.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;a href=&quot;#async-await-a-quick-primer&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;async-await-a-quick-primer&quot;&gt;&lt;/a&gt;Async-await: a quick primer&lt;/h3&gt;
-&lt;p&gt;&lt;em&gt;(This section and the next are reproduced from the &lt;a href=&quot;https://blog.rust-lang.org/2019/09/30/Async-await-hits-beta.html&quot;&gt;&amp;quot;Async-await hits
-beta!&amp;quot;&lt;/a&gt; post.)&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;So, what is async await? Async-await is a way to write functions that
-can &amp;quot;pause&amp;quot;, return control to the runtime, and then pick up from
-where they left off.  Typically those pauses are to wait for I/O, but
-there can be any number of uses.&lt;/p&gt;
-&lt;p&gt;You may be familiar with the async-await from JavaScript or C#. Rust's
-version of the feature is similar, but with a few key differences.&lt;/p&gt;
-&lt;p&gt;To use async-await, you start by writing &lt;code&gt;async fn&lt;/code&gt; instead of &lt;code&gt;fn&lt;/code&gt;:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;async fn first_function() -&amp;gt; u32 { .. }
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Unlike a regular function, calling an &lt;code&gt;async fn&lt;/code&gt; doesn't have any
-immediate effect. Instead, it returns a &lt;code&gt;Future&lt;/code&gt;. This is a suspended
-computation that is waiting to be executed. To actually &lt;em&gt;execute&lt;/em&gt; the
-future, use the &lt;code&gt;.await&lt;/code&gt; operator:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;async fn another_function() {
-    // Create the future:
-    let future = first_function();
-    
-    // Await the future, which will execute it (and suspend
-    // this function if we encounter a need to wait for I/O): 
-    let result: u32 = future.await;
-    ...
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This example shows the first difference between Rust and other
-languages: we write &lt;code&gt;future.await&lt;/code&gt; instead of &lt;code&gt;await future&lt;/code&gt;. This
-syntax integrates better with Rust's &lt;code&gt;?&lt;/code&gt; operator for propagating
-errors (which, after all, are very common in I/O). You can simply
-write &lt;code&gt;future.await?&lt;/code&gt; to await the result of a future and propagate
-errors. It also has the advantage of making method chaining painless.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#zero-cost-futures&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;zero-cost-futures&quot;&gt;&lt;/a&gt;Zero-cost futures&lt;/h3&gt;
-&lt;p&gt;The other difference between Rust futures and futures in JS and C# is
-that they are based on a &amp;quot;poll&amp;quot; model, which makes them &lt;strong&gt;zero
-cost&lt;/strong&gt;. In other languages, invoking an async function immediately
-creates a future and schedules it for execution: awaiting the future
-isn't necessary for it to execute. But this implies some overhead for
-each future that is created.&lt;/p&gt;
-&lt;p&gt;In contrast, in Rust, calling an async function does not do any
-scheduling in and of itself, which means that we can compose a complex
-nest of futures without incurring a per-future cost. As an end-user,
-though, the main thing you'll notice is that &lt;strong&gt;futures feel &amp;quot;lazy&amp;quot;&lt;/strong&gt;:
-they don't do anything until you await them.&lt;/p&gt;
-&lt;p&gt;If you'd like a closer look at how futures work under the hood, take a
-look at &lt;a href=&quot;https://rust-lang.github.io/async-book/02_execution/04_executor.html&quot;&gt;the executor section&lt;/a&gt; of the &lt;a href=&quot;https://github.com/rust-lang/async-book&quot;&gt;async book&lt;/a&gt;, or watch the
-&lt;a href=&quot;https://www.youtube.com/watch?v=skos4B5x7qE&quot;&gt;excellent talk&lt;/a&gt; that &lt;a href=&quot;https://github.com/withoutboats&quot;&gt;withoutboats&lt;/a&gt; gave at &lt;a href=&quot;https://rustlatam.org/&quot;&gt;Rust LATAM 2019&lt;/a&gt;
-on the topic.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#summary&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;summary&quot;&gt;&lt;/a&gt;Summary&lt;/h3&gt;
-&lt;p&gt;We believe that having async-await on stable Rust is going to be a key
-enabler for a lot of new and exciting developments in Rust. If you've
-tried Async I/O in Rust in the past and had problems -- particularly
-if you tried the combinator-based futures of the past -- you'll find
-&lt;a href=&quot;http://aturon.github.io/tech/2018/04/24/async-borrowing/&quot;&gt;async-await integrates much better with Rust's borrowing
-system&lt;/a&gt;. Moreover, there are now a number of great runtimes and
-other libraries available in the ecosystem to work with.  So get out
-there and build stuff!&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Niko Matsakis</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Completing the transition to the new borrow checker</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/11/01/nll-hard-errors.html" type="text/html" title="Completing the transition to the new borrow checker" />
-        <published>2019-11-01T00:00:00Z</published>
-        <updated>2019-11-01T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/11/01/nll-hard-errors.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/11/01/nll-hard-errors.html">&lt;p&gt;For most of 2018, we've been issuing warnings about various bugs in the
-borrow checker that we plan to fix -- about two months ago, in the
-current Rust nightly, those warnings became &lt;strong&gt;hard errors&lt;/strong&gt;. In about
-two weeks, when the nightly branches to become beta, those hard errors
-will be in the beta build, and they will eventually hit stable on
-December 19th, as part of Rust 1.40.0. &lt;strong&gt;If you're testing with
-Nightly, you should be all set -- but otherwise, you may want to go
-and check to make sure your code still builds. If not, we have advice
-for fixing common problems below.&lt;/strong&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#background-the-non-lexical-lifetime-transition&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;background-the-non-lexical-lifetime-transition&quot;&gt;&lt;/a&gt;Background: the non-lexical lifetime transition&lt;/h3&gt;
-&lt;p&gt;When we &lt;a href=&quot;https://blog.rust-lang.org/2018/12/06/Rust-1.31-and-rust-2018.html&quot;&gt;released Rust 2018 in Rust 1.31&lt;/a&gt;, it included a new
-version of the borrow checker, one that implemented &lt;a href=&quot;https://blog.rust-lang.org/2018/12/06/Rust-1.31-and-rust-2018.html#non-lexical-lifetimes&quot;&gt;&amp;quot;non-lexical
-lifetimes&amp;quot;&lt;/a&gt;. This new borrow checker did a much more precise
-analysis than the original, allowing us to eliminate a lot of
-unnecessary errors and make Rust easier to use. I think most everyone
-who was using Rust 2015 can attest that this shift was a big
-improvement.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#the-new-borrow-checker-also-fixed-a-lot-of-bugs&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;the-new-borrow-checker-also-fixed-a-lot-of-bugs&quot;&gt;&lt;/a&gt;The new borrow checker also fixed a lot of bugs&lt;/h3&gt;
-&lt;p&gt;What is perhaps less well understood is that the new borrow checker
-implementation &lt;em&gt;also&lt;/em&gt; fixed a lot of bugs. In other words, the new
-borrow checker did not just accept more programs -- &lt;strong&gt;it also rejected
-some programs that were only accepted in the first place due to memory
-unsafety bugs in the old borrow checker!&lt;/strong&gt;&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#until-recently-those-fixed-bugs-produced-warnings,-not-errors&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;until-recently-those-fixed-bugs-produced-warnings,-not-errors&quot;&gt;&lt;/a&gt;Until recently, those fixed bugs produced warnings, not errors&lt;/h3&gt;
-&lt;p&gt;Obviously, we don't want to accept programs that could undermine
-Rust's safety guarantees. At the same time, as part of our commitment
-to stability, we try to avoid making sudden bug fixes that will affect
-a lot of code. Whenever possible, we prefer to &amp;quot;phase in&amp;quot; those
-changes gradually. We usually begin with &amp;quot;Future Compatibility
-Warnings&amp;quot;, for example, before moving those warnings to hard errors
-(sometimes a small bit at a time). Since the bug fixes to the borrow
-checker affected a lot of crates, we knew we needed a warning period
-before we could make them into hard errors.&lt;/p&gt;
-&lt;p&gt;To implement this warning period, we kept two copies of the borrow
-checker around (this is a trick we use quite frequently, actually).
-The new checker ran first. If it found errors, we didn't report them
-directly: instead, we ran the old checker in order to see if the crate
-&lt;em&gt;used&lt;/em&gt; to compile before. If so, we reported the errors as Future
-Compatibility Warnings, since we were changing something that used to
-compile into errors.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#all-good-things-must-come-to-an-end-and-bad-ones,-too&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;all-good-things-must-come-to-an-end-and-bad-ones,-too&quot;&gt;&lt;/a&gt;All good things must come to an end; and bad ones, too&lt;/h3&gt;
-&lt;p&gt;Over time we have been slowly transitioning those future compatibility
-warnings into errors, a bit at a time. About two months ago, we
-decided that the time had come to finish the job. So, over the course
-of two PRs, we &lt;a href=&quot;https://github.com/rust-lang/rust/pull/63565&quot;&gt;converted all remaining warnings to errors&lt;/a&gt; and
-then &lt;a href=&quot;https://github.com/rust-lang/rust/pull/64790&quot;&gt;removed the old borrow checker implementation&lt;/a&gt;.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#what-this-means-for-you&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;what-this-means-for-you&quot;&gt;&lt;/a&gt;What this means for you&lt;/h3&gt;
-&lt;p&gt;&lt;strong&gt;If you are testing your package with nightly, then you should be
-fine.&lt;/strong&gt; In fact, even if you build on stable, we always recommend that
-you test your builds in CI with the nightly build, so that you can
-identify upcoming issues early and report them to us.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Otherwise, you may want to check your dependencies.&lt;/strong&gt; When we
-decided to remove the old borrow checker, we also analyzed which
-crates would stop compiling. For anything that seemed to be widely
-used, we made sure that there were newer versions of that crate
-available that &lt;em&gt;do&lt;/em&gt; compile (for the most part, this had all already
-happened during the warning period). But if you have those older
-versions in your &lt;code&gt;Cargo.lock&lt;/code&gt; file, and you are only using stable
-builds, then you may find that your code no longer builds once 1.40.0
-is released -- you will have to upgrade the dependency.&lt;/p&gt;
-&lt;p&gt;The most common crates that were affected are the following:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;url&lt;/code&gt; version 1.7.0 -- you can upgrade to 1.7.2, though you'd be better off upgrading to 2.1.0&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;nalgebra&lt;/code&gt; version 0.16.13 -- you can upgrade to 0.16.14, though you'd be better off upgrading to 0.19.0&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;rusttype&lt;/code&gt; version 0.2.0 to 0.2.3 -- you can upgrade to 0.2.4, though you'd be better upgrading to 0.8.1&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;You can find out which crates you rely upon using the &lt;a href=&quot;https://crates.io/crates/cargo-tree&quot;&gt;cargo-tree&lt;/a&gt; command. If you find
-that you &lt;em&gt;do&lt;/em&gt; rely (say) on &lt;code&gt;url&lt;/code&gt; 1.7.0, you can upgrade to 1.7.2 by executing:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;cargo update --package url --precise 1.7.2
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h3&gt;&lt;a href=&quot;#want-to-learn-more&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;want-to-learn-more&quot;&gt;&lt;/a&gt;Want to learn more?&lt;/h3&gt;
-&lt;p&gt;If you'd like to learn more about the kinds of bugs that were fixed --
-or if you are seeing errors in your code that you need to fix -- take
-a look at this &lt;a href=&quot;http://blog.pnkfx.org/blog/2019/06/26/breaking-news-non-lexical-lifetimes-arrives-for-everyone/&quot;&gt;excellent blog post by Felix Klock&lt;/a&gt;, which
-goes into great detail.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Niko Matsakis</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>A call for blogs 2020</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/10/29/A-call-for-blogs-2020.html" type="text/html" title="A call for blogs 2020" />
-        <published>2019-10-29T00:00:00Z</published>
-        <updated>2019-10-29T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/10/29/A-call-for-blogs-2020.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/10/29/A-call-for-blogs-2020.html">&lt;p&gt;What will Rust development look like in 2020? That's partially up to you! Here's how it works:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Anyone and everyone in the Rust community writes a blog post about what they'd like Rust development to be like in 2020.&lt;/li&gt;
-&lt;li&gt;The core team reads all the posts, and writes up a &amp;quot;Roadmap RFC&amp;quot; to make a formal proposal.&lt;/li&gt;
-&lt;li&gt;The RFC is reviewed by everyone, comments are made, adjustments are made, and eventually it is accepted.&lt;/li&gt;
-&lt;li&gt;This RFC is a guide to either accept or postpone RFCs for 2020. If a proposal fits into the themes of what we want to accomplish, we'll take it, but if it doesn't, we'll put it off until the next year.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;This process takes time, and it won't &lt;em&gt;quite&lt;/em&gt; be complete before 2020 starts.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;We'll review the posts December 1. That gives you a month to think about Rust in 2020 and write something up.&lt;/li&gt;
-&lt;li&gt;We'll aim to produce the RFC draft in the week or two after&lt;/li&gt;
-&lt;li&gt;Depending on how many comments the RFC gets, we may not end up accepting it until early January.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2&gt;&lt;a href=&quot;#what-were-looking-for&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;what-were-looking-for&quot;&gt;&lt;/a&gt;What we're looking for&lt;/h2&gt;
-&lt;p&gt;We are accepting ideas about almost anything having to do with Rust: language features, tooling needs, community programs, ecosystem needs... if it's related to Rust, we want to hear about it.&lt;/p&gt;
-&lt;p&gt;One big question for this year: will there be a Rust 2021 edition? If so, 2020 would be the year to do a lot of associated work and plan the details. What would the edition's theme be?&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Rust 2015: Stability&lt;/li&gt;
-&lt;li&gt;Rust 2018: Productivity&lt;/li&gt;
-&lt;li&gt;Rust 2021: ?&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Let us know what you think!&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#please-share-these-posts-with-us&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;please-share-these-posts-with-us&quot;&gt;&lt;/a&gt;Please share these posts with us&lt;/h2&gt;
-&lt;p&gt;You can write up these posts and email them to community@rust-lang.org or tweet them with the hashtag #rust2020. If you'd prefer to not participate publicly, emailing something to community@rust-lang.org is fine as well.&lt;/p&gt;
-&lt;p&gt;Thanks for helping make Rust awesome! We are looking forward to doing amazing things in 2020.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>The Rust Core Team</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Announcing Rustup 1.20.0</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/10/15/Rustup-1.20.0.html" type="text/html" title="Announcing Rustup 1.20.0" />
-        <published>2019-10-15T00:00:00Z</published>
-        <updated>2019-10-15T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/10/15/Rustup-1.20.0.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/10/15/Rustup-1.20.0.html">&lt;p&gt;The rustup working group is happy to announce the release of rustup version 1.20.0. &lt;a href=&quot;https://rustup.rs&quot;&gt;Rustup&lt;/a&gt; is the recommended tool to install &lt;a href=&quot;https://www.rust-lang.org&quot;&gt;Rust&lt;/a&gt;, a programming language that is empowering everyone to build reliable and efficient software.&lt;/p&gt;
-&lt;p&gt;If you have a previous version of rustup installed, getting rustup 1.20.0 is as easy as:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;rustup self update
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Rustup will also automatically update itself at the end of a normal toolchain update:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;rustup update
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If you don't have it already, you can &lt;a href=&quot;https://rustup.rs&quot;&gt;get rustup&lt;/a&gt; from the appropriate page on our website.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#whats-new-in-rustup-1.20.0&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;whats-new-in-rustup-1.20.0&quot;&gt;&lt;/a&gt;What's new in rustup 1.20.0&lt;/h2&gt;
-&lt;p&gt;The highlights of this release are profiles support, the ability to get the latest available nightly with all the components you need, and improvements to the &lt;code&gt;rustup doc&lt;/code&gt; command. You can also check out &lt;a href=&quot;https://github.com/rust-lang/rustup.rs/blob/master/CHANGELOG.md&quot;&gt;the changelog&lt;/a&gt; for a list of all the changes included in this release.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#profiles&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;profiles&quot;&gt;&lt;/a&gt;Profiles&lt;/h3&gt;
-&lt;p&gt;Previous versions of rustup installed a few components by default along with each toolchain: the compiler (&lt;code&gt;rustc&lt;/code&gt;), the package manager (&lt;code&gt;cargo&lt;/code&gt;), the standard library (&lt;code&gt;rust-std&lt;/code&gt;), and offline documentation (&lt;code&gt;rust-docs&lt;/code&gt;). While this approach is fine while developing software locally, some of the components (like &lt;code&gt;rust-docs&lt;/code&gt;) slowed down the installation, either because they're not used on build servers, or on Windows due to the large amount of installed files.&lt;/p&gt;
-&lt;p&gt;To address this problem, rustup 1.20.0 introduces the concept of &amp;quot;profiles&amp;quot;. They are groups of components you can choose to download while installing a new Rust toolchain. The profiles available at this time are &lt;code&gt;minimal&lt;/code&gt;, &lt;code&gt;default&lt;/code&gt;, and &lt;code&gt;complete&lt;/code&gt;:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;The &lt;strong&gt;minimal&lt;/strong&gt; profile includes as few components as possible to get a working compiler (&lt;code&gt;rustc&lt;/code&gt;, &lt;code&gt;rust-std&lt;/code&gt;, and &lt;code&gt;cargo&lt;/code&gt;). It's recommended to use this component on Windows systems if you don't use local documentation, and in CI.&lt;/li&gt;
-&lt;li&gt;The &lt;strong&gt;default&lt;/strong&gt; profile includes all the components previously installed by default (&lt;code&gt;rustc&lt;/code&gt;, &lt;code&gt;rust-std&lt;/code&gt;, &lt;code&gt;cargo&lt;/code&gt;, and &lt;code&gt;rust-docs&lt;/code&gt;) plus &lt;code&gt;rustfmt&lt;/code&gt; and &lt;code&gt;clippy&lt;/code&gt;. This profile will be used by rustup by default, and it's the one recommended for general use.&lt;/li&gt;
-&lt;li&gt;The &lt;strong&gt;complete&lt;/strong&gt; profile includes all the components available through rustup, including &lt;code&gt;miri&lt;/code&gt; and IDE integration tools (&lt;code&gt;rls&lt;/code&gt; and &lt;code&gt;rust-analysis&lt;/code&gt;).&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;To change the rustup profile you can use the &lt;code&gt;rustup set profile&lt;/code&gt; command. For example, to select the minimal profile you can use:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;rustup set profile minimal
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;It's also possible to choose the profile when installing rustup for the first time, either interactively by choosing the &amp;quot;Customize installation&amp;quot; option or programmaticaly by passing the &lt;code&gt;--profile=&amp;lt;name&amp;gt;&lt;/code&gt; flag. Profiles will only affect newly installed toolchains: as usual it will be possible to install individual components later with: &lt;code&gt;rustup component add&lt;/code&gt;.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#installing-the-latest-compatible-nightly&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;installing-the-latest-compatible-nightly&quot;&gt;&lt;/a&gt;Installing the latest compatible nightly&lt;/h3&gt;
-&lt;p&gt;While most components are guaranteed to be present on stable releases of &lt;a href=&quot;https://forge.rust-lang.org/release/platform-support.html&quot;&gt;tier 1 platforms&lt;/a&gt;, the same guarantee doesn't apply to nightly builds. Frequently, tools such as &lt;code&gt;rustfmt&lt;/code&gt;, &lt;code&gt;clippy&lt;/code&gt;, or &lt;code&gt;rls&lt;/code&gt; are missing in the latest nightly. If you depend on these tools, that makes updating nighties hard, as rustup will prevent the upgrade if a component you previously installed is missing.&lt;/p&gt;
-&lt;p&gt;Starting from rustup 1.20.0, if a component you previously installed is missing in the latest nightly, &lt;code&gt;rustup update&lt;/code&gt; will walk backwards in time to find the most recent release with all the components you need. If there are no new nightlies with all the components you need you'll either need to wait or remove some of them.&lt;/p&gt;
-&lt;p&gt;Along with this change, rustup 1.20.0 introduces the &lt;code&gt;--component&lt;/code&gt;/&lt;code&gt;-c&lt;/code&gt; and &lt;code&gt;--target&lt;/code&gt;/&lt;code&gt;-t&lt;/code&gt; options to the &lt;code&gt;rustup toolchain install&lt;/code&gt; command, allowing you to add components and targets as the toolchain is installed. These flags will also search past nightlies if the current one does not feature all the requested components.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#improvements-to-rustup-doc&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;improvements-to-rustup-doc&quot;&gt;&lt;/a&gt;Improvements to &lt;code&gt;rustup doc&lt;/code&gt;&lt;/h3&gt;
-&lt;p&gt;The &lt;code&gt;rustup doc&lt;/code&gt; command opens the locally installed documentation on your browser, without any Internet connection required. rustup 1.20.0 enhances the command allowing you to open directly the API documentation of a specific item. For example to look at the documentation of &lt;a href=&quot;https://doc.rust-lang.org/std/iter/trait.Iterator.html&quot;&gt;&lt;code&gt;Iterator&lt;/code&gt;&lt;/a&gt; you can use:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;rustup doc std::iter::Iterator
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This works for traits, structs/enums, macros, and modules, and can take you to the &lt;code&gt;std&lt;/code&gt;, &lt;code&gt;alloc&lt;/code&gt;, and &lt;code&gt;core&lt;/code&gt; crates. Note, however, that this functionality will only work if you have the &lt;code&gt;rust-docs&lt;/code&gt; component installed in your toolchain. We will be improving the command's UX over time, so if you have ideas, please do let us know!&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#thanks&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;thanks&quot;&gt;&lt;/a&gt;Thanks&lt;/h2&gt;
-&lt;p&gt;Thanks to all the contributors who made rustup 1.20.0 possible!&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Andy McCaffrey&lt;/li&gt;
-&lt;li&gt;Artem Borisovskiy&lt;/li&gt;
-&lt;li&gt;Benjamin Chen&lt;/li&gt;
-&lt;li&gt;Daniel Silverstone&lt;/li&gt;
-&lt;li&gt;Jon Gjengset&lt;/li&gt;
-&lt;li&gt;Lzu Tao&lt;/li&gt;
-&lt;li&gt;Matt Kantor&lt;/li&gt;
-&lt;li&gt;Mitchell Hynes&lt;/li&gt;
-&lt;li&gt;Nick Cameron&lt;/li&gt;
-&lt;li&gt;PicoJr&lt;/li&gt;
-&lt;li&gt;Pietro Albini&lt;/li&gt;
-&lt;/ul&gt;
-</content>
-
-        <author>
-            <name>The Rustup Working Group</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Announcing the Inside Rust blog</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/10/03/inside-rust-blog.html" type="text/html" title="Announcing the Inside Rust blog" />
-        <published>2019-10-03T00:00:00Z</published>
-        <updated>2019-10-03T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/10/03/inside-rust-blog.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/10/03/inside-rust-blog.html">&lt;p&gt;Today we're happy to announce that we're starting a second blog, the
-&lt;a href=&quot;/inside-rust/index.html&quot;&gt;&lt;strong&gt;Inside Rust&lt;/strong&gt; blog&lt;/a&gt;. This blog will be used to post regular
-updates by the various Rust teams and working groups. If you're
-interested in following along with the &amp;quot;nitty gritty&amp;quot; of Rust
-development, then you should take a look!&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Niko Matsakis</name>
-        </author>
-    </entry>
-    
-    <entry>
         <title>Security advisory for Cargo</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/09/30/Security-advisory-for-cargo.html" type="text/html" title="Security advisory for Cargo" />
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/9/30/Security-advisory-for-cargo.html" type="text/html" title="Security advisory for Cargo" />
         <published>2019-09-30T00:00:00Z</published>
         <updated>2019-09-30T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/09/30/Security-advisory-for-cargo.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/09/30/Security-advisory-for-cargo.html">&lt;blockquote&gt;
+        <id>https://blog.rust-lang.org/2019/9/30/Security-advisory-for-cargo.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/9/30/Security-advisory-for-cargo.html">&lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: This is a cross-post of the &lt;a href=&quot;https://groups.google.com/forum/#!topic/rustlang-security-announcements/rVQ5e3TDnpQ&quot;&gt;official security advisory&lt;/a&gt;. The official
 post contains a signed version with our PGP key, as well.&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -792,6 +157,789 @@ with our &lt;a href=&quot;https://www.rust-lang.org/policies/security&quot;&gt;s
 
         <author>
             <name>The Rust Security Team</name>
+        </author>
+    </entry>
+    
+    <entry>
+        <title>Async-await hits beta!</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/9/30/Async-await-hits-beta.html" type="text/html" title="Async-await hits beta!" />
+        <published>2019-09-30T00:00:00Z</published>
+        <updated>2019-09-30T00:00:01Z</updated>
+        <id>https://blog.rust-lang.org/2019/9/30/Async-await-hits-beta.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/9/30/Async-await-hits-beta.html">&lt;p&gt;Big news! As of this writing, &lt;strong&gt;syntactic support for async-await is
+available in the Rust beta channel!&lt;/strong&gt; It will be available in the 1.39
+release, which is expected to be released on &lt;strong&gt;November 7th, 2019&lt;/strong&gt;.
+Once async-await hits stable, that will mark the culmination of a
+&lt;strong&gt;multi-year effort to enable efficient and ergonomic asynchronous I/O
+in Rust&lt;/strong&gt;. It will not, however, mark the end of the road: there is
+still more work to do, both in terms of polish (some of the error
+messages we get today are, um, &lt;a href=&quot;https://github.com/rust-lang/rust/issues/64130&quot;&gt;not great&lt;/a&gt;) and in terms of feature
+set (&lt;a href=&quot;https://github.com/dtolnay/async-trait&quot;&gt;async fn in traits&lt;/a&gt;, anyone?).&lt;/p&gt;
+&lt;p&gt;(If you're not familiar with what async-await is, don't despair!
+There's a primer and other details later on in this post!)&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#async-await-support-in-the-ecosystem-growing-rapidly&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;async-await-support-in-the-ecosystem-growing-rapidly&quot;&gt;&lt;/a&gt;Async-await support in the ecosystem growing rapidly&lt;/h3&gt;
+&lt;p&gt;But async-await has never been the entire story. To make good use of
+async-await, you also need strong libraries and a vibrant ecosystem.
+&lt;strong&gt;Fortunately, you've got a lot of good choices, and they keep getting
+better:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;the async runtime &lt;a href=&quot;https://tokio.rs/&quot;&gt;tokio&lt;/a&gt;, for example, recently announced an &lt;a href=&quot;https://tokio.rs/blog/2019-08-alphas/&quot;&gt;alpha
+release&lt;/a&gt; based on async-await;&lt;/li&gt;
+&lt;li&gt;the &lt;a href=&quot;https://async.rs/blog/announcing-async-std/&quot;&gt;recently announced&lt;/a&gt; &lt;a href=&quot;https://async.rs/&quot;&gt;async-std&lt;/a&gt; library was built from the
+start on the new async-await syntax;&lt;/li&gt;
+&lt;li&gt;using &lt;a href=&quot;https://docs.rs/crate/wasm-bindgen-futures/0.2.16&quot;&gt;wasm-bindgen-futures&lt;/a&gt;, you can even bridge Rust Futures with
+&lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises&quot;&gt;JavaScript promises&lt;/a&gt;;&lt;/li&gt;
+&lt;li&gt;the &lt;a href=&quot;https://hyper.rs&quot;&gt;hyper library&lt;/a&gt; has &lt;a href=&quot;https://github.com/hyperium/hyper/issues/1805&quot;&gt;migrated&lt;/a&gt; to adopt standard Rust futures;&lt;/li&gt;
+&lt;li&gt;the 0.3.0 version of the &lt;a href=&quot;https://crates.io/crates/futures-preview&quot;&gt;futures-rs library&lt;/a&gt; will support
+async-await and will be released by the time async-await hits stable
+(you can use the &lt;a href=&quot;https://rust-lang-nursery.github.io/futures-rs/blog/2018/07/19/futures-0.3.0-alpha.1.html&quot;&gt;0.3.0-alpha&lt;/a&gt; releases now);&lt;/li&gt;
+&lt;li&gt;finally, async-await support is starting to become available in higher-level
+&lt;a href=&quot;https://www.arewewebyet.org/topics/frameworks/&quot;&gt;web frameworks&lt;/a&gt; as well.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;a href=&quot;#restructuring-async-io-in-the-rust-org&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;restructuring-async-io-in-the-rust-org&quot;&gt;&lt;/a&gt;Restructuring Async I/O in the Rust org&lt;/h3&gt;
+&lt;p&gt;Now that async-await is approaching stable, we are taking the
+opportunity to make some changes to our Rust team structure. The
+current structure includes two working groups: the &lt;a href=&quot;https://rust-lang.github.io/compiler-team/working-groups/async-await/&quot;&gt;Async Foundations
+WG&lt;/a&gt;, focused on building up core language support, and the &lt;a href=&quot;https://github.com/rustasync/team&quot;&gt;Async
+Ecosystem WG&lt;/a&gt;, focused on supporting the ecosystem develop.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;In light of all the activity going on in the ecosystem, however,
+there it not as much need for the &lt;a href=&quot;https://github.com/rustasync/team&quot;&gt;Async Ecosystem WG&lt;/a&gt;, and as such
+we've decided to spin it down.&lt;/strong&gt; We'll be deprecating the &lt;a href=&quot;https://github.com/rustasync/&quot;&gt;rustasync
+github org&lt;/a&gt;. The &lt;a href=&quot;https://areweasyncyet.rs/&quot;&gt;areweasyncyet.rs&lt;/a&gt; and &lt;a href=&quot;https://www.arewewebyet.org/&quot;&gt;arewewebyet.org&lt;/a&gt; websites
+will move to the main &lt;a href=&quot;https://github.com/rust-lang/&quot;&gt;rust-lang org&lt;/a&gt;, but the fate of the other
+projects will be decided by the people who built them. A few will
+likely be deprecated, and the remainder will be moving out to be
+maintained independently.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;The &lt;a href=&quot;https://rust-lang.github.io/compiler-team/working-groups/async-await/&quot;&gt;Async Foundations WG&lt;/a&gt;, meanwhile, will continue, but with a
+shift in focus.&lt;/strong&gt; Now that async-await is en route to stabilization,
+the focus will be on polish, such as improving diagnostics, fixing
+smaller bugs, and improving documentation such as the &lt;a href=&quot;https://github.com/rust-lang/async-book&quot;&gt;async
+book&lt;/a&gt;. Once progress is made on that, we'll be considering what
+features to implement next.&lt;/p&gt;
+&lt;p&gt;(An aside: this is the first time that we've ever opted to spin &lt;em&gt;down&lt;/em&gt;
+a working group, and we realized that we don't have a formal policy
+for that. We've &lt;a href=&quot;https://github.com/rust-lang/wg-governance/issues/25&quot;&gt;created an issue&lt;/a&gt; with the &lt;a href=&quot;https://github.com/rust-lang/wg-governance/&quot;&gt;governance working
+group&lt;/a&gt; to look into that for the future.)&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#async-await-a-quick-primer&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;async-await-a-quick-primer&quot;&gt;&lt;/a&gt;Async await: a quick primer&lt;/h3&gt;
+&lt;p&gt;So, what is async await? Async-await is a way to write functions that
+can &amp;quot;pause&amp;quot;, return control to the runtime, and then pick up from
+where they left off.  Typically those pauses are to wait for I/O, but
+there can be any number of uses.&lt;/p&gt;
+&lt;p&gt;You may be familiar with the async-await from other languages, such as
+JavaScript or C#. Rust's version of the feature is similar, but with a
+few key differences.&lt;/p&gt;
+&lt;p&gt;To use async-await, you start by writing &lt;code&gt;async fn&lt;/code&gt; instead of &lt;code&gt;fn&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;async fn first_function() -&amp;gt; u32 { .. }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Unlike a regular function, calling an &lt;code&gt;async fn&lt;/code&gt; doesn't do anything
+to start -- instead, it returns a &lt;code&gt;Future&lt;/code&gt;. This is a suspended
+computation that is waiting to be executed. To actually &lt;em&gt;execute&lt;/em&gt;
+the future, you have to use the &lt;code&gt;.await&lt;/code&gt; operator:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;async fn another_function() {
+    // Create the future:
+    let future = first_function();
+    
+    // Await the future, which will execute it (and suspend
+    // this function if we encounter a need to wait for I/O): 
+    let result: u32 = future.await;
+    ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This example shows the first difference between Rust and other
+languages: we write &lt;code&gt;future.await&lt;/code&gt; instead of &lt;code&gt;await future&lt;/code&gt;. This
+syntax integrates better with Rust's &lt;code&gt;?&lt;/code&gt; operator for propagating
+errors (which, after all, are very common in I/O). One can simply
+write &lt;code&gt;future.await?&lt;/code&gt; to await the result of a future and propagate
+errors. It also has the advantage of making method chaining painless.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#zero-cost-futures&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;zero-cost-futures&quot;&gt;&lt;/a&gt;Zero-cost futures&lt;/h3&gt;
+&lt;p&gt;The other difference between Rust futures and futures in other
+languages is that they are based on a &amp;quot;poll&amp;quot; model, which makes them
+&lt;strong&gt;zero cost&lt;/strong&gt;. In other languages, invoking an async function
+immediately creates a future and schedules it for execution: awaiting
+the future isn't really necessary for it to execute. But this implies
+some overhead for each future that is created.&lt;/p&gt;
+&lt;p&gt;In contrast, in Rust, calling an async function does not do any
+scheduling in and of itself, which means that we can compose a complex
+nest of futures without incurring a per-future cost. As an end-user,
+though, the main thing you'll notice is that &lt;strong&gt;futures feel &amp;quot;lazy&amp;quot;&lt;/strong&gt;:
+they don't do anything until you await them.&lt;/p&gt;
+&lt;p&gt;If you'd like a closer look at how futures work under the hood, take a
+look at &lt;a href=&quot;https://rust-lang.github.io/async-book/02_execution/04_executor.html&quot;&gt;the executor section&lt;/a&gt; of the &lt;a href=&quot;https://github.com/rust-lang/async-book&quot;&gt;async book&lt;/a&gt;, or watch the
+&lt;a href=&quot;https://www.youtube.com/watch?v=skos4B5x7qE&quot;&gt;excellent talk&lt;/a&gt; that &lt;a href=&quot;https://github.com/withoutboats&quot;&gt;withoutboats&lt;/a&gt; gave at &lt;a href=&quot;https://rustlatam.org/&quot;&gt;Rust LATAM 2019&lt;/a&gt;
+on the topic.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#summary&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;summary&quot;&gt;&lt;/a&gt;Summary&lt;/h3&gt;
+&lt;p&gt;In summary, if you've an interest in using Async I/O in Rust, this is
+a very exciting time! With async-await syntax hitting stable in
+November, it's going to be easier than ever to write futures (in
+particular, if you tried using the combinator-based futures in the
+past, you'll find &lt;a href=&quot;http://aturon.github.io/tech/2018/04/24/async-borrowing/&quot;&gt;async-await integrates much better with Rust's
+borrowing system&lt;/a&gt;). Moreover, there are now a number of great
+runtimes and other libraries available in the ecosystem to work with.
+So get out there and build stuff!&lt;/p&gt;
+&lt;p&gt;(Oh, yeah, and please file bugs when you hit confusing or surprising
+problems, so we can improve the user experience!)&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Niko Matsakis</name>
+        </author>
+    </entry>
+    
+    <entry>
+        <title>Announcing Rust 1.38.0</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/9/26/Rust-1.38.0.html" type="text/html" title="Announcing Rust 1.38.0" />
+        <published>2019-09-26T00:00:00Z</published>
+        <updated>2019-09-26T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/2019/9/26/Rust-1.38.0.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/9/26/Rust-1.38.0.html">&lt;p&gt;The Rust team is happy to announce a new version of Rust, 1.38.0. Rust is a programming language that is empowering everyone to build reliable and efficient software.&lt;/p&gt;
+&lt;p&gt;If you have a previous version of Rust installed via rustup, getting Rust 1.38.0 is as easy as:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-console&quot;&gt;rustup update stable
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you don't have it already, you can &lt;a href=&quot;https://www.rust-lang.org/install.html&quot;&gt;get &lt;code&gt;rustup&lt;/code&gt;&lt;/a&gt; from the appropriate page on our website.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#whats-in-1.38.0-stable&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;whats-in-1.38.0-stable&quot;&gt;&lt;/a&gt;What's in 1.38.0 stable&lt;/h2&gt;
+&lt;p&gt;The highlight of this release is pipelined compilation.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#pipelined-compilation&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;pipelined-compilation&quot;&gt;&lt;/a&gt;Pipelined compilation&lt;/h3&gt;
+&lt;p&gt;To compile a crate, the compiler doesn't need the dependencies to be fully built. Instead, it just needs their &amp;quot;metadata&amp;quot; (i.e. the list of types, dependencies, exports...). This metadata is produced early in the compilation process. Starting with Rust 1.38.0, Cargo will take advantage of this by automatically starting to build dependent crates as soon as metadata is ready.&lt;/p&gt;
+&lt;p&gt;While the change doesn't have any effect on builds for a single crate, during testing &lt;a href=&quot;https://internals.rust-lang.org/t/evaluating-pipelined-rustc-compilation/10199&quot;&gt;we got reports&lt;/a&gt; of 10-20% compilation speed increases for optimized, clean builds of some crate graphs. Other ones did not improve much, and the speedup depends on the hardware running the build, so your mileage might vary. No code changes are needed to benefit from this.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#linting-some-incorrect-uses-of-mem:{uninitialized,-zeroed}&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;linting-some-incorrect-uses-of-mem:{uninitialized,-zeroed}&quot;&gt;&lt;/a&gt;Linting some incorrect uses of &lt;code&gt;mem::{uninitialized, zeroed}&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;As &lt;a href=&quot;https://blog.rust-lang.org/2019/07/04/Rust-1.36.0.html#maybeuninitt%3E-instead-of-mem::uninitialized&quot;&gt;previously announced&lt;/a&gt;, &lt;code&gt;std::mem::uninitialized&lt;/code&gt; is essentially impossible to use safely. Instead, &lt;code&gt;MaybeUninit&amp;lt;T&amp;gt;&lt;/code&gt; should be used.&lt;/p&gt;
+&lt;p&gt;We have not yet deprecated &lt;code&gt;mem::uninitialized&lt;/code&gt;; this will be done in a future release. Starting in 1.38.0, however, &lt;code&gt;rustc&lt;/code&gt; will provide a lint for a narrow class of incorrect initializations using &lt;code&gt;mem::uninitialized&lt;/code&gt; or &lt;code&gt;mem::zeroed&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;It is undefined behavior for some types, such as &lt;code&gt;&amp;amp;T&lt;/code&gt; and &lt;code&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt;, to ever contain an all-&lt;code&gt;0&lt;/code&gt; bit pattern, because they represent pointer-like objects that cannot be &lt;code&gt;null&lt;/code&gt;. It is therefore an error to use &lt;code&gt;mem::uninitialized&lt;/code&gt; or &lt;code&gt;mem::zeroed&lt;/code&gt; to initialize one of these types, so the new lint will attempt to warn whenever one of those functions is used to initialize one of them, either directly or as a member of a larger &lt;code&gt;struct&lt;/code&gt;. The check is recursive, so the following code will emit a warning:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;struct Wrap&amp;lt;T&amp;gt;(T);
+struct Outer(Wrap&amp;lt;Wrap&amp;lt;Wrap&amp;lt;Box&amp;lt;i32&amp;gt;&amp;gt;&amp;gt;&amp;gt;);
+struct CannotBeZero {
+    outer: Outer,
+    foo: i32,
+    bar: f32
+}
+
+...
+
+let bad_value: CannotBeZero = unsafe { std::mem::uninitialized() };
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Astute readers may note that Rust has more types that cannot be zero, notably &lt;code&gt;NonNull&amp;lt;T&amp;gt;&lt;/code&gt; and &lt;code&gt;NonZero&amp;lt;T&amp;gt;&lt;/code&gt;. For now, initialization of these structs with &lt;code&gt;mem::uninitialized&lt;/code&gt; or &lt;code&gt;mem::zeroed&lt;/code&gt; is &lt;em&gt;not&lt;/em&gt; linted against.&lt;/p&gt;
+&lt;p&gt;These checks do not cover all cases of unsound use of &lt;code&gt;mem::uninitialized&lt;/code&gt; or &lt;code&gt;mem::zeroed&lt;/code&gt;, they merely help identify code that is definitely wrong. All code should still be moved to use &lt;code&gt;MaybeUninit&lt;/code&gt; instead.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#[deprecated]-macros&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;[deprecated]-macros&quot;&gt;&lt;/a&gt;&lt;code&gt;#[deprecated]&lt;/code&gt; macros&lt;/h3&gt;
+&lt;p&gt;The &lt;code&gt;#[deprecated]&lt;/code&gt; attribute, first introduced in Rust 1.9.0, allows crate authors to notify their users an item of their crate is deprecated and will be removed in a future release. Rust 1.38.0 extends the attribute, allowing it to be applied to macros as well.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#std:any::type_name&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;std:any::type_name&quot;&gt;&lt;/a&gt;&lt;code&gt;std::any::type_name&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;For debugging, it is sometimes useful to get the name of a type. For instance, in generic code, you may want to see, at run-time, what concrete types a function's type parameters has been instantiated with. This can now be done using &lt;code&gt;std::any::type_name&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;fn gen_value&amp;lt;T: Default&amp;gt;() -&amp;gt; T {
+    println!(&amp;quot;Initializing an instance of {}&amp;quot;, std::any::type_name::&amp;lt;T&amp;gt;());
+    Default::default()
+}
+
+fn main() {
+    let _: i32 = gen_value();
+    let _: String = gen_value();
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This prints:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-text&quot;&gt;Initializing an instance of i32
+Initializing an instance of alloc::string::String
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Like all standard library functions intended only for debugging, the exact contents and format of the string are not guaranteed. The value returned is only a best-effort description of the type; multiple types may share the same &lt;code&gt;type_name&lt;/code&gt; value, and the value may change in future compiler releases.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#library-changes&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;library-changes&quot;&gt;&lt;/a&gt;Library changes&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/62528/&quot;&gt;&lt;code&gt;slice::{concat, connect, join}&lt;/code&gt; now accepts &lt;code&gt;&amp;amp;[T]&lt;/code&gt; in addition to &lt;code&gt;&amp;amp;T&lt;/code&gt;.&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/62583/&quot;&gt;&lt;code&gt;*const T&lt;/code&gt; and &lt;code&gt;*mut T&lt;/code&gt; now implement &lt;code&gt;marker::Unpin&lt;/code&gt;.&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/61953/&quot;&gt;&lt;code&gt;Arc&amp;lt;[T]&amp;gt;&lt;/code&gt; and &lt;code&gt;Rc&amp;lt;[T]&amp;gt;&lt;/code&gt; now implement &lt;code&gt;FromIterator&amp;lt;T&amp;gt;&lt;/code&gt;.&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/61457/&quot;&gt;&lt;code&gt;iter::{StepBy, Peekable, Take}&lt;/code&gt; now implement &lt;code&gt;DoubleEndedIterator&lt;/code&gt;.&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Additionally, these functions have been stabilized:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.pointer.html#method.cast&quot;&gt;&lt;code&gt;&amp;lt;*const T&amp;gt;::cast&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.pointer.html#method.cast-1&quot;&gt;&lt;code&gt;&amp;lt;*mut T&amp;gt;::cast&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.as_secs_f32&quot;&gt;&lt;code&gt;Duration::as_secs_f32&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.as_secs_f64&quot;&gt;&lt;code&gt;Duration::as_secs_f64&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.div_f32&quot;&gt;&lt;code&gt;Duration::div_f32&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.div_f64&quot;&gt;&lt;code&gt;Duration::div_f64&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.from_secs_f32&quot;&gt;&lt;code&gt;Duration::from_secs_f32&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.from_secs_f64&quot;&gt;&lt;code&gt;Duration::from_secs_f64&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.mul_f32&quot;&gt;&lt;code&gt;Duration::mul_f32&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.mul_f64&quot;&gt;&lt;code&gt;Duration::mul_f64&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Euclidean remainder and division operations -- &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.i32.html#method.div_euclid&quot;&gt;&lt;code&gt;div_euclid&lt;/code&gt;&lt;/a&gt;,
+&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.i32.html#method.rem_euclid&quot;&gt;&lt;code&gt;rem_euclid&lt;/code&gt;&lt;/a&gt; -- for all integer primitives. &lt;code&gt;checked&lt;/code&gt;,
+&lt;code&gt;overflowing&lt;/code&gt;, and &lt;code&gt;wrapping&lt;/code&gt; versions are also available.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;a href=&quot;#other-changes&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;other-changes&quot;&gt;&lt;/a&gt;Other changes&lt;/h3&gt;
+&lt;p&gt;There are other changes in the Rust 1.38 release: check out what changed in &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1380-2019-09-26&quot;&gt;Rust&lt;/a&gt;, &lt;a href=&quot;https://github.com/rust-lang/cargo/blob/master/CHANGELOG.md#cargo-138-2019-09-26&quot;&gt;Cargo&lt;/a&gt;, and &lt;a href=&quot;https://github.com/rust-lang/rust-clippy/blob/master/CHANGELOG.md#rust-138&quot;&gt;Clippy&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#corrections&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;corrections&quot;&gt;&lt;/a&gt;Corrections&lt;/h3&gt;
+&lt;p&gt;A Previous version of this post mistakenly marked these functions as stable. They are not yet stable.
+&lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.div_duration_f32&quot;&gt;&lt;code&gt;Duration::div_duration_f32&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/time/struct.Duration.html#method.div_duration_f64&quot;&gt;&lt;code&gt;Duration::div_duration_f64&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#contributors-to-138.0&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;contributors-to-138.0&quot;&gt;&lt;/a&gt;Contributors to 1.38.0&lt;/h2&gt;
+&lt;p&gt;Many people came together to create Rust 1.38.0. We couldn't have done it
+without all of you. &lt;a href=&quot;https://thanks.rust-lang.org/rust/1.38.0/&quot;&gt;Thanks!&lt;/a&gt;&lt;/p&gt;
+</content>
+
+        <author>
+            <name>The Rust Release Team</name>
+        </author>
+    </entry>
+    
+    <entry>
+        <title>Upcoming docs.rs changes</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/9/18/upcoming-docsrs-changes.html" type="text/html" title="Upcoming docs.rs changes" />
+        <published>2019-09-18T00:00:00Z</published>
+        <updated>2019-09-18T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/2019/9/18/upcoming-docsrs-changes.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/9/18/upcoming-docsrs-changes.html">&lt;p&gt;On September 30th breaking changes will be deployed to the &lt;a href=&quot;https://docs.rs&quot;&gt;docs.rs&lt;/a&gt; build
+environment. &lt;a href=&quot;https://docs.rs&quot;&gt;docs.rs&lt;/a&gt; is a free service building and hosting documentation for
+all the crates published on &lt;a href=&quot;https://crates.io&quot;&gt;crates.io&lt;/a&gt;. It's &lt;a href=&quot;https://github.com/rust-lang/docs.rs&quot;&gt;open source&lt;/a&gt;,
+maintained by the &lt;a href=&quot;https://www.rust-lang.org/governance/teams/dev-tools#rustdoc&quot;&gt;Rustdoc team&lt;/a&gt; and operated by the
+&lt;a href=&quot;https://www.rust-lang.org/governance/teams/operations#infra&quot;&gt;Infrastructure team&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#what-will-change&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;what-will-change&quot;&gt;&lt;/a&gt;What will change&lt;/h2&gt;
+&lt;p&gt;Builds will be executed inside the &lt;a href=&quot;https://hub.docker.com/r/rustops/crates-build-env&quot;&gt;rustops/crates-build-env&lt;/a&gt; Docker image.
+That image contains a lot of system dependencies installed to ensure we can
+build as many crates as possible. It's already used by &lt;a href=&quot;https://github.com/rust-lang/crater&quot;&gt;Crater&lt;/a&gt;, and we added
+all the dependencies previously installed in the legacy build environment.&lt;/p&gt;
+&lt;p&gt;To ensure we can continue operating the service in the future and to increase
+its reliability we also improved the sandbox the builds are executed in, adding
+new limits:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Each platform will now have &lt;strong&gt;15 minutes&lt;/strong&gt; to build its dependencies and
+documentation.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;3 GB of RAM&lt;/strong&gt; will be available for the build.&lt;/li&gt;
+&lt;li&gt;Network access will be &lt;strong&gt;disabled&lt;/strong&gt; (crates.io dependencies will still be
+fetched).&lt;/li&gt;
+&lt;li&gt;Only the &lt;code&gt;target/&lt;/code&gt; directory will be writable, and it will be purged after
+each build.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Finally, docs.rs will now use the latest nightly available when building
+crates, instead of using a manually updated pinned version of nightly.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#how-to-prepare-for-the-changes&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;how-to-prepare-for-the-changes&quot;&gt;&lt;/a&gt;How to prepare for the changes&lt;/h2&gt;
+&lt;p&gt;To test if your crate builds inside the new environment you can download the
+Docker image locally and execute a shell inside it:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;docker pull rustops/crates-build-env
+docker run --rm --memory 3221225472 -it rustops/crates-build-env bash
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Once you're in a shell you can install &lt;a href=&quot;https://rustup.rs&quot;&gt;rustup&lt;/a&gt; (it's not installed by default
+in the image), install Rust nightly, clone your crate's repository and then
+build the documentation:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;cargo fetch
+time cargo doc --no-deps
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;To aid your testing these commands will limit the available RAM to 3 GB and
+show the total execution time of &lt;code&gt;cargo doc&lt;/code&gt;, but network access will not be
+blocked as you'll need to fetch dependencies.&lt;/p&gt;
+&lt;p&gt;If your project needs a system dependency missing in the build environment,
+please &lt;a href=&quot;https://github.com/rust-lang/crates-build-env/issues&quot;&gt;open an issue&lt;/a&gt; on the Docker image's
+&lt;a href=&quot;https://hub.docker.com/r/rustops/crates-build-env&quot;&gt;repository&lt;/a&gt; and we'll consider adding it.&lt;/p&gt;
+&lt;p&gt;If your crate fails to build because it took more than 15 minutes to generate
+its docs or it uses more than 3 GB of RAM please &lt;a href=&quot;https://github.com/rust-lang/docs.rs/issues&quot;&gt;open an issue&lt;/a&gt;
+and we will consider reasonable limit increases for your crate. We will &lt;strong&gt;not&lt;/strong&gt;
+enable network access for your crate though: you'll need to change your crate
+not to require any external resource at build time.&lt;/p&gt;
+&lt;p&gt;We recommend using &lt;a href=&quot;https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section&quot;&gt;Cargo features&lt;/a&gt; to remove the parts of the code causing
+build failures, enabling those features with &lt;a href=&quot;https://docs.rs/about&quot;&gt;docs.rs metadata&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#acknowledgements&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;acknowledgements&quot;&gt;&lt;/a&gt;Acknowledgements&lt;/h2&gt;
+&lt;p&gt;The new build environment is based on &lt;a href=&quot;https://github.com/rust-lang/rustwide&quot;&gt;Rustwide&lt;/a&gt;, the library powering
+&lt;a href=&quot;https://github.com/rust-lang/crater&quot;&gt;Crater&lt;/a&gt;. It was extracted from the Crater codebase, and created both by the
+&lt;a href=&quot;https://github.com/rust-lang/crater/graphs/contributors&quot;&gt;Crater contributors&lt;/a&gt; and the &lt;a href=&quot;https://github.com/rust-lang/rustwide/graphs/contributors&quot;&gt;Rustwide contributors&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The implementation work on the docs.rs side was done by &lt;a href=&quot;https://github.com/pietroalbini&quot;&gt;Pietro Albini&lt;/a&gt;
+and &lt;a href=&quot;https://github.com/onur&quot;&gt;Onur Aslan&lt;/a&gt;, with &lt;a href=&quot;https://github.com/QuietMisdreavus&quot;&gt;QuietMisdreavus&lt;/a&gt; and &lt;a href=&quot;https://github.com/Mark-Simulacrum&quot;&gt;Mark
+Rousskov&lt;/a&gt; reviewing the changes.&lt;/p&gt;
+</content>
+
+        <author>
+            <name>The Rust Infrastructure Team</name>
+        </author>
+    </entry>
+    
+    <entry>
+        <title>Announcing Rust 1.37.0</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/8/15/Rust-1.37.0.html" type="text/html" title="Announcing Rust 1.37.0" />
+        <published>2019-08-15T00:00:00Z</published>
+        <updated>2019-08-15T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/2019/8/15/Rust-1.37.0.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/8/15/Rust-1.37.0.html">&lt;p&gt;The Rust team is happy to announce a new version of Rust, 1.37.0. Rust is a programming language that is empowering everyone to build reliable and efficient software.&lt;/p&gt;
+&lt;p&gt;If you have a previous version of Rust installed via rustup, getting Rust 1.37.0 is as easy as:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-console&quot;&gt;rustup update stable
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you don't have it already, you can &lt;a href=&quot;https://www.rust-lang.org/install.html&quot;&gt;get &lt;code&gt;rustup&lt;/code&gt;&lt;/a&gt; from the appropriate page on our website, and check out the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1370-2019-08-15&quot;&gt;detailed release notes for 1.37.0&lt;/a&gt; on GitHub.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#whats-in-1.37.0-stable&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;whats-in-1.37.0-stable&quot;&gt;&lt;/a&gt;What's in 1.37.0 stable&lt;/h2&gt;
+&lt;p&gt;The highlights of Rust 1.37.0 include referring to &lt;code&gt;enum&lt;/code&gt; variants through &lt;code&gt;type&lt;/code&gt; aliases, built-in &lt;code&gt;cargo vendor&lt;/code&gt;, unnamed &lt;code&gt;const&lt;/code&gt; items, profile-guided optimization, a &lt;code&gt;default-run&lt;/code&gt; key in Cargo, and &lt;code&gt;#[repr(align(N))]&lt;/code&gt; on &lt;code&gt;enum&lt;/code&gt;s. Read on for a few highlights, or see the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1370-2019-08-15&quot;&gt;detailed release notes&lt;/a&gt; for additional information.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#referring-to-enum-variants-through-type-aliases&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;referring-to-enum-variants-through-type-aliases&quot;&gt;&lt;/a&gt;Referring to &lt;code&gt;enum&lt;/code&gt; variants through &lt;code&gt;type&lt;/code&gt; aliases&lt;/h3&gt;
+&lt;p&gt;With Rust 1.37.0, you can now refer to &lt;code&gt;enum&lt;/code&gt; variants through type aliases. For example:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;type ByteOption = Option&amp;lt;u8&amp;gt;;
+
+fn increment_or_zero(x: ByteOption) -&amp;gt; u8 {
+    match x {
+        ByteOption::Some(y) =&amp;gt; y + 1,
+        ByteOption::None =&amp;gt; 0,
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In implementations, &lt;code&gt;Self&lt;/code&gt; acts like a type alias. So in Rust 1.37.0, you can also refer to &lt;code&gt;enum&lt;/code&gt; variants with &lt;code&gt;Self::Variant&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;impl Coin {
+    fn value_in_cents(&amp;amp;self) -&amp;gt; u8 {
+        match self {
+            Self::Penny =&amp;gt; 1,
+            Self::Nickel =&amp;gt; 5,
+            Self::Dime =&amp;gt; 10,
+            Self::Quarter =&amp;gt; 25,
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;To be more exact, Rust now allows you to refer to &lt;code&gt;enum&lt;/code&gt; variants through &lt;em&gt;&amp;quot;type-relative resolution&amp;quot;&lt;/em&gt;, &lt;code&gt;&amp;lt;MyType&amp;lt;..&amp;gt;&amp;gt;::Variant&lt;/code&gt;. More details are available in &lt;a href=&quot;https://github.com/rust-lang/rust/pull/61682/#issuecomment-502472847&quot;&gt;the stabilization report&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#built-in-cargo-support-for-vendored-dependencies&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;built-in-cargo-support-for-vendored-dependencies&quot;&gt;&lt;/a&gt;Built-in Cargo support for vendored dependencies&lt;/h3&gt;
+&lt;p&gt;After being available &lt;a href=&quot;https://crates.io/crates/cargo-vendor&quot;&gt;as a separate crate&lt;/a&gt; for years, the &lt;code&gt;cargo vendor&lt;/code&gt; command is now integrated directly into Cargo. The command fetches all your project's dependencies unpacking them into the &lt;code&gt;vendor/&lt;/code&gt; directory, and shows the configuration snippet required to use the vendored code during builds.&lt;/p&gt;
+&lt;p&gt;There are multiple cases where &lt;code&gt;cargo vendor&lt;/code&gt; is already used in production: the Rust compiler &lt;code&gt;rustc&lt;/code&gt; uses it to ship all its dependencies in release tarballs, and projects with monorepos use it to commit the dependencies' code in source control.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#using-unnamed-const-items-for-macros&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;using-unnamed-const-items-for-macros&quot;&gt;&lt;/a&gt;Using unnamed &lt;code&gt;const&lt;/code&gt; items for macros&lt;/h3&gt;
+&lt;p&gt;You can now create &lt;a href=&quot;https://github.com/rust-lang/rust/pull/61347/&quot;&gt;unnamed &lt;code&gt;const&lt;/code&gt; items&lt;/a&gt;. Instead of giving your constant an explicit name, simply name it &lt;code&gt;_&lt;/code&gt; instead. For example, in the &lt;code&gt;rustc&lt;/code&gt; compiler we find:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;/// Type size assertion where the first parameter
+/// is a type and the second is the expected size.
+#[macro_export]
+macro_rules! static_assert_size {
+    ($ty:ty, $size:expr) =&amp;gt; {
+        const _: [(); $size] = [(); ::std::mem::size_of::&amp;lt;$ty&amp;gt;()];
+        //    ^ Note the underscore here.
+    }
+}
+
+static_assert_size!(Option&amp;lt;Box&amp;lt;String&amp;gt;&amp;gt;, 8); // 1.
+static_assert_size!(usize, 8); // 2.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Notice the second &lt;code&gt;static_assert_size!(..)&lt;/code&gt;: thanks to the use of unnamed constants, you can define new items without naming conflicts. Previously you would have needed to write &lt;code&gt;static_assert_size!(MY_DUMMY_IDENTIFIER, usize, 8);&lt;/code&gt;. Instead, with Rust 1.37.0, it now becomes easier to create ergonomic and reusable declarative and procedural macros for static analysis purposes.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#profile-guided-optimization&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;profile-guided-optimization&quot;&gt;&lt;/a&gt;Profile-guided optimization&lt;/h3&gt;
+&lt;p&gt;The &lt;code&gt;rustc&lt;/code&gt; compiler now comes with &lt;a href=&quot;https://github.com/rust-lang/rust/pull/61268/&quot;&gt;support for Profile-Guided Optimization (PGO)&lt;/a&gt; via the &lt;code&gt;-C profile-generate&lt;/code&gt; and &lt;code&gt;-C profile-use&lt;/code&gt; flags.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Profile-guided_optimization&quot;&gt;Profile-Guided Optimization&lt;/a&gt; allows the compiler to optimize code based on feedback from real workloads. It works by compiling the program to optimize in two steps:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;First, the program is built with instrumentation inserted by the compiler. This is done by passing the &lt;code&gt;-C profile-generate&lt;/code&gt; flag to &lt;code&gt;rustc&lt;/code&gt;. The instrumented program then needs to be run on sample data and will write the profiling data to a file.&lt;/li&gt;
+&lt;li&gt;Then, the program is built &lt;em&gt;again&lt;/em&gt;, this time feeding the collected profiling data back into &lt;code&gt;rustc&lt;/code&gt; by using the &lt;code&gt;-C profile-use&lt;/code&gt; flag. This build will make use of the collected data to allow the compiler to make better decisions about code placement, inlining, and other optimizations.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;For more in-depth information on Profile-Guided Optimization, please refer to the corresponding &lt;a href=&quot;https://doc.rust-lang.org/rustc/profile-guided-optimization.html&quot;&gt;chapter in the rustc book&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#choosing-a-default-binary-in-cargo-projects&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;choosing-a-default-binary-in-cargo-projects&quot;&gt;&lt;/a&gt;Choosing a default binary in Cargo projects&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/cargo/commands/cargo-run.html&quot;&gt;&lt;code&gt;cargo run&lt;/code&gt;&lt;/a&gt; is great for quickly testing CLI applications. When multiple binaries are present in the same package, you have to explicitly declare the name of the binary you want to run with the &lt;code&gt;--bin&lt;/code&gt; flag. This makes &lt;code&gt;cargo run&lt;/code&gt; not as ergonomic as we'd like, especially when a binary is called more often than the others.&lt;/p&gt;
+&lt;p&gt;Rust 1.37.0 addresses the issue by adding &lt;a href=&quot;https://doc.rust-lang.org/cargo/reference/manifest.html#the-default-run-field&quot;&gt;&lt;code&gt;default-run&lt;/code&gt;&lt;/a&gt;, a new key in &lt;code&gt;Cargo.toml&lt;/code&gt;. When the key is declared in the &lt;code&gt;[package]&lt;/code&gt; section, &lt;code&gt;cargo run&lt;/code&gt; will default to the chosen binary if the &lt;code&gt;--bin&lt;/code&gt; flag is not passed.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#[repr(align(n))]-on-enums&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;[repr(align(n))]-on-enums&quot;&gt;&lt;/a&gt;&lt;code&gt;#[repr(align(N))]&lt;/code&gt; on &lt;code&gt;enum&lt;/code&gt;s&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://doc.rust-lang.org/reference/type-layout.html#the-alignment-modifiers&quot;&gt;The &lt;code&gt;#[repr(align(N))]&lt;/code&gt; attribute&lt;/a&gt; can be used to raise the &lt;a href=&quot;https://doc.rust-lang.org/reference/type-layout.html#size-and-alignment&quot;&gt;alignment&lt;/a&gt; of a type definition. Previously, the attribute was only allowed on &lt;code&gt;struct&lt;/code&gt;s and &lt;code&gt;union&lt;/code&gt;s. With Rust 1.37.0, the attribute can now also be used &lt;a href=&quot;https://github.com/rust-lang/rust/pull/61229&quot;&gt;on &lt;code&gt;enum&lt;/code&gt; definitions&lt;/a&gt;. For example, the following type &lt;code&gt;Align16&lt;/code&gt; would, as expected, report &lt;code&gt;16&lt;/code&gt; as the alignment whereas the natural alignment without &lt;code&gt;#[repr(align(16))]&lt;/code&gt; would be &lt;code&gt;4&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;#[repr(align(16))]
+enum Align16 {
+    Foo { foo: u32 },
+    Bar { bar: u32 },
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The semantics of using &lt;code&gt;#[repr(align(N))&lt;/code&gt; on an &lt;code&gt;enum&lt;/code&gt; is the same as defining a wrapper struct &lt;code&gt;AlignN&amp;lt;T&amp;gt;&lt;/code&gt; with that alignment and then using &lt;code&gt;AlignN&amp;lt;MyEnum&amp;gt;&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;#[repr(align(N))]
+struct AlignN&amp;lt;T&amp;gt;(T);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;&lt;a href=&quot;#library-changes&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;library-changes&quot;&gt;&lt;/a&gt;Library changes&lt;/h3&gt;
+&lt;p&gt;In Rust 1.37.0 there have been a number of standard library stabilizations:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/io/struct.BufReader.html#method.buffer&quot;&gt;&lt;code&gt;BufReader::buffer&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/io/struct.BufWriter.html#method.buffer&quot;&gt;&lt;code&gt;BufWriter::buffer&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/cell/struct.Cell.html#method.from_mut&quot;&gt;&lt;code&gt;Cell::from_mut&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/cell/struct.Cell.html#method.as_slice_of_cells&quot;&gt;&lt;code&gt;Cell::as_slice_of_cells&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/iter/trait.DoubleEndedIterator.html#method.nth_back&quot;&gt;&lt;code&gt;DoubleEndedIterator::nth_back&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.xor&quot;&gt;&lt;code&gt;Option::xor&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.u8.html#method.reverse_bits&quot;&gt;&lt;code&gt;{i,u}{8,16,32,64,128,size}::reverse_bits&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/num/struct.Wrapping.html#method.reverse_bits&quot;&gt;&lt;code&gt;Wrapping::reverse_bits&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.slice.html#method.copy_within&quot;&gt;&lt;code&gt;slice::copy_within&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;a href=&quot;#other-changes&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;other-changes&quot;&gt;&lt;/a&gt;Other changes&lt;/h3&gt;
+&lt;p&gt;There are other changes in the Rust 1.37 release: check out what changed in &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1370-2019-08-15&quot;&gt;Rust&lt;/a&gt;, &lt;a href=&quot;https://github.com/rust-lang/cargo/blob/master/CHANGELOG.md#cargo-137-2019-08-15&quot;&gt;Cargo&lt;/a&gt;, and &lt;a href=&quot;https://github.com/rust-lang/rust-clippy/blob/master/CHANGELOG.md#rust-137&quot;&gt;Clippy&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#contributors-to-137.0&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;contributors-to-137.0&quot;&gt;&lt;/a&gt;Contributors to 1.37.0&lt;/h2&gt;
+&lt;p&gt;Many people came together to create Rust 1.37.0. We couldn't have done it
+without all of you. &lt;a href=&quot;https://thanks.rust-lang.org/rust/1.37.0/&quot;&gt;Thanks!&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#new-sponsors-of-rust-infrastructure&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;new-sponsors-of-rust-infrastructure&quot;&gt;&lt;/a&gt;New sponsors of Rust infrastructure&lt;/h2&gt;
+&lt;p&gt;We'd like to thank two new sponsors of Rust's infrastructure who provided the resources needed to make Rust 1.37.0 happen: Amazon Web Services (AWS) and Microsoft Azure.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;AWS has provided hosting for release artifacts (compilers, libraries, tools, and source code), serving those artifacts to users through CloudFront, preventing regressions with Crater on EC2, and managing other Rust-related infrastructure hosted on AWS.&lt;/li&gt;
+&lt;li&gt;Microsoft Azure has sponsored builders for Rust’s CI infrastructure, notably the extremely resource intensive rust-lang/rust repository.&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+
+        <author>
+            <name>The Rust Release Team</name>
+        </author>
+    </entry>
+    
+    <entry>
+        <title>Announcing Rust 1.36.0</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/7/4/Rust-1.36.0.html" type="text/html" title="Announcing Rust 1.36.0" />
+        <published>2019-07-04T00:00:00Z</published>
+        <updated>2019-07-04T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/2019/7/4/Rust-1.36.0.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/7/4/Rust-1.36.0.html">&lt;p&gt;The Rust team is happy to announce a new version of Rust, 1.36.0.
+Rust is a programming language that is empowering everyone to build reliable and efficient software.&lt;/p&gt;
+&lt;p&gt;If you have a previous version of Rust installed via rustup, getting Rust 1.36.0 is as easy as:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-console&quot;&gt;rustup update stable
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you don't have it already, you can &lt;a href=&quot;https://www.rust-lang.org/install.html&quot;&gt;get &lt;code&gt;rustup&lt;/code&gt;&lt;/a&gt; from the appropriate page on our website,
+and check out the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1360-2019-07-04&quot;&gt;detailed release notes for 1.36.0&lt;/a&gt; on GitHub.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#whats-in-1.36.0-stable&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;whats-in-1.36.0-stable&quot;&gt;&lt;/a&gt;What's in 1.36.0 stable&lt;/h2&gt;
+&lt;p&gt;This release brings many changes, including the stabilization of the &lt;a href=&quot;https://doc.rust-lang.org/std/future/trait.Future.html&quot;&gt;&lt;code&gt;Future&lt;/code&gt;&lt;/a&gt; trait,
+the &lt;a href=&quot;https://doc.rust-lang.org/alloc/index.html&quot;&gt;&lt;code&gt;alloc&lt;/code&gt;&lt;/a&gt; crate, the &lt;a href=&quot;https://doc.rust-lang.org/std/mem/union.MaybeUninit.html&quot;&gt;&lt;code&gt;MaybeUninit&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/a&gt; type, &lt;a href=&quot;http://blog.pnkfx.org/blog/2019/06/26/breaking-news-non-lexical-lifetimes-arrives-for-everyone/&quot;&gt;NLL for Rust 2015&lt;/a&gt;,
+a new &lt;code&gt;HashMap&amp;lt;K, V&amp;gt;&lt;/code&gt; implementation, and &lt;a href=&quot;https://doc.rust-lang.org/cargo/commands/cargo-build.html#cargo_build_manifest_options&quot;&gt;&lt;code&gt;--offline&lt;/code&gt;&lt;/a&gt; support in Cargo.
+Read on for a few highlights, or see the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1360-2019-07-04&quot;&gt;detailed release notes&lt;/a&gt; for additional information.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#the-future-is-here&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;the-future-is-here&quot;&gt;&lt;/a&gt;The &lt;a href=&quot;https://doc.rust-lang.org/std/future/trait.Future.html&quot;&gt;&lt;code&gt;Future&lt;/code&gt;&lt;/a&gt; is here!&lt;/h3&gt;
+&lt;p&gt;In Rust 1.36.0 the long awaited &lt;a href=&quot;https://doc.rust-lang.org/std/future/trait.Future.html&quot;&gt;&lt;code&gt;Future&lt;/code&gt;&lt;/a&gt; trait has been &lt;a href=&quot;https://github.com/rust-lang/rust/pull/59739&quot;&gt;stabilized&lt;/a&gt;!&lt;/p&gt;
+&lt;p&gt;With this stabilization, we hope to give important crates, libraries,
+and the ecosystem time to prepare for &lt;code&gt;async&lt;/code&gt; / &lt;code&gt;.await&lt;/code&gt;,
+which we'll tell you more about in the future.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#the-alloc-crate-is-stable&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;the-alloc-crate-is-stable&quot;&gt;&lt;/a&gt;The &lt;a href=&quot;https://doc.rust-lang.org/alloc/index.html&quot;&gt;&lt;code&gt;alloc&lt;/code&gt;&lt;/a&gt; crate is stable&lt;/h3&gt;
+&lt;p&gt;Before 1.36.0, the standard library consisted of the crates &lt;code&gt;std&lt;/code&gt;, &lt;code&gt;core&lt;/code&gt;, and &lt;code&gt;proc_macro&lt;/code&gt;.
+The &lt;code&gt;core&lt;/code&gt; crate provided core functionality such as &lt;code&gt;Iterator&lt;/code&gt; and &lt;code&gt;Copy&lt;/code&gt;
+and could be used in &lt;code&gt;#![no_std]&lt;/code&gt; environments since it did not impose any requirements.
+Meanwhile, the &lt;code&gt;std&lt;/code&gt; crate provided types like &lt;code&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt; and OS functionality
+but required a global allocator and other OS capabilities in return.&lt;/p&gt;
+&lt;p&gt;Starting with Rust 1.36.0, the parts of &lt;code&gt;std&lt;/code&gt; that depend on a global allocator, e.g. &lt;code&gt;Vec&amp;lt;T&amp;gt;&lt;/code&gt;,
+are now available in the &lt;code&gt;alloc&lt;/code&gt; crate. The &lt;code&gt;std&lt;/code&gt; crate then re-exports these parts.
+While &lt;code&gt;#![no_std]&lt;/code&gt; &lt;em&gt;binaries&lt;/em&gt; using &lt;code&gt;alloc&lt;/code&gt; still require nightly Rust,
+&lt;code&gt;#![no_std]&lt;/code&gt; &lt;em&gt;library&lt;/em&gt; crates can use the &lt;code&gt;alloc&lt;/code&gt; crate in stable Rust.
+Meanwhile, normal binaries, without &lt;code&gt;#![no_std]&lt;/code&gt;, can depend on such library crates.
+We hope this will facilitate the development of a &lt;code&gt;#![no_std]&lt;/code&gt; compatible ecosystem of libraries
+prior to stabilizing support for &lt;code&gt;#![no_std]&lt;/code&gt; binaries using &lt;code&gt;alloc&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;If you are the maintainer of a library that only relies on some allocation primitives to function,
+consider making your library &lt;code&gt;#[no_std]&lt;/code&gt; compatible by using the following at the top of your &lt;code&gt;lib.rs&lt;/code&gt; file:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;#![no_std]
+
+extern crate alloc;
+
+use alloc::vec::Vec;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;&lt;a href=&quot;#maybeuninitt&gt;-instead-of-mem::uninitialized&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;maybeuninitt&gt;-instead-of-mem::uninitialized&quot;&gt;&lt;/a&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/mem/union.MaybeUninit.html&quot;&gt;&lt;code&gt;MaybeUninit&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/a&gt; instead of &lt;a href=&quot;https://doc.rust-lang.org/std/mem/fn.uninitialized.html&quot;&gt;&lt;code&gt;mem::uninitialized&lt;/code&gt;&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;In previous releases of Rust, the &lt;a href=&quot;https://doc.rust-lang.org/std/mem/fn.uninitialized.html&quot;&gt;&lt;code&gt;mem::uninitialized&lt;/code&gt;&lt;/a&gt; function has allowed you to bypass Rust's
+initialization checks by pretending that you've initialized a value at type &lt;code&gt;T&lt;/code&gt; without doing anything.
+One of the main uses of this function has been to lazily allocate arrays.&lt;/p&gt;
+&lt;p&gt;However, &lt;a href=&quot;https://doc.rust-lang.org/std/mem/fn.uninitialized.html&quot;&gt;&lt;code&gt;mem::uninitialized&lt;/code&gt;&lt;/a&gt; is an incredibly dangerous operation that essentially
+cannot be used correctly as the Rust compiler assumes that values are properly initialized.
+For example, calling &lt;code&gt;mem::uninitialized::&amp;lt;bool&amp;gt;()&lt;/code&gt; causes &lt;em&gt;instantaneous &lt;strong&gt;undefined behavior&lt;/strong&gt;&lt;/em&gt;
+as, from Rust's point of view, the uninitialized bits are neither &lt;code&gt;0&lt;/code&gt; (for &lt;code&gt;false&lt;/code&gt;)
+nor &lt;code&gt;1&lt;/code&gt; (for &lt;code&gt;true&lt;/code&gt;) - the only two allowed bit patterns for &lt;code&gt;bool&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;To remedy this situation, in Rust 1.36.0, the type &lt;a href=&quot;https://doc.rust-lang.org/std/mem/union.MaybeUninit.html&quot;&gt;&lt;code&gt;MaybeUninit&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/a&gt; has been &lt;a href=&quot;https://github.com/rust-lang/rust/pull/60445&quot;&gt;stabilized&lt;/a&gt;.
+The Rust compiler will understand that it should not assume that a &lt;a href=&quot;https://doc.rust-lang.org/std/mem/union.MaybeUninit.html&quot;&gt;&lt;code&gt;MaybeUninit&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/a&gt; is a properly initialized &lt;code&gt;T&lt;/code&gt;.
+Therefore, you can do gradual initialization more safely and eventually use &lt;code&gt;.assume_init()&lt;/code&gt;
+once you are certain that &lt;code&gt;maybe_t: MaybeUninit&amp;lt;T&amp;gt;&lt;/code&gt; contains an initialized &lt;code&gt;T&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;As &lt;a href=&quot;https://doc.rust-lang.org/std/mem/union.MaybeUninit.html&quot;&gt;&lt;code&gt;MaybeUninit&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/a&gt; is the safer alternative, starting with Rust 1.39,
+the function &lt;a href=&quot;https://doc.rust-lang.org/std/mem/fn.uninitialized.html&quot;&gt;&lt;code&gt;mem::uninitialized&lt;/code&gt;&lt;/a&gt; will be deprecated.&lt;/p&gt;
+&lt;p&gt;To find out more about uninitialized memory, &lt;a href=&quot;https://doc.rust-lang.org/std/mem/fn.uninitialized.html&quot;&gt;&lt;code&gt;mem::uninitialized&lt;/code&gt;&lt;/a&gt;,
+and &lt;a href=&quot;https://doc.rust-lang.org/std/mem/union.MaybeUninit.html&quot;&gt;&lt;code&gt;MaybeUninit&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/a&gt;, read &lt;a href=&quot;https://gankro.github.io/blah/initialize-me-maybe/&quot;&gt;Alexis Beingessner's blog post&lt;/a&gt;.
+The standard library also contains extensive documentation about &lt;a href=&quot;https://doc.rust-lang.org/std/mem/union.MaybeUninit.html&quot;&gt;&lt;code&gt;MaybeUninit&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#nll-for-rust-2015&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;nll-for-rust-2015&quot;&gt;&lt;/a&gt;NLL for Rust 2015&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://blog.rust-lang.org/2018/12/06/Rust-1.31-and-rust-2018.html#non-lexical-lifetimes&quot;&gt;In the announcement for Rust 1.31.0&lt;/a&gt;, we told you about NLL (Non-Lexical Lifetimes),
+an improvement to the language that makes the borrow checker smarter and more user friendly.
+For example, you may now write:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;fn main() {
+    let mut x = 5;
+    let y = &amp;amp;x;
+    let z = &amp;amp;mut x; // This was not allowed before 1.31.0.
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In 1.31.0 NLL was stabilized only for Rust 2018,
+with a promise that we would backport it to Rust 2015 as well.
+With Rust 1.36.0, we are happy to announce that we have done so! NLL is now available for Rust 2015.&lt;/p&gt;
+&lt;p&gt;With NLL on both editions, we are closer to removing the old borrow checker.
+However, the old borrow checker unfortunately accepted some &lt;a href=&quot;https://en.wikipedia.org/wiki/Soundness&quot;&gt;unsound&lt;/a&gt; code it should not have.
+As a result, NLL is currently in a &amp;quot;migration mode&amp;quot; wherein we will emit warnings instead
+of errors if the NLL borrow checker rejects code the old AST borrow checker would accept.
+Please see &lt;a href=&quot;https://github.com/rust-lang/rust/issues/60680#issuecomment-495089654&quot;&gt;this list&lt;/a&gt; of public crates that are affected.&lt;/p&gt;
+&lt;p&gt;To find out more about NLL, MIR, the story around fixing soundness holes,
+and what you can do about the warnings if you have them, read &lt;a href=&quot;http://blog.pnkfx.org/blog/2019/06/26/breaking-news-non-lexical-lifetimes-arrives-for-everyone/&quot;&gt;Felix Klock's blog post&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#a-new-hashmapk,-v&gt;-implementation&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;a-new-hashmapk,-v&gt;-implementation&quot;&gt;&lt;/a&gt;A new &lt;a href=&quot;https://doc.rust-lang.org/std/collections/struct.HashMap.html&quot;&gt;&lt;code&gt;HashMap&amp;lt;K, V&amp;gt;&lt;/code&gt;&lt;/a&gt; implementation&lt;/h3&gt;
+&lt;p&gt;In Rust 1.36.0, the &lt;code&gt;HashMap&amp;lt;K, V&amp;gt;&lt;/code&gt; implementation has been &lt;a href=&quot;https://github.com/rust-lang/rust/pull/58623&quot;&gt;replaced&lt;/a&gt;
+with the one in the &lt;a href=&quot;https://crates.io/crates/hashbrown&quot;&gt;&lt;code&gt;hashbrown&lt;/code&gt;&lt;/a&gt; crate which is based on the &lt;a href=&quot;https://abseil.io/blog/20180927-swisstables&quot;&gt;SwissTable&lt;/a&gt; design.
+While the interface is the same, the &lt;code&gt;HashMap&amp;lt;K, V&amp;gt;&lt;/code&gt; implementation is now
+&lt;a href=&quot;https://perf.rust-lang.org/compare.html?start=b57fe74a27590289fd657614b8ad1f3eac8a7ad2&amp;end=abade53a649583e40ed07c26ee10652703f09b58&amp;stat=wall-time&quot;&gt;faster on average&lt;/a&gt; and has lower memory overhead.
+Note that unlike the &lt;code&gt;hashbrown&lt;/code&gt; crate,
+the implementation in &lt;code&gt;std&lt;/code&gt; still defaults to the SipHash 1-3 hashing algorithm.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#--offline-support-in-cargo&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;--offline-support-in-cargo&quot;&gt;&lt;/a&gt;&lt;a href=&quot;https://doc.rust-lang.org/cargo/commands/cargo-build.html#cargo_build_manifest_options&quot;&gt;&lt;code&gt;--offline&lt;/code&gt;&lt;/a&gt; support in Cargo&lt;/h3&gt;
+&lt;p&gt;During most builds, Cargo doesn't interact with the network.
+Sometimes, however, Cargo has to.
+Such is the case when a dependency is added and the latest compatible version needs to be downloaded.
+At times, network access is not an option though, for example on an airplane or in isolated build environments.&lt;/p&gt;
+&lt;p&gt;In Rust 1.36, a new Cargo flag has been stabilized: &lt;a href=&quot;https://doc.rust-lang.org/cargo/commands/cargo-build.html#cargo_build_manifest_options&quot;&gt;&lt;code&gt;--offline&lt;/code&gt;&lt;/a&gt;.
+The flag alters Cargo's dependency resolution algorithm to only use locally cached dependencies.
+When the required crates are not available offline, and a network access would be required,
+Cargo will exit with an error.
+To prepopulate the local cache in preparation for going offline,
+use the &lt;a href=&quot;https://doc.rust-lang.org/cargo/commands/cargo-fetch.html&quot;&gt;&lt;code&gt;cargo fetch&lt;/code&gt;&lt;/a&gt; command, which downloads all the required dependencies for a project.&lt;/p&gt;
+&lt;p&gt;To find out more about &lt;a href=&quot;https://doc.rust-lang.org/cargo/commands/cargo-build.html#cargo_build_manifest_options&quot;&gt;&lt;code&gt;--offline&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/cargo/commands/cargo-fetch.html&quot;&gt;&lt;code&gt;cargo fetch&lt;/code&gt;&lt;/a&gt;, read &lt;a href=&quot;https://www.ncameron.org/blog/cargo-offline/&quot;&gt;Nick Cameron's blog post&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;For information on other changes to Cargo, see the &lt;a href=&quot;https://github.com/rust-lang/cargo/blob/master/CHANGELOG.md#cargo-136-2019-07-04&quot;&gt;detailed release notes&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#library-changes&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;library-changes&quot;&gt;&lt;/a&gt;Library changes&lt;/h3&gt;
+&lt;p&gt;The &lt;a href=&quot;https://doc.rust-lang.org/std/macro.dbg.html&quot;&gt;&lt;code&gt;dbg!&lt;/code&gt;&lt;/a&gt; macro now supports multiple arguments.&lt;/p&gt;
+&lt;p&gt;Additionally, a number of APIs have been made &lt;code&gt;const&lt;/code&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/core/alloc/struct.Layout.html#method.from_size_align_unchecked&quot;&gt;&lt;code&gt;Layout::from_size_align_unchecked&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/mem/fn.needs_drop.html&quot;&gt;&lt;code&gt;mem::needs_drop&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/ptr/struct.NonNull.html#method.dangling&quot;&gt;&lt;code&gt;NonNull::dangling&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/ptr/struct.NonNull.html#method.cast&quot;&gt;&lt;code&gt;NonNull::cast&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;New APIs have become stable, including:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/task/struct.Waker.html&quot;&gt;&lt;code&gt;task::Waker&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/task/enum.Poll.html&quot;&gt;&lt;code&gt;task::Poll&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/collections/struct.VecDeque.html#method.rotate_left&quot;&gt;&lt;code&gt;VecDeque::rotate_left&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/collections/struct.VecDeque.html#method.rotate_right&quot;&gt;&lt;code&gt;VecDeque::rotate_right&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/io/trait.Read.html#method.read_vectored&quot;&gt;&lt;code&gt;Read::read_vectored&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/io/trait.Write.html#method.write_vectored&quot;&gt;&lt;code&gt;Write::write_vectored&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.copied&quot;&gt;&lt;code&gt;Iterator::copied&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/60404&quot;&gt;&lt;code&gt;BorrowMut&amp;lt;str&amp;gt; for String&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.str.html#method.as_mut_ptr&quot;&gt;&lt;code&gt;str::as_mut_ptr&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Other library changes are available in the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1360-2019-07-04&quot;&gt;detailed release notes&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#other-changes&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;other-changes&quot;&gt;&lt;/a&gt;Other changes&lt;/h3&gt;
+&lt;p&gt;Detailed 1.36.0 release notes are available for &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1360-2019-07-04&quot;&gt;Rust&lt;/a&gt;,
+&lt;a href=&quot;https://github.com/rust-lang/cargo/blob/master/CHANGELOG.md#cargo-136-2019-07-04&quot;&gt;Cargo&lt;/a&gt;, and &lt;a href=&quot;https://github.com/rust-lang/rust-clippy/blob/master/CHANGELOG.md#rust-136&quot;&gt;Clippy&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#contributors-to-136.0&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;contributors-to-136.0&quot;&gt;&lt;/a&gt;Contributors to 1.36.0&lt;/h2&gt;
+&lt;p&gt;Many people came together to create Rust 1.36.0. We couldn't have done it
+without all of you. &lt;a href=&quot;https://thanks.rust-lang.org/rust/1.36.0/&quot;&gt;Thanks!&lt;/a&gt;&lt;/p&gt;
+</content>
+
+        <author>
+            <name>The Rust Release Team</name>
+        </author>
+    </entry>
+    
+    <entry>
+        <title>The Governance WG is going public</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/6/3/governance-wg-announcement.html" type="text/html" title="The Governance WG is going public" />
+        <published>2019-06-03T00:00:00Z</published>
+        <updated>2019-06-03T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/2019/6/3/governance-wg-announcement.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/6/3/governance-wg-announcement.html">&lt;p&gt;Hey all! Today we're happy to announce the &lt;a href=&quot;https://internals.rust-lang.org/t/governance-working-group-announcement/9637&quot;&gt;Governance Working Group&lt;/a&gt; is going public. We've been spending the last couple weeks finding our bearings and structuring the working group.&lt;/p&gt;
+&lt;p&gt;You can find &lt;a href=&quot;https://github.com/rust-lang/wg-governance/blob/master/CHARTER.md&quot;&gt;our charter&lt;/a&gt; outlining our main goals and priorities in &lt;a href=&quot;https://github.com/rust-lang/wg-governance&quot;&gt;our work repository&lt;/a&gt;. We are using the Github issues, milestones and projects to organise and track our progress. The &lt;a href=&quot;https://github.com/rust-lang/wg-governance/&quot;&gt;readme in the repository&lt;/a&gt; explains our working process a bit more in detail. It also states how you can talk to us (hint, via discord) and &lt;a href=&quot;https://github.com/rust-lang/wg-governance/#how-can-i-get-involved&quot;&gt;get involved&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you're interested in the governance working group, you may also be interested in the &lt;a href=&quot;https://internals.rust-lang.org/t/lang-team-meta-working-group/9989&quot;&gt;Lang Team Meta WG&lt;/a&gt;, which is exploring solutions specific to the lang team.&lt;/p&gt;
+</content>
+
+        <author>
+            <name>The Rust Governance WG</name>
+        </author>
+    </entry>
+    
+    <entry>
+        <title>Announcing Rust 1.35.0</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/5/23/Rust-1.35.0.html" type="text/html" title="Announcing Rust 1.35.0" />
+        <published>2019-05-23T00:00:00Z</published>
+        <updated>2019-05-23T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/2019/5/23/Rust-1.35.0.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/5/23/Rust-1.35.0.html">&lt;p&gt;The Rust team is happy to announce a new version of Rust, 1.35.0. Rust is a
+programming language that is empowering everyone to build reliable and efficient software.&lt;/p&gt;
+&lt;p&gt;If you have a previous version of Rust installed via rustup, getting Rust 1.35.0 is as easy as:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-console&quot;&gt;rustup update stable
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you don't have it already, you can &lt;a href=&quot;https://www.rust-lang.org/install.html&quot;&gt;get &lt;code&gt;rustup&lt;/code&gt;&lt;/a&gt; from the appropriate page on our website,
+and check out the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1350-2019-05-23&quot;&gt;detailed release notes for 1.35.0&lt;/a&gt; on GitHub.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#whats-in-1.35.0-stable&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;whats-in-1.35.0-stable&quot;&gt;&lt;/a&gt;What's in 1.35.0 stable&lt;/h2&gt;
+&lt;p&gt;The highlight of this release is the implementation of the &lt;code&gt;FnOnce&lt;/code&gt;, &lt;code&gt;FnMut&lt;/code&gt;,
+and &lt;code&gt;Fn&lt;/code&gt; closure traits for &lt;code&gt;Box&amp;lt;dyn FnOnce&amp;gt;&lt;/code&gt;, &lt;code&gt;Box&amp;lt;dyn FnMut&amp;gt;&lt;/code&gt;, and &lt;code&gt;Box&amp;lt;dyn Fn&amp;gt;&lt;/code&gt; respectively.
+Additionally, closures may now be coerced to unsafe function pointers.
+The &lt;code&gt;dbg!&lt;/code&gt; macro introduced in &lt;a href=&quot;https://blog.rust-lang.org/2019/01/17/Rust-1.32.0.html#the-dbg-macro&quot;&gt;Rust 1.32.0&lt;/a&gt; can now also be called without arguments.
+Moreover, there were a number of standard library stabilizations.
+Read on for a few highlights, or see the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1350-2019-05-23&quot;&gt;detailed release notes&lt;/a&gt; for additional information.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#fn-closure-traits-implemented-for-box&lt;dyn-fn*&gt;&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;fn-closure-traits-implemented-for-box&lt;dyn-fn*&gt;&quot;&gt;&lt;/a&gt;&lt;code&gt;Fn*&lt;/code&gt; closure traits implemented for &lt;code&gt;Box&amp;lt;dyn Fn*&amp;gt;&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;In Rust 1.35.0, the &lt;code&gt;FnOnce&lt;/code&gt;, &lt;code&gt;FnMut&lt;/code&gt;, and the &lt;code&gt;Fn&lt;/code&gt; traits &lt;a href=&quot;https://github.com/rust-lang/rust/pull/55431&quot;&gt;are now implemented&lt;/a&gt; for &lt;code&gt;Box&amp;lt;dyn FnOnce&amp;gt;&lt;/code&gt;,
+&lt;code&gt;Box&amp;lt;dyn FnMut&amp;gt;&lt;/code&gt;, and &lt;code&gt;Box&amp;lt;dyn Fn&amp;gt;&lt;/code&gt; respectively.&lt;/p&gt;
+&lt;p&gt;Previously, if you wanted to call the function stored in a boxed closure, you had to use &lt;a href=&quot;https://doc.rust-lang.org/1.34.0/std/boxed/trait.FnBox.html&quot;&gt;&lt;code&gt;FnBox&lt;/code&gt;&lt;/a&gt;.
+This was because instances of &lt;code&gt;Box&amp;lt;dyn FnOnce&amp;gt;&lt;/code&gt; and friends did not implement the respective &lt;code&gt;Fn*&lt;/code&gt; traits.
+This also meant that it was not possible to pass boxed functions to code expecting an implementor of a &lt;code&gt;Fn&lt;/code&gt; trait,
+and you had to create temporary closures to pass them down.&lt;/p&gt;
+&lt;p&gt;This was ultimately due to a limitation in the compiler's ability to reason about such implementations,
+which has since been fixed with the introduction of &lt;a href=&quot;https://doc.rust-lang.org/nightly/unstable-book/language-features/unsized-locals.html&quot;&gt;unsized locals&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;With this release, you can now use boxed functions in places that expect items implementing a function trait.&lt;/p&gt;
+&lt;p&gt;The following code now works:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;fn foo(x: Box&amp;lt;dyn Fn(u8) -&amp;gt; u8&amp;gt;) -&amp;gt; Vec&amp;lt;u8&amp;gt; {
+    vec![1, 2, 3, 4].into_iter().map(x).collect()
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Furthermore, you can now directly call &lt;code&gt;Box&amp;lt;dyn FnOnce&amp;gt;&lt;/code&gt; objects:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;fn foo(x: Box&amp;lt;dyn FnOnce()&amp;gt;) {
+    x()
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;&lt;a href=&quot;#coercing-closures-to-unsafe-fn-pointers&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;coercing-closures-to-unsafe-fn-pointers&quot;&gt;&lt;/a&gt;Coercing closures to &lt;code&gt;unsafe fn&lt;/code&gt; pointers&lt;/h3&gt;
+&lt;p&gt;Since &lt;a href=&quot;https://blog.rust-lang.org/2017/07/20/Rust-1.19.html&quot;&gt;Rust 1.19.0&lt;/a&gt;, it has been possible to coerce closures that do not capture from their environment into function pointers.
+For example, you may write:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;fn twice(x: u8, f: fn(u8) -&amp;gt; u8) -&amp;gt; u8 {
+    f(f(x))
+}
+
+fn main() {
+    assert_eq!(42, twice(0, |x| x + 21));
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This has however not extended to &lt;code&gt;unsafe&lt;/code&gt; function pointers.
+With this release of Rust, you may now do so. For example:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;/// The safety invariants are those of the `unsafe fn` pointer passed.
+unsafe fn call_unsafe_fn_ptr(f: unsafe fn()) {
+    f()
+}
+
+fn main() {
+    // SAFETY: There are no invariants.
+    // The closure is statically prevented from doing unsafe things.
+    unsafe {
+        call_unsafe_fn_ptr(|| {
+            dbg!();
+        });
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;&lt;a href=&quot;#calling-dbg()-with-no-argument&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;calling-dbg()-with-no-argument&quot;&gt;&lt;/a&gt;Calling &lt;code&gt;dbg!()&lt;/code&gt; with no argument&lt;/h3&gt;
+&lt;p&gt;For the benefit of all the occasional and frequent &amp;quot;print debuggers&amp;quot; out there,
+&lt;a href=&quot;https://blog.rust-lang.org/2019/01/17/Rust-1.32.0.html#the-dbg-macro&quot;&gt;Rust 1.32.0&lt;/a&gt; saw the release of &lt;a href=&quot;https://doc.rust-lang.org/std/macro.dbg.html&quot;&gt;the &lt;code&gt;dbg!&lt;/code&gt; macro&lt;/a&gt;.
+To recap, the macro allows you to quickly inspect the value of some expression with context.
+For example, when running:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;fn main() {
+    let mut x = 0;
+
+    if dbg!(x == 1) {
+        x += 1;
+    }
+
+    dbg!(x);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;...you would see:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;[src/main.rs:4] x == 1 = false
+[src/main.rs:8] x = 0
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;As seen in the previous section, where the higher order function &lt;code&gt;call_unsafe_fn_ptr&lt;/code&gt; is called,
+you may now also call &lt;code&gt;dbg!&lt;/code&gt; without passing any arguments.
+This is useful when tracing what branches your application takes.
+For example, with:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;fn main() {
+    let condition = true;
+
+    if condition {
+        dbg!();
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;...you would see:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;[src/main.rs:5]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;&lt;a href=&quot;#library-stabilizations&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;library-stabilizations&quot;&gt;&lt;/a&gt;Library stabilizations&lt;/h3&gt;
+&lt;p&gt;In 1.35.0, a number of APIs have become stable.&lt;/p&gt;
+&lt;p&gt;In addition, some implementations were added and other changes occured as well.
+See the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1350-2019-05-23&quot;&gt;detailed release notes&lt;/a&gt; for more details.&lt;/p&gt;
+&lt;h4&gt;&lt;a href=&quot;#copy-the-sign-of-a-floating-point-number-onto-another&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;copy-the-sign-of-a-floating-point-number-onto-another&quot;&gt;&lt;/a&gt;Copy the sign of a floating point number onto another&lt;/h4&gt;
+&lt;p&gt;With this release, new methods &lt;code&gt;copysign&lt;/code&gt; have been added to the floating point primitive types &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f32.html&quot;&gt;&lt;code&gt;f32&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f64.html&quot;&gt;&lt;code&gt;f64&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f32.html#method.copysign&quot;&gt;&lt;code&gt;f32::copysign&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/primitive.f64.html#method.copysign&quot;&gt;&lt;code&gt;f64::copysign&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;As the name suggests, you can use these to copy the sign of one number onto another. For example:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;fn main() {
+    assert_eq!(3.5_f32.copysign(-0.42), -3.5);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4&gt;&lt;a href=&quot;#check-whether-a-range-contains-a-value&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;check-whether-a-range-contains-a-value&quot;&gt;&lt;/a&gt;Check whether a &lt;code&gt;Range&lt;/code&gt; &lt;code&gt;contains&lt;/code&gt; a value&lt;/h4&gt;
+&lt;p&gt;Rust 1.35.0 contains a few freshly minted methods on the &lt;code&gt;Range&lt;/code&gt; types:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/ops/struct.Range.html#method.contains&quot;&gt;&lt;code&gt;Range::contains&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/ops/struct.RangeFrom.html#method.contains&quot;&gt;&lt;code&gt;RangeFrom::contains&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/ops/struct.RangeTo.html#method.contains&quot;&gt;&lt;code&gt;RangeTo::contains&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/ops/struct.RangeInclusive.html#method.contains&quot;&gt;&lt;code&gt;RangeInclusive::contains&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/ops/struct.RangeToInclusive.html#method.contains&quot;&gt;&lt;code&gt;RangeToInclusive::contains&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;With these, you can easily check whether a given value exists in a range. For example, you may write:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;fn main() {
+    if (0..=10).contains(&amp;amp;5) {
+        println!(&amp;quot;Five is included in zero to ten.&amp;quot;);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4&gt;&lt;a href=&quot;#map-and-split-a-borrowed-refcell-value-in-two&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;map-and-split-a-borrowed-refcell-value-in-two&quot;&gt;&lt;/a&gt;Map and split a borrowed &lt;code&gt;RefCell&lt;/code&gt; value in two&lt;/h4&gt;
+&lt;p&gt;With Rust 1.35.0, you can now map and split the borrowed value of a &lt;code&gt;RefCell&lt;/code&gt; into multiple borrows for different components of the borrowed data:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/cell/struct.Ref.html#method.map_split&quot;&gt;&lt;code&gt;Ref::map_split&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/cell/struct.RefMut.html#method.map_split&quot;&gt;&lt;code&gt;RefMut::map_split&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;&lt;a href=&quot;#replace-the-value-of-a-refcell-through-a-closure&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;replace-the-value-of-a-refcell-through-a-closure&quot;&gt;&lt;/a&gt;Replace the value of a &lt;code&gt;RefCell&lt;/code&gt; through a closure&lt;/h4&gt;
+&lt;p&gt;This release introduces a convenience method &lt;code&gt;replace_with&lt;/code&gt; on &lt;code&gt;RefCell&lt;/code&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/cell/struct.RefCell.html#method.replace_with&quot;&gt;&lt;code&gt;RefCell::replace_with&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;With it, you can more ergonomically map and replace the current value of the cell and get back the old value as a result.&lt;/p&gt;
+&lt;h4&gt;&lt;a href=&quot;#hash-a-pointer-or-reference-by-address-not-value&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;hash-a-pointer-or-reference-by-address-not-value&quot;&gt;&lt;/a&gt;Hash a pointer or reference by address, not value&lt;/h4&gt;
+&lt;p&gt;In this release, we have introduced:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/ptr/fn.hash.html&quot;&gt;&lt;code&gt;ptr::hash&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This function takes a raw pointer and hashes it. Using &lt;code&gt;ptr::hash&lt;/code&gt;,
+you can avoid hashing the pointed-to value of a reference and instead hash the address.&lt;/p&gt;
+&lt;h4&gt;&lt;a href=&quot;#copy-the-contents-of-an-option&amp;t&gt;&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;copy-the-contents-of-an-option&amp;t&gt;&quot;&gt;&lt;/a&gt;Copy the contents of an &lt;code&gt;Option&amp;lt;&amp;amp;T&amp;gt;&lt;/code&gt;&lt;/h4&gt;
+&lt;p&gt;From the very beginning with Rust 1.0.0,
+the methods &lt;code&gt;Option::cloned&lt;/code&gt; for &lt;code&gt;Option&amp;lt;&amp;amp;T&amp;gt;&lt;/code&gt; and &lt;code&gt;Option&amp;lt;&amp;amp;mut T&amp;gt;&lt;/code&gt; have allowed you to clone the contents in case of &lt;code&gt;Some(_)&lt;/code&gt;.
+However, cloning can sometimes be an expensive operation and the methods &lt;code&gt;opt.cloned()&lt;/code&gt; provided no hints to that effect.&lt;/p&gt;
+&lt;p&gt;With this release of Rust, we introduced:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.copied&quot;&gt;&lt;code&gt;Option::copied&lt;/code&gt;&lt;/a&gt; for both &lt;code&gt;Option&amp;lt;&amp;amp;T&amp;gt;&lt;/code&gt; and &lt;code&gt;Option&amp;lt;&amp;amp;mut T&amp;gt;&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The functionality of &lt;code&gt;opt.copied()&lt;/code&gt; is the same as for &lt;code&gt;opt.cloned()&lt;/code&gt;.
+However, calling the method requires that &lt;code&gt;T: Copy&lt;/code&gt;.
+Using this method, you can make sure that code stops compiling should &lt;code&gt;T&lt;/code&gt; no longer implements &lt;code&gt;Copy&lt;/code&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#changes-in-clippy&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;changes-in-clippy&quot;&gt;&lt;/a&gt;Changes in Clippy&lt;/h3&gt;
+&lt;p&gt;In this release of Rust,
+Clippy (a collection of lints to catch common mistakes and improve your Rust code) added a new lint &lt;a href=&quot;https://rust-lang.github.io/rust-clippy/master/index.html#drop_bounds&quot;&gt;&lt;code&gt;drop_bounds&lt;/code&gt;&lt;/a&gt;.
+This lint triggers when you add a bound &lt;code&gt;T: Drop&lt;/code&gt; to a generic function. For example:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;fn foo&amp;lt;T: Drop&amp;gt;(x: T) {}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Having a bound &lt;code&gt;T: Drop&lt;/code&gt; is almost always a mistake as it excludes types,
+such as &lt;code&gt;u8&lt;/code&gt;, which have trivial drop-glues.
+Moreover, &lt;code&gt;T: Drop&lt;/code&gt; does not account for types like &lt;code&gt;String&lt;/code&gt; not having interesting destructor behavior directly but rather as a result of embedding types,
+such as &lt;code&gt;Vec&amp;lt;u8&amp;gt;&lt;/code&gt;, that do.&lt;/p&gt;
+&lt;p&gt;In addition to &lt;a href=&quot;https://rust-lang.github.io/rust-clippy/master/index.html#drop_bounds&quot;&gt;&lt;code&gt;drop_bounds&lt;/code&gt;&lt;/a&gt;,
+this release of Clippy &lt;a href=&quot;https://github.com/rust-lang/rust-clippy/pull/4101&quot;&gt;split&lt;/a&gt; the lint&lt;code&gt;redundant_closure&lt;/code&gt; into &lt;code&gt;redundant_closure&lt;/code&gt; and &lt;code&gt;redundant_closure_for_method_calls&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;See the &lt;a href=&quot;https://github.com/rust-lang/rust-clippy/blob/master/CHANGELOG.md#rust-135-beta&quot;&gt;detailed release notes for Clippy&lt;/a&gt; for more details.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#changes-in-cargo&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;changes-in-cargo&quot;&gt;&lt;/a&gt;Changes in Cargo&lt;/h3&gt;
+&lt;p&gt;See the &lt;a href=&quot;https://github.com/rust-lang/cargo/blob/master/CHANGELOG.md#cargo-135-2019-05-23&quot;&gt;detailed release notes for Cargo&lt;/a&gt; for more details.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#contributors-to-135.0&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;contributors-to-135.0&quot;&gt;&lt;/a&gt;Contributors to 1.35.0&lt;/h2&gt;
+&lt;p&gt;Many people came together to create Rust 1.35.0.
+We couldn't have done it without all of you.
+&lt;a href=&quot;https://thanks.rust-lang.org/rust/1.35.0/&quot;&gt;Thanks!&lt;/a&gt;&lt;/p&gt;
+</content>
+
+        <author>
+            <name>The Rust Release Team</name>
+        </author>
+    </entry>
+    
+    <entry>
+        <title>The 2019 Rust Event Lineup</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/5/20/The-2019-Rust-Event-Lineup.html" type="text/html" title="The 2019 Rust Event Lineup" />
+        <published>2019-05-20T00:00:00Z</published>
+        <updated>2019-05-20T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/2019/5/20/The-2019-Rust-Event-Lineup.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/5/20/The-2019-Rust-Event-Lineup.html">&lt;p&gt;We're excited for the 2019 conference season, which we're actually late in writing up. Some
+incredible events have already happened! Read on to learn more about all the events occurring
+around the world, past and future.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#december-15-16-2018:-rustrush&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;december-15-16-2018:-rustrush&quot;&gt;&lt;/a&gt;December 15-16, 2018: RustRush&lt;/h3&gt;
+&lt;p&gt;Yes, &lt;a href=&quot;https://rustrush.ru/&quot;&gt;RustRush&lt;/a&gt; was actually in 2018, but we didn't cover it in the &lt;a href=&quot;https://blog.rust-lang.org/2018/01/31/The-2018-Rust-Event-Lineup.html&quot;&gt;2018 event
+lineup&lt;/a&gt; so we're counting it in 2019! This was the first Rust event in Russia.
+You can &lt;a href=&quot;https://www.youtube.com/playlist?list=PLTooeo4dmVkQ_1lHJEY99ZTH_oP5ksIUL&quot;&gt;watch the talk videos&lt;/a&gt; and &lt;a href=&quot;https://twitter.com/rustrush1&quot;&gt;follow the conference on Twitter&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#march-29-30-2019:-rust-latam&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;march-29-30-2019:-rust-latam&quot;&gt;&lt;/a&gt;March 29-30, 2019: Rust Latam&lt;/h3&gt;
+&lt;p&gt;The &lt;a href=&quot;https://rustlatam.org/&quot;&gt;Rust Latam Conference&lt;/a&gt; is Latin America's leading event about Rust. Their first
+event happened in Montevideo this year, and &lt;a href=&quot;https://www.youtube.com/playlist?list=PL85XCvVPmGQjuWUNeFCgl8X2EOC_aAq5N&quot;&gt;the videos are available&lt;/a&gt; to watch!
+Rust Latam plans to be a yearly event, so &lt;a href=&quot;https://twitter.com/RustLatamConf&quot;&gt;watch Twitter&lt;/a&gt; for information about next
+year's event.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#april-20-23-2019:-rustcon-asia&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;april-20-23-2019:-rustcon-asia&quot;&gt;&lt;/a&gt;April 20-23, 2019: RustCon Asia&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://rustcon.asia/&quot;&gt;RustCon Asia&lt;/a&gt; was the first Rust conference in Asia! The &lt;a href=&quot;https://www.youtube.com/playlist?list=PL85XCvVPmGQjPvweRqkBgnh_HKE5MBB8x&quot;&gt;talk videos&lt;/a&gt; are already
+available on YouTube! &lt;a href=&quot;https://twitter.com/RustConAsia&quot;&gt;Follow @RustConAsia&lt;/a&gt; on Twitter for future updates.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#april-26-29-2019:-oxidize&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;april-26-29-2019:-oxidize&quot;&gt;&lt;/a&gt;April 26-29, 2019: Oxidize&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://oxidizeconf.com/&quot;&gt;Oxidize&lt;/a&gt; was a conference specifically about using Rust on embedded devices that took
+place in Berlin. The videos are now &lt;a href=&quot;https://www.youtube.com/playlist?list=PLXajQV_H-DxJPiJQK8gvou4SUZ8Zfvgm6&quot;&gt;available on YouTube&lt;/a&gt;, and &lt;a href=&quot;https://twitter.com/OxidizeConf&quot;&gt;follow @oxidizeconf&lt;/a&gt; on Twitter for future updates.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#june-28-29-2019:-rustlab&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;june-28-29-2019:-rustlab&quot;&gt;&lt;/a&gt;June 28-29, 2019: RustLab&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.rustlab.it/&quot;&gt;RustLab&lt;/a&gt; is a new conference for this year that will be taking place in Florence, Italy.
+Their session and workshop lineup has been announced, and tickets are now available! &lt;a href=&quot;https://twitter.com/rustlab_conf&quot;&gt;Follow the
+conference on Twitter&lt;/a&gt; for the most up-to-date information.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#august-22-23-rustconf&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;august-22-23-rustconf&quot;&gt;&lt;/a&gt;August 22-23: RustConf&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://rustconf.com/&quot;&gt;The official RustConf&lt;/a&gt; will again be taking place in Portland, OR, USA. Thursday is a
+day of trainings and Friday is the main day of talks. See &lt;a href=&quot;https://twitter.com/rustconf&quot;&gt;Twitter&lt;/a&gt; for the latest
+announcements! The videos are now &lt;a href=&quot;https://www.youtube.com/playlist?list=PL85XCvVPmGQhDOUIZBe6u388GydeACbTt&quot;&gt;available on YouTube&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#september-20-21-colorado-gold-rust&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;september-20-21-colorado-gold-rust&quot;&gt;&lt;/a&gt;September 20-21: Colorado Gold Rust&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://cogoldrust.com/&quot;&gt;Colorado Gold Rust&lt;/a&gt; is a new conference for this year, and is taking place in
+Denver, CO, USA. Their CFP and ticket sales are open now, and you can also &lt;a href=&quot;https://twitter.com/COGoldRust&quot;&gt;follow them on
+twitter&lt;/a&gt;!&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#october-18-19-rust-belt-rust&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;october-18-19-rust-belt-rust&quot;&gt;&lt;/a&gt;October 18-19: Rust Belt Rust&lt;/h3&gt;
+&lt;p&gt;This year's &lt;a href=&quot;https://www.rust-belt-rust.com/&quot;&gt;Rust Belt Rust&lt;/a&gt; will be taking place in Dayton, OH, USA, the birthplace of
+flight! The CFP and ticket sales will open soon. Check &lt;a href=&quot;https://twitter.com/rustbeltrust&quot;&gt;Twitter&lt;/a&gt; for announcements.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#october-26th-2019:-rust.tokyo&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;october-26th-2019:-rust.tokyo&quot;&gt;&lt;/a&gt;October 26th, 2019: Rust.Tokyo&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://rust.tokyo/&quot;&gt;Rust.Tokyo&lt;/a&gt; is a one-day conference for Rustaceans with 200+ attendees in Tokyo, Japan.
+The &lt;a href=&quot;https://ti.to/rust-tokyo/2019/en&quot;&gt;ticket&lt;/a&gt; sales are open now, and you can also &lt;a href=&quot;https://twitter.com/rustlang_tokyo&quot;&gt;follow them on twitter&lt;/a&gt;!&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#november-rustfest-barcelona&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;november-rustfest-barcelona&quot;&gt;&lt;/a&gt;November: RustFest Barcelona&lt;/h3&gt;
+&lt;p&gt;The exact dates for &lt;a href=&quot;https://barcelona.rustfest.eu/&quot;&gt;RustFest Barcelona&lt;/a&gt; haven't been announced yet, but it's
+slated to happen sometime in November. Keep an eye on the &lt;a href=&quot;https://twitter.com/rustfest&quot;&gt;RustFest Twitter&lt;/a&gt; for
+announcements!&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;We are so lucky and excited to have so many wonderful conferences around the world in 2019! Have
+fun at the events, and we hope there are even more in 2020!&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Rust Community Team</name>
         </author>
     </entry>
     
