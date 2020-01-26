@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-01-25T23:55:41Z</updated>
+    <updated>2020-01-26T13:26:12Z</updated>
 
     
     <entry>
@@ -283,128 +283,214 @@ of course, trying to stay on top of bugs and issues!&lt;/p&gt;
     </entry>
     
     <entry>
-        <title>Welcome to the Inside Rust blog!</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/9/25/Welcome.html" type="text/html" title="Welcome to the Inside Rust blog!" />
-        <published>2019-09-25T00:00:00Z</published>
-        <updated>2019-09-25T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2019/9/25/Welcome.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/9/25/Welcome.html">&lt;p&gt;Welcome to the inaugural post of the &lt;strong&gt;Inside Rust&lt;/strong&gt; blog! This is a
-new blog where the various Rust teams and working groups can post
-updates about new developments. It's a great place to watch if you're
-interested in following along with Rust development -- and a
-particularly great place to watch if you're interested in contributing
-to Rust. Expect to see updates on new projects, calls for help, design
-notes, and other similar items. Thanks for reading!&lt;/p&gt;
+        <title>Formatting the compiler tree</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/23/formatting-the-compiler.html" type="text/html" title="Formatting the compiler tree" />
+        <published>2019-12-23T00:00:00Z</published>
+        <updated>2019-12-23T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2019/12/23/formatting-the-compiler.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/23/formatting-the-compiler.html">&lt;h2&gt;&lt;a href=&quot;#what-happened&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;what-happened&quot;&gt;&lt;/a&gt;What happened&lt;/h2&gt;
+&lt;p&gt;We recently landed two PRs which together reformatted essentially all code in the compiler tree.&lt;/p&gt;
+&lt;p&gt;The first one, &lt;a href=&quot;https://github.com/rust-lang/rust/pull/65939&quot;&gt;#65939&lt;/a&gt;, contained the initial formatting infrastructure. We currently use &lt;code&gt;rustfmt&lt;/code&gt;
+directly, pinned to a version specified in &lt;code&gt;src/stage0.txt&lt;/code&gt;. We expect to update it as needed, and
+otherwise once per cycle (coinciding with the bootstrap bump, most likely).&lt;/p&gt;
+&lt;p&gt;The second one which reformatted the majority of the codebase is &lt;a href=&quot;https://github.com/rust-lang/rust/pull/67540&quot;&gt;#67540&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;This change landed with the following rustfmt config. Note that this configuration is subject
+to change (in particular, merge_derives may be removed in the future), but should be fairly stable.
+Your editor should automatically pick this configuration up inside the rust-lang/rust repository (it
+is located in the &lt;code&gt;rustfmt.toml&lt;/code&gt; file in the root).&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;version = &amp;quot;Two&amp;quot;
+use_small_heuristics = &amp;quot;Max&amp;quot;
+merge_derives = false
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;&lt;a href=&quot;#how-to-use-formatting&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;how-to-use-formatting&quot;&gt;&lt;/a&gt;How to use formatting&lt;/h2&gt;
+&lt;p&gt;You can reformat the repository with &lt;code&gt;x.py fmt&lt;/code&gt; and &lt;code&gt;x.py fmt --check&lt;/code&gt; to verify formatting; these
+commands are unfortunately somewhat slow today. Tidy will also currently run the latter of these two
+checks (&lt;code&gt;x.py fmt --check&lt;/code&gt;) internally, but this may change in the future if we can't improve the
+speed of formatting the entire codebase.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#resolving-conflicts&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;resolving-conflicts&quot;&gt;&lt;/a&gt;Resolving conflicts&lt;/h2&gt;
+&lt;p&gt;If you have an ongoing branch, you're likely to have merge conflicts. The following should help you
+resolve them:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;#!/bin/bash
+
+set -xeo pipefail
+
+if [ &amp;quot;$1&amp;quot; = &amp;quot;from-rebase&amp;quot; ] ; then
+	git rev-parse HEAD &amp;gt; /tmp/commit
+	git rev-parse HEAD &amp;gt;&amp;gt; /tmp/old.shas
+	./x.py fmt
+	git commit -a --amend --no-edit
+	git rev-parse HEAD &amp;gt;&amp;gt; /tmp/new.shas
+	git reset --hard $(cat /tmp/commit)
+else
+	rm -f /tmp/old.shas /tmp/commit /tmp/new.shas
+	git rebase 8eb7c58dbb7 --exec '../format.sh from-rebase'
+	branch=$(git rev-parse --abbrev-ref HEAD) # get branch name
+	git reset --hard 8eb7c58dbb7
+	for sha in $(cat /tmp/new.shas); do
+		git cherry-pick $sha -Xtheirs
+	done
+  # put yourself atop the format the world PR
+  git rebase -Xtheirs a916ac22b9f7f1f0f7aba0a41a789b3ecd765018
+fi
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This script should be saved to &lt;code&gt;format.sh&lt;/code&gt; in the parent directory of your Rust
+checkout, and then run &lt;code&gt;git fetch upstream &amp;amp;&amp;amp; ../format.sh&lt;/code&gt;. &lt;code&gt;upstream&lt;/code&gt; should
+be the name of the rust-lang/rust remote.&lt;/p&gt;
+&lt;p&gt;Once the script runs, you will be based on the &lt;code&gt;a916ac22b9f7f&lt;/code&gt; commit. You
+likely want to then run &lt;code&gt;git rebase -i upstream/master&lt;/code&gt; or so to finish, but the
+script above gets you past the formatting PR at least.&lt;/p&gt;
+&lt;p&gt;This should mostly resolve conflicts correctly, but occasionally if you've edited something in
+imports (a common case I've encountered) or otherwise this will not resolve quite right. Usually
+though this will solve 99% of the problems and the rest can be fixed up manually afterwards.&lt;/p&gt;
 </content>
 
         <author>
-            <name>Niko Matsakis</name>
+            <name>Mark Rousskov</name>
         </author>
     </entry>
     
     <entry>
-        <title>Announcing the Docs.rs Team</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/9/announcing-the-docsrs-team.html" type="text/html" title="Announcing the Docs.rs Team" />
-        <published>2019-12-09T00:00:00Z</published>
-        <updated>2019-12-09T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2019/12/9/announcing-the-docsrs-team.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/9/announcing-the-docsrs-team.html">&lt;p&gt;Today we're announcing a brand new team: The Docs.rs Team!&lt;/p&gt;
-&lt;p&gt;Previously, &lt;a href=&quot;https://docs.rs/&quot;&gt;Docs.rs&lt;/a&gt; has been managed by the Rustdoc Team, as many of the initial concerns of
-Docs.rs were shared by Rustdoc as Docs.rs was being brought into team maintainership. However, as
-time went on, those concerns started to diverge more and more, and so did the people who contributed
-to either tool.&lt;/p&gt;
-&lt;p&gt;The new Docs.rs Team will be responsible for the operations and development for &lt;a href=&quot;https://docs.rs/&quot;&gt;Docs.rs&lt;/a&gt;, leaving
-the Rustdoc Team to be responsible for the Rustdoc tool itself. &lt;a href=&quot;https://github.com/QuietMisdreavus&quot;&gt;@QuietMisdreavus&lt;/a&gt; will be leading
-the new Docs.rs Team, leaving &lt;a href=&quot;https://github.com/GuillaumeGomez&quot;&gt;@GuillaumeGomez&lt;/a&gt; to lead the Rustdoc Team.&lt;/p&gt;
-&lt;p&gt;Joining QuietMisdreavus on the Docs.rs Team is GuillaumeGomez, coordinating work between Rustdoc and
-Docs.rs; &lt;a href=&quot;https://github.com/onur&quot;&gt;@onur&lt;/a&gt;, the original creator of Docs.rs; &lt;a href=&quot;https://github.com/pietroalbini&quot;&gt;@pietroalbini&lt;/a&gt;, who has coordinated work in
-Docs.rs from the perspective of the Infrastrucure Team; and introducing &lt;a href=&quot;https://github.com/jyn514&quot;&gt;@jyn514&lt;/a&gt;, who has worked to
-improve the developer experience of contributing to Docs.rs by converting the local development
-configuration to use &lt;code&gt;docker-compose&lt;/code&gt;!&lt;/p&gt;
-&lt;p&gt;To get involved with either team, join us on Discord! The Rustdoc Team hangs out in &lt;a href=&quot;https://discord.gg/4yEYPuT&quot;&gt;&lt;code&gt;#rustdoc&lt;/code&gt;&lt;/a&gt;,
-and the Docs.rs Team hangs out in &lt;a href=&quot;https://discord.gg/2k5vVWn&quot;&gt;&lt;code&gt;#docs-rs&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+        <title>Governance Working Group Update: Meeting 17 December 2019</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/20/governance-wg-meeting.html" type="text/html" title="Governance Working Group Update: Meeting 17 December 2019" />
+        <published>2019-12-20T00:00:00Z</published>
+        <updated>2019-12-20T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2019/12/20/governance-wg-meeting.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/20/governance-wg-meeting.html">&lt;p&gt;Hello everyone!&lt;/p&gt;
+&lt;p&gt;On Tuesday 17 December the working group met and built an outline of an RFC to introduce project groups. If you would like to watch, a recording is available on &lt;a href=&quot;https://www.youtube.com/watch?v=q6us8yhDDUU&amp;feature=youtu.be&quot;&gt;YouTube&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#project-groups&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;project-groups&quot;&gt;&lt;/a&gt;Project groups&lt;/h2&gt;
+&lt;p&gt;You can see the &lt;a href=&quot;https://github.com/rust-lang/wg-governance/blob/master/minutes/2019.12.17.md&quot;&gt;detailed minutes&lt;/a&gt; on the &lt;a href=&quot;https://github.com/rust-lang/wg-governance/&quot;&gt;wg-governance&lt;/a&gt; repository, but here is a quick summary of what we would like to do with the RFC:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Introduce the project group concept, creation workflow, and lifecycle&lt;/li&gt;
+&lt;li&gt;Provide guidance for how project groups use RFCs&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Goals served by introducing project groups include improved visibility into and follow-through on projects,
+as well as supporting better documentation of the design process.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#next-meeting&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;next-meeting&quot;&gt;&lt;/a&gt;Next meeting&lt;/h2&gt;
+&lt;p&gt;Our next meeting will be Jan 14. The topic is to be determined, but it is planned to discuss that on January 7th on the Rust Discord in the &lt;code&gt;#wg-governance&lt;/code&gt; channel.&lt;/p&gt;
 </content>
 
         <author>
-            <name>QuietMisdreavus</name>
+            <name>Val Grimm</name>
         </author>
     </entry>
     
     <entry>
-        <title>2019-11-18 IDE team meeting</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/4/ide-future.html" type="text/html" title="2019-11-18 IDE team meeting" />
-        <published>2019-12-04T00:00:00Z</published>
-        <updated>2019-12-04T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2019/12/4/ide-future.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/4/ide-future.html">&lt;p&gt;Meeting run by nikomatsakis. Minutes written by nikomatsakis.
-Attending: nikomatsakis, pnkfelix, Xanewok, matklad
-&lt;a href=&quot;https://hackmd.io/fAnj6pNqRRGIyDQ4el5tcQ&quot;&gt;Notes&lt;/a&gt;&lt;/p&gt;
-&lt;h1&gt;&lt;a href=&quot;#the-rust-ide&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;the-rust-ide&quot;&gt;&lt;/a&gt;The Rust IDE&lt;/h1&gt;
-&lt;p&gt;In the last compiler/IDE team meeting we've discussed the overall direction for IDE support in Rust.&lt;/p&gt;
-&lt;p&gt;At the moment, the two IDEs developed as part of the Rust project are Rust Language Server (RLS) and rust-analyzer.
-The former is currently being shipped with the Rust distribution while the latter serves as a foundation for the &amp;quot;RLS 2.0&amp;quot; working group.&lt;/p&gt;
-&lt;p&gt;Unfortunately, these are actively developed in separation without much code-sharing between the two.
-We'd like to change that and to find out how we can unify these efforts.
-Therefore, we've been having a series of talks with the aim of elaborating the design space and creating a proposal for how to improve the situation going forward.&lt;/p&gt;
-&lt;p&gt;This blog post gives a short summary from our most recent meeting.&lt;/p&gt;
-&lt;h1&gt;&lt;a href=&quot;#why-2-ides&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;why-2-ides&quot;&gt;&lt;/a&gt;Why 2 IDEs?&lt;/h1&gt;
-&lt;p&gt;The main benefits of rust-analyzer is greater performance (because of fully-lazy compilation model) and somewhat richer feature-set (due to more flexible analysis API).
-The main benefits of RLS is precision (it uses &lt;code&gt;rustc&lt;/code&gt; under the hood).
-Additionally, RLS is the main consumer of save-analysis infrastructure, which is a good fit for tools which need a static view of the codebase, such as &lt;a href=&quot;https://github.com/rust-dev-tools/cargo-src&quot;&gt;cargo-src&lt;/a&gt; or &lt;a href=&quot;https://code.visualstudio.com/blogs/2019/02/19/lsif&quot;&gt;lsif&lt;/a&gt;.&lt;/p&gt;
-&lt;h1&gt;&lt;a href=&quot;#save-analysis&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;save-analysis&quot;&gt;&lt;/a&gt;Save-analysis&lt;/h1&gt;
-&lt;p&gt;What is &amp;quot;save-analysis&amp;quot;?
-It is an unstable format which rustc uses to record information about the compiled code.
-It contains a pretty high-level information.
-For example, for each identifier in the source-crate, save-analyzer will map this identifier to a definition and list of usages.
-&lt;code&gt;env RUSTFLAGS=&amp;quot;-Zunstable-options -Zsave-analysis&amp;quot; cargo check&lt;/code&gt; can be used to instruct &lt;code&gt;rustc&lt;/code&gt; to produce save-analysis files (in JSON format).
-Because save-analysis is produced directly from rustc iternal data structures, it is guaranteed to be correct (modulo bugs in rustc itself).&lt;/p&gt;
-&lt;h1&gt;&lt;a href=&quot;#query-model&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;query-model&quot;&gt;&lt;/a&gt;Query model&lt;/h1&gt;
-&lt;p&gt;The fundamental problem with save-analysis is that it is computed for the whole crate at once.
-This is pretty slow for non-trivial crates, and is also wasteful.
-At any given moment in time, only a small fraction of analysis information is really required.
-rust-analyzer solves this by using &lt;a href=&quot;https://github.com/salsa-rs/salsa&quot;&gt;&lt;code&gt;salsa&lt;/code&gt;&lt;/a&gt; queries for code analysis.
-The result is a compilation model which is fully lazy across the whole crate graph.
-This model is similar to what rustc is using internally, but is more lazy both &amp;quot;vertically&amp;quot; and &amp;quot;horizontally&amp;quot;.
-Vertically, &lt;code&gt;rustc&lt;/code&gt; starts to be incremental only after parsing and macro expansion; rust-analyzer is incremental on per-file basis.
-Horizontally, &lt;code&gt;rustc&lt;/code&gt; compiles one crate at a time; rust-analyzer uses queries for the whole crate graph.&lt;/p&gt;
-&lt;h1&gt;&lt;a href=&quot;#way-forward&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;way-forward&quot;&gt;&lt;/a&gt;Way forward&lt;/h1&gt;
-&lt;p&gt;Our current hypothesis is that it is possible to integrate both approaches without doubling the engineering effort.
-Specifically, we will add an option to rust-analyzer to use save-analysis for find-usages and rename functionality.
-That way, we'll get precise results for most important queries, without slowing down completion.
-Unlike RLS, however, rust-analyzer will not link to rustc and instead will rely on cargo for running the compiler and producing save-analysis data.
-If this approach works, we will consider freezing RLS and focusing fully on rust-analyzer.
-Long term, the plan is to unify the save-analysis fallback path and the lazy analysis.&lt;/p&gt;
-&lt;p&gt;In parallel to this RLS/rust-analyzer unification effort, we continue to pursue rustc library-ification, with a specific focus on traits solving (via chalk) and type inference.
-&amp;quot;Library-ification&amp;quot; is a term we've been using for the process of extracting code out of rustc into re-usable libaries which can be shared by both rustc and rust-analyzer.
-The goal is to use library-ification to gradually reduce the amount of duplicated code between rustc and rust-analyzer, with the goal of eventually either having a single code-base, or having the vast majority of the logic be shared.&lt;/p&gt;
+        <title>An Update from WG-Learning</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/20/wg-learning-update.html" type="text/html" title="An Update from WG-Learning" />
+        <published>2019-12-20T00:00:00Z</published>
+        <updated>2019-12-20T00:00:01Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2019/12/20/wg-learning-update.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/20/wg-learning-update.html">&lt;h1&gt;&lt;a href=&quot;#an-update-from-wg-learning&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;an-update-from-wg-learning&quot;&gt;&lt;/a&gt;An update from WG-Learning&lt;/h1&gt;
+&lt;p&gt;In our last post in &lt;a href=&quot;https://blog.rust-lang.org/inside-rust/2019/10/28/rustc-learning-working-group-introduction.html&quot;&gt;October&lt;/a&gt; we gave an overview what the Learning WG is
+and what we are doing. We have made a lot of progress since that post, and we
+have also held a meeting to decide what to work on next. So let's dig in...&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#work-completed&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;work-completed&quot;&gt;&lt;/a&gt;Work completed&lt;/h2&gt;
+&lt;p&gt;We mentioned before that we are in the process of producing &lt;a href=&quot;https://rust-lang.github.io/rustc-guide/&quot;&gt;rustc-guide&lt;/a&gt;
+chapters from the &amp;quot;Compiler Lecture Series&amp;quot; videos. The goal is to try to
+produce guide chapters that are approachable for beginners and give a good
+foundation for exploring and hacking on the compiler.&lt;/p&gt;
+&lt;p&gt;Recently, we merge a &lt;a href=&quot;https://rust-lang.github.io/rustc-guide/salsa.html&quot;&gt;chapter&lt;/a&gt; on &lt;a href=&quot;https://crates.io/crates/salsa&quot;&gt;&lt;code&gt;salsa&lt;/code&gt;&lt;/a&gt; by &lt;code&gt;@Karrq&lt;/code&gt;.
+&lt;code&gt;salsa&lt;/code&gt; is a crate that makes incremental computation easier. While it is not
+used in &lt;code&gt;rustc&lt;/code&gt; itself, it is heavily inspired by it, and it is used by
+&lt;a href=&quot;https://github.com/rust-analyzer/rust-analyzer&quot;&gt;&lt;code&gt;rust-analyzer&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;We also collectively have been working on a chapter about &lt;a href=&quot;https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/type.Ty.html&quot;&gt;&lt;code&gt;ty::Ty&lt;/code&gt;&lt;/a&gt; and
+the way that rustc represents types internally. You can find that PR
+&lt;a href=&quot;https://github.com/rust-lang/rustc-guide/pull/530&quot;&gt;here&lt;/a&gt;. This has been a big effort for a few months now, and we are excited
+to have this new chapter in the guide.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#whats-next?&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;whats-next?&quot;&gt;&lt;/a&gt;What's next?&lt;/h2&gt;
+&lt;p&gt;We just had a &lt;a href=&quot;https://rust-lang.zulipchat.com/#narrow/stream/196385-t-compiler.2Fwg-learning/topic/planning.20meeting&quot;&gt;planning meeting&lt;/a&gt; to discuss what to work on next. The
+guide has some long-standing holes and shortcomings that we would like to address.&lt;/p&gt;
+&lt;p&gt;Specifically, the Learning WG decided that we wanted to pursue the following goals next:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Write an overview chapter&lt;/li&gt;
+&lt;li&gt;Gather source material for chapters on monomorphization and LLVM&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;a href=&quot;#overview-chapter&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;overview-chapter&quot;&gt;&lt;/a&gt;Overview chapter&lt;/h3&gt;
+&lt;p&gt;One of the challenges with big software systems is understanding how everything
+fits together. We have seen this problem come up with the rustc-guide; the chapters
+tunnel down into a single part of the compiler, but it is hard to get a good
+view of all the things that happen to a piece of code between lexing and linking.&lt;/p&gt;
+&lt;p&gt;We want to remedy this problem by creating an Overview chapter that walks
+through some example from the beginning of the compiler to the end of the
+compiler at a high level.  We plan to put this chapter at the beginning of
+(part 2 of) the guide, so that it guide readers as to what part of the
+compilation they are reading about in the subsequent chapters.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#monomorphization-codegen,-llvm&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;monomorphization-codegen,-llvm&quot;&gt;&lt;/a&gt;Monomorphization, Codegen, LLVM&lt;/h3&gt;
+&lt;p&gt;One of the biggest gaps in the guide currently is what happens to your code
+after the MIR is produced. We have chapters on almost everything that happens
+before that (though many of them are pretty slim), but we have almost nothing
+after the MIR is produced, borrow checked, and optimized.&lt;/p&gt;
+&lt;p&gt;In particular, after the MIR is optimized, we need to &lt;a href=&quot;https://rust-lang.github.io/rustc-guide/appendix/glossary.html&quot;&gt;monomorphize&lt;/a&gt; it,
+produce LLVM IR from it, call LLVM to produce executable code, and then link
+everything to form a final binary object.&lt;/p&gt;
+&lt;p&gt;The Learning WG will work on collecting information to write chapters on these
+topics.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#getting-involved&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;getting-involved&quot;&gt;&lt;/a&gt;Getting involved&lt;/h2&gt;
+&lt;p&gt;Did any of this sound interesting to you? We would love for you to join us! You
+can the Learning WG on the &lt;a href=&quot;https://rust-lang.zulipchat.com/#narrow/stream/196385-t-compiler.2Fwg-learning&quot;&gt;&lt;code&gt;t-compiler/wg-learning&lt;/code&gt;&lt;/a&gt; stream on Zulip.
+Feel free to stop by and ping us.&lt;/p&gt;
 </content>
 
         <author>
-            <name>Aleksey Kladov, Igor Matuszewski</name>
+            <name>mark-i-m</name>
         </author>
     </entry>
     
     <entry>
-        <title>Governance Working Group Update</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/3/governance-wg-meeting.html" type="text/html" title="Governance Working Group Update" />
-        <published>2019-12-03T00:00:00Z</published>
-        <updated>2019-12-03T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2019/12/3/governance-wg-meeting.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/3/governance-wg-meeting.html">&lt;p&gt;Hello everyone! Two weeks ago the governance working group met. Here are the large issues we discussed and information on our next meeting.&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;Edit:&lt;/em&gt; This post was prepared last week but was accidentally not merged. Apologies for the short notice about the topic of this week's meeting! --nikomatsakis&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#large-issues-discussed&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;large-issues-discussed&quot;&gt;&lt;/a&gt;Large Issues Discussed&lt;/h2&gt;
-&lt;p&gt;We reviewed the &lt;a href=&quot;https://rust-lang.github.io/rfcs/1068-rust-governance.html&quot;&gt;current governance RFC&lt;/a&gt; and noted governance items that have been added since the RFC was written. We also noted things that have changed or have just not happened, as well as things that could be improved. Please see the &lt;a href=&quot;https://github.com/rust-lang/wg-governance/blob/master/minutes/2019.11.19.md&quot;&gt;full notes&lt;/a&gt; for more details.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#next-meeting&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;next-meeting&quot;&gt;&lt;/a&gt;Next Meeting&lt;/h2&gt;
-&lt;p&gt;Next meeting will be at &lt;strong&gt;22:00 UTC on Tuesday, December 3&lt;/strong&gt; and will be focused on the need for a &lt;a href=&quot;https://github.com/rust-lang/wg-governance/issues/4&quot;&gt;GitHub Access Policy&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;We'd like to encourage anyone who's interested, regardless of their
-previous experience to come to the &lt;code&gt;#wg-governance&lt;/code&gt;
-channel on Discord to attend the meeting. (Our meetings are done over a video
-call with Zoom, but we use the Discord channel to organise ourselves).&lt;/p&gt;
-&lt;p&gt;If there are other issues you would like to see us discuss or discuss with us, please mention them in a comment on &lt;a href=&quot;https://github.com/rust-lang/wg-governance/issues/29&quot;&gt;this GitHub issue&lt;/a&gt;.&lt;/p&gt;
+        <title>2019-12-17 Infrastructure Team Meeting</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/20/infra-team-meeting.html" type="text/html" title="2019-12-17 Infrastructure Team Meeting" />
+        <published>2019-12-20T00:00:00Z</published>
+        <updated>2019-12-20T00:00:02Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2019/12/20/infra-team-meeting.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/20/infra-team-meeting.html">&lt;p&gt;Meeting run by pietroalbini. Minutes written by pietroalbini.&lt;br /&gt;
+Attending: aidanhs, alexcrichton, kennytm, Mark-Simulacrum, pietroalbini,
+shepmaster&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#spurious-chocolatey-failures&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;spurious-chocolatey-failures&quot;&gt;&lt;/a&gt;Spurious Chocolatey failures&lt;/h2&gt;
+&lt;p&gt;Since a few days ago, Chocolatey started returning 503 error codes at random,
+preventing some Windows CI runners from downloading MSYS2, and the tree was
+closed to prevent the failures from affecting a bunch of PRs. There were a few
+proposals on how to work around them, spanning from a proper mirroring
+implementation to just a quick fix to get CI working again.&lt;/p&gt;
+&lt;p&gt;After the discussion the team agreed to prioritize getting CI working
+consistently rather than implement the correct solution from the start. aidanhs
+is going to look into that during the weekend, if nobody else finishes the work
+before.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#progress-on-moving-the-infrastructure-to-terraform&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;progress-on-moving-the-infrastructure-to-terraform&quot;&gt;&lt;/a&gt;Progress on moving the infrastructure to Terraform&lt;/h2&gt;
+&lt;p&gt;In the past few months pietroalbini started exploring moving the configuration
+of Rust’s AWS infrastructure to Terraform, to allow for better collaboration
+and auditability. So far a few services have been moved over to Terraform, and
+pietroalbini proposed in the meeting to evaluate moving dynamic applications
+over to ECS and configure those with Terraform.&lt;/p&gt;
+&lt;p&gt;alexcrichton brought up the point that pietroalbini is at the moment the only
+person in the team familiar with our Terraform setup, and while it’s probably a
+better solution than the status quo we need more people able to work with it
+before we decide to fully commit to using it. He acknowledged the current
+solution (services manually configured through the console) is not scalable nor
+long term, but we can’t jump to Terraform if most of the team doesn’t know how
+to work with it.&lt;/p&gt;
+&lt;p&gt;shepmaster said that this is not much different than the situation in the past,
+where alexcrichton was the only one knowing how our infrastructure worked
+(since then other people in the team got up to speed). aidanhs pointed out that
+we had a case in the past like that, when only alexcrichton knew how a system
+worked and it broke while he was on holiday.&lt;/p&gt;
+&lt;p&gt;alexcrichton proposed to pause investing time into Terraform until at least
+another team member gets familiar with it, and Mark-Simulacrum said he’s
+willing to pair with pietroalbini for a few hours to migrate one of the
+services to Terraform, learning how it works in the process.&lt;/p&gt;
+&lt;p&gt;The feelings about ECS turned up to be mostly the same: everyone agreed it’s
+surely a better solution than the setup we have right now, but only
+pietroalbini is familiar with it. We agreed that pietroalbini and
+Mark-Simulacrum are going to deploy one of the small applications to ECS using
+Terraform while pairing, testing both the new things in one go.&lt;/p&gt;
+&lt;p&gt;In the end, pietroalbini reminded the team that not every application we
+currently host is going to fit into ECS + Fargate without changes, especially
+because you can’t really persist data on the filesystem with it, but he
+mentioned he’s willing to do the implementation work to adapt those
+applications not to use the filesystem anymore.&lt;/p&gt;
 </content>
 
         <author>
-            <name>Nell Shamrell-Harrington</name>
+            <name>Pietro Albini</name>
         </author>
     </entry>
     
