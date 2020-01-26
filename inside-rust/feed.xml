@@ -10,16 +10,16 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-01-26T13:26:12Z</updated>
+    <updated>2020-01-26T13:27:10Z</updated>
 
     
     <entry>
         <title>Upcoming compiler-team design meetings</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/1/24/upcoming-compiler-team-design-meetings.html" type="text/html" title="Upcoming compiler-team design meetings" />
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/24/upcoming-compiler-team-design-meetings.html" type="text/html" title="Upcoming compiler-team design meetings" />
         <published>2020-01-24T00:00:00Z</published>
         <updated>2020-01-24T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2020/1/24/upcoming-compiler-team-design-meetings.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/1/24/upcoming-compiler-team-design-meetings.html">&lt;p&gt;In our &lt;a href=&quot;https://rust-lang.zulipchat.com/#narrow/stream/131828-t-compiler/topic/planning.20meeting.202019.2E01.2E17&quot;&gt;planning meeting on January 17&lt;/a&gt;, the &lt;a href=&quot;https://www.rust-lang.org/governance/teams/compiler&quot;&gt;compiler team&lt;/a&gt; has scheduled our
+        <id>https://blog.rust-lang.org/inside-rust/2020/01/24/upcoming-compiler-team-design-meetings.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/24/upcoming-compiler-team-design-meetings.html">&lt;p&gt;In our &lt;a href=&quot;https://rust-lang.zulipchat.com/#narrow/stream/131828-t-compiler/topic/planning.20meeting.202019.2E01.2E17&quot;&gt;planning meeting on January 17&lt;/a&gt;, the &lt;a href=&quot;https://www.rust-lang.org/governance/teams/compiler&quot;&gt;compiler team&lt;/a&gt; has scheduled our
 next batch of upcoming design meetings. You can find the exact times
 on the compiler team's &lt;a href=&quot;https://rust-lang.github.io/compiler-team/#meeting-calendar&quot;&gt;meeting calendar&lt;/a&gt;:&lt;/p&gt;
 &lt;ul&gt;
@@ -43,11 +43,11 @@ steering meeting process here&lt;/a&gt;.&lt;/p&gt;
     
     <entry>
         <title>February Lang Team Design Meetings</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/1/24/feb-lang-team-design-meetings.html" type="text/html" title="February Lang Team Design Meetings" />
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/24/feb-lang-team-design-meetings.html" type="text/html" title="February Lang Team Design Meetings" />
         <published>2020-01-24T00:00:00Z</published>
         <updated>2020-01-24T00:00:01Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2020/1/24/feb-lang-team-design-meetings.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/1/24/feb-lang-team-design-meetings.html">&lt;p&gt;We've scheduled our &lt;strong&gt;language team design meetings&lt;/strong&gt; for February. The current plans are as follows:&lt;/p&gt;
+        <id>https://blog.rust-lang.org/inside-rust/2020/01/24/feb-lang-team-design-meetings.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/24/feb-lang-team-design-meetings.html">&lt;p&gt;We've scheduled our &lt;strong&gt;language team design meetings&lt;/strong&gt; for February. The current plans are as follows:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;February 3rd -- we will do an overview of &lt;strong&gt;specialization&lt;/strong&gt;. We'll cover details from the RFC but in particular talk about the &lt;a href=&quot;http://aturon.github.io/tech/2018/04/05/sound-specialization/&quot;&gt;as-yet-unimplemented plans to make it sound&lt;/a&gt;.&lt;/li&gt;
 &lt;li&gt;February 10th -- we will cover interactions between the &lt;code&gt;&amp;amp;T&lt;/code&gt; type and LLVM's dereferenceable attribute, such as &lt;a href=&quot;https://github.com/rust-lang/rust/issues/55005&quot;&gt;rust-lang/rust#55005&lt;/a&gt; and &lt;a href=&quot;https://github.com/japaric/volatile-register/issues/10&quot;&gt;problems modeling MMIO&lt;/a&gt;.&lt;/li&gt;
@@ -74,11 +74,11 @@ cancelation. In that case, the calendar events will be updated.&lt;/p&gt;
     
     <entry>
         <title>cargo-audit v0.11: Introducing the `fix` feature, yanked crate detection, and more</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/1/23/Introducing-cargo-audit-fix-and-more.html" type="text/html" title="cargo-audit v0.11: Introducing the `fix` feature, yanked crate detection, and more" />
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/23/Introducing-cargo-audit-fix-and-more.html" type="text/html" title="cargo-audit v0.11: Introducing the `fix` feature, yanked crate detection, and more" />
         <published>2020-01-23T00:00:00Z</published>
         <updated>2020-01-23T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2020/1/23/Introducing-cargo-audit-fix-and-more.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/1/23/Introducing-cargo-audit-fix-and-more.html">&lt;p&gt;&lt;a href=&quot;https://github.com/rustsec/cargo-audit&quot;&gt;cargo-audit&lt;/a&gt; is a command-line utility which inspects &lt;code&gt;Cargo.lock&lt;/code&gt; files and compares them against the &lt;a href=&quot;https://rustsec.org&quot;&gt;RustSec Advisory Database&lt;/a&gt;, a community database of security vulnerabilities maintained by the &lt;a href=&quot;https://github.com/rust-secure-code/wg&quot;&gt;Rust Secure Code Working Group&lt;/a&gt;.&lt;/p&gt;
+        <id>https://blog.rust-lang.org/inside-rust/2020/01/23/Introducing-cargo-audit-fix-and-more.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/23/Introducing-cargo-audit-fix-and-more.html">&lt;p&gt;&lt;a href=&quot;https://github.com/rustsec/cargo-audit&quot;&gt;cargo-audit&lt;/a&gt; is a command-line utility which inspects &lt;code&gt;Cargo.lock&lt;/code&gt; files and compares them against the &lt;a href=&quot;https://rustsec.org&quot;&gt;RustSec Advisory Database&lt;/a&gt;, a community database of security vulnerabilities maintained by the &lt;a href=&quot;https://github.com/rust-secure-code/wg&quot;&gt;Rust Secure Code Working Group&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;This post describes the new features in the 0.11 release of &lt;code&gt;cargo-audit&lt;/code&gt;.&lt;/p&gt;
 &lt;h2&gt;&lt;a href=&quot;#cargo-audit-fix-automatically-update-vulnerable-dependencies&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;cargo-audit-fix-automatically-update-vulnerable-dependencies&quot;&gt;&lt;/a&gt;&lt;code&gt;cargo audit fix&lt;/code&gt;: automatically update vulnerable dependencies&lt;/h2&gt;
 &lt;p&gt;One of our &lt;a href=&quot;https://github.com/RustSec/cargo-audit/issues/23&quot;&gt;most requested features&lt;/a&gt; (especially by fans of the similar &lt;a href=&quot;https://docs.npmjs.com/cli/audit&quot;&gt;&lt;code&gt;npm audit fix&lt;/code&gt;&lt;/a&gt; command), the &lt;a href=&quot;https://github.com/RustSec/cargo-audit#cargo-audit-fix-subcommand&quot;&gt;new &lt;code&gt;cargo audit fix&lt;/code&gt; subcommand&lt;/a&gt; will attempt to automatically update version requirements for vulnerable dependencies to non-vulnerable versions.&lt;/p&gt;
@@ -113,11 +113,11 @@ cancelation. In that case, the calendar events will be updated.&lt;/p&gt;
     
     <entry>
         <title>Governance Working Group Update: Meeting 14 January 2020</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/1/14/Goverance-wg-cfp.html" type="text/html" title="Governance Working Group Update: Meeting 14 January 2020" />
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/14/Goverance-wg-cfp.html" type="text/html" title="Governance Working Group Update: Meeting 14 January 2020" />
         <published>2020-01-14T00:00:00Z</published>
         <updated>2020-01-14T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2020/1/14/Goverance-wg-cfp.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/1/14/Goverance-wg-cfp.html">&lt;p&gt;Hello everyone!&lt;/p&gt;
+        <id>https://blog.rust-lang.org/inside-rust/2020/01/14/Goverance-wg-cfp.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/14/Goverance-wg-cfp.html">&lt;p&gt;Hello everyone!&lt;/p&gt;
 &lt;p&gt;On Tuesday 14 January the working group met and discussed the RFC
 https://github.com/rust-lang/wg-governance/blob/project-wg-rfc-next/draft-rfcs/working-group-terminology.md.&lt;/p&gt;
 &lt;h2&gt;&lt;a href=&quot;#project-groups&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;project-groups&quot;&gt;&lt;/a&gt;Project groups&lt;/h2&gt;
@@ -138,11 +138,11 @@ and then focus on reviewing action items from the meeting of December 3rd.&lt;/p
     
     <entry>
         <title>Lang Team Design Meetings</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/1/10/lang-team-design-meetings.html" type="text/html" title="Lang Team Design Meetings" />
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/10/lang-team-design-meetings.html" type="text/html" title="Lang Team Design Meetings" />
         <published>2020-01-10T00:00:00Z</published>
         <updated>2020-01-10T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2020/1/10/lang-team-design-meetings.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/1/10/lang-team-design-meetings.html">&lt;p&gt;Hi all! I wanted to give a quick update about the lang team. We're
+        <id>https://blog.rust-lang.org/inside-rust/2020/01/10/lang-team-design-meetings.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/10/lang-team-design-meetings.html">&lt;p&gt;Hi all! I wanted to give a quick update about the lang team. We're
 starting something new this year: a regular &lt;strong&gt;design meeting&lt;/strong&gt;.  The
 idea of the design meeting is that it's a time for us to have in-depth
 discussions on some particular topic. This might be a burning problem
@@ -194,11 +194,11 @@ unable to attend.&lt;/p&gt;
     
     <entry>
         <title>Cargo in 2020</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/1/10/cargo-in-2020.html" type="text/html" title="Cargo in 2020" />
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/10/cargo-in-2020.html" type="text/html" title="Cargo in 2020" />
         <published>2020-01-10T00:00:00Z</published>
         <updated>2020-01-10T00:00:01Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2020/1/10/cargo-in-2020.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/1/10/cargo-in-2020.html">&lt;p&gt;This post is an overview of the major projects the Cargo team is interested in
+        <id>https://blog.rust-lang.org/inside-rust/2020/01/10/cargo-in-2020.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/10/cargo-in-2020.html">&lt;p&gt;This post is an overview of the major projects the Cargo team is interested in
 tackling in 2020.&lt;/p&gt;
 &lt;p&gt;It can be difficult to plan and predict around a volunteer-based open-source
 project with limited resources. Instead of trying to present a wish list,

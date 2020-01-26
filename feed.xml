@@ -10,16 +10,16 @@
         <name>Maintained by the Rust Team.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-01-26T13:26:13Z</updated>
+    <updated>2020-01-26T13:27:10Z</updated>
 
     
     <entry>
         <title>Reducing support for 32-bit Apple targets</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2020/1/3/reducing-support-for-32-bit-apple-targets.html" type="text/html" title="Reducing support for 32-bit Apple targets" />
+        <link rel="alternate" href="https://blog.rust-lang.org/2020/01/03/reducing-support-for-32-bit-apple-targets.html" type="text/html" title="Reducing support for 32-bit Apple targets" />
         <published>2020-01-03T00:00:00Z</published>
         <updated>2020-01-03T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2020/1/3/reducing-support-for-32-bit-apple-targets.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2020/1/3/reducing-support-for-32-bit-apple-targets.html">&lt;p&gt;The Rust team regrets to announce that Rust 1.41.0 (to be released on January
+        <id>https://blog.rust-lang.org/2020/01/03/reducing-support-for-32-bit-apple-targets.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2020/01/03/reducing-support-for-32-bit-apple-targets.html">&lt;p&gt;The Rust team regrets to announce that Rust 1.41.0 (to be released on January
 30th, 2020) will be the last release with the current level of support for
 32-bit Apple targets. Starting from Rust 1.42.0, those targets will be demoted
 to Tier 3.&lt;/p&gt;
@@ -279,11 +279,11 @@ without all of you. &lt;a href=&quot;https://thanks.rust-lang.org/rust/1.40.0/&q
     
     <entry>
         <title>Launching the 2019 State of Rust Survey</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/12/3/survey-launch.html" type="text/html" title="Launching the 2019 State of Rust Survey" />
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/12/03/survey-launch.html" type="text/html" title="Launching the 2019 State of Rust Survey" />
         <published>2019-12-03T00:00:00Z</published>
         <updated>2019-12-03T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/12/3/survey-launch.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/12/3/survey-launch.html">&lt;p&gt;It's that time again! Time for us to take a look at how the Rust project is doing, and what we should plan for the future. The Rust Community Team is pleased to announce our &lt;a href=&quot;https://docs.google.com/forms/d/1iGnf8Mmf4JRggOJ3E7iZlBLsgeLxIYzaI1caiFHQ6OQ/viewform&quot;&gt;2019 State of Rust Survey&lt;/a&gt;! Whether or not you use Rust today, we want to know your opinions. Your responses will help the project understand its strengths and weaknesses and establish development priorities for the future.&lt;/p&gt;
+        <id>https://blog.rust-lang.org/2019/12/03/survey-launch.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/12/03/survey-launch.html">&lt;p&gt;It's that time again! Time for us to take a look at how the Rust project is doing, and what we should plan for the future. The Rust Community Team is pleased to announce our &lt;a href=&quot;https://docs.google.com/forms/d/1iGnf8Mmf4JRggOJ3E7iZlBLsgeLxIYzaI1caiFHQ6OQ/viewform&quot;&gt;2019 State of Rust Survey&lt;/a&gt;! Whether or not you use Rust today, we want to know your opinions. Your responses will help the project understand its strengths and weaknesses and establish development priorities for the future.&lt;/p&gt;
 &lt;p&gt;Completing this survey should take about 10–15 minutes and is anonymous unless you choose to give us your contact information. We will be accepting submissions until December 16th, and we will write up our findings a month or so afterwards to &lt;a href=&quot;https://blog.rust-lang.org&quot;&gt;blog.rust-lang.org&lt;/a&gt;. You can also check out &lt;a href=&quot;https://blog.rust-lang.org/2018/11/27/Rust-survey-2018.html&quot;&gt;last year’s results&lt;/a&gt;.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;https://docs.google.com/forms/d/1iGnf8Mmf4JRggOJ3E7iZlBLsgeLxIYzaI1caiFHQ6OQ/viewform&quot;&gt;English&lt;/a&gt;&lt;/li&gt;
@@ -314,11 +314,11 @@ without all of you. &lt;a href=&quot;https://thanks.rust-lang.org/rust/1.40.0/&q
     
     <entry>
         <title>Async-await on stable Rust!</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/11/7/Async-await-stable.html" type="text/html" title="Async-await on stable Rust!" />
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/11/07/Async-await-stable.html" type="text/html" title="Async-await on stable Rust!" />
         <published>2019-11-07T00:00:00Z</published>
         <updated>2019-11-07T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/11/7/Async-await-stable.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/11/7/Async-await-stable.html">&lt;p&gt;&lt;strong&gt;On this coming Thursday, November 7, async-await syntax hits stable
+        <id>https://blog.rust-lang.org/2019/11/07/Async-await-stable.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/11/07/Async-await-stable.html">&lt;p&gt;&lt;strong&gt;On this coming Thursday, November 7, async-await syntax hits stable
 Rust, as part of the 1.39.0 release.&lt;/strong&gt; This work has been a long time
 in development -- the key ideas for zero-cost futures, for example,
 were &lt;a href=&quot;https://aturon.github.io/blog/2016/08/11/futures/&quot;&gt;first proposed by Aaron Turon and Alex Crichton in
@@ -431,11 +431,11 @@ there and build stuff!&lt;/p&gt;
     
     <entry>
         <title>Announcing Rust 1.39.0</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/11/7/Rust-1.39.0.html" type="text/html" title="Announcing Rust 1.39.0" />
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/11/07/Rust-1.39.0.html" type="text/html" title="Announcing Rust 1.39.0" />
         <published>2019-11-07T00:00:00Z</published>
         <updated>2019-11-07T00:00:01Z</updated>
-        <id>https://blog.rust-lang.org/2019/11/7/Rust-1.39.0.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/11/7/Rust-1.39.0.html">&lt;p&gt;The Rust team is happy to announce a new version of Rust, 1.39.0. Rust is a programming language that is empowering everyone to build reliable and efficient software.&lt;/p&gt;
+        <id>https://blog.rust-lang.org/2019/11/07/Rust-1.39.0.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/11/07/Rust-1.39.0.html">&lt;p&gt;The Rust team is happy to announce a new version of Rust, 1.39.0. Rust is a programming language that is empowering everyone to build reliable and efficient software.&lt;/p&gt;
 &lt;p&gt;If you have a previous version of Rust installed via rustup, getting Rust 1.39.0 is as easy as:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;language-console&quot;&gt;rustup update stable
 &lt;/code&gt;&lt;/pre&gt;
@@ -544,11 +544,11 @@ without all of you. &lt;a href=&quot;https://thanks.rust-lang.org/rust/1.39.0/&q
     
     <entry>
         <title>Completing the transition to the new borrow checker</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/11/1/nll-hard-errors.html" type="text/html" title="Completing the transition to the new borrow checker" />
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/11/01/nll-hard-errors.html" type="text/html" title="Completing the transition to the new borrow checker" />
         <published>2019-11-01T00:00:00Z</published>
         <updated>2019-11-01T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/11/1/nll-hard-errors.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/11/1/nll-hard-errors.html">&lt;p&gt;For most of 2018, we've been issuing warnings about various bugs in the
+        <id>https://blog.rust-lang.org/2019/11/01/nll-hard-errors.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/11/01/nll-hard-errors.html">&lt;p&gt;For most of 2018, we've been issuing warnings about various bugs in the
 borrow checker that we plan to fix -- about two months ago, in the
 current Rust nightly, those warnings became &lt;strong&gt;hard errors&lt;/strong&gt;. In about
 two weeks, when the nightly branches to become beta, those hard errors
@@ -729,11 +729,11 @@ goes into great detail.&lt;/p&gt;
     
     <entry>
         <title>Announcing the Inside Rust blog</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/10/3/inside-rust-blog.html" type="text/html" title="Announcing the Inside Rust blog" />
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/10/03/inside-rust-blog.html" type="text/html" title="Announcing the Inside Rust blog" />
         <published>2019-10-03T00:00:00Z</published>
         <updated>2019-10-03T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/10/3/inside-rust-blog.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/10/3/inside-rust-blog.html">&lt;p&gt;Today we're happy to announce that we're starting a second blog, the
+        <id>https://blog.rust-lang.org/2019/10/03/inside-rust-blog.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/10/03/inside-rust-blog.html">&lt;p&gt;Today we're happy to announce that we're starting a second blog, the
 &lt;a href=&quot;/inside-rust/index.html&quot;&gt;&lt;strong&gt;Inside Rust&lt;/strong&gt; blog&lt;/a&gt;. This blog will be used to post regular
 updates by the various Rust teams and working groups. If you're
 interested in following along with the &amp;quot;nitty gritty&amp;quot; of Rust
@@ -747,11 +747,11 @@ development, then you should take a look!&lt;/p&gt;
     
     <entry>
         <title>Security advisory for Cargo</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/9/30/Security-advisory-for-cargo.html" type="text/html" title="Security advisory for Cargo" />
+        <link rel="alternate" href="https://blog.rust-lang.org/2019/09/30/Security-advisory-for-cargo.html" type="text/html" title="Security advisory for Cargo" />
         <published>2019-09-30T00:00:00Z</published>
         <updated>2019-09-30T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/9/30/Security-advisory-for-cargo.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/9/30/Security-advisory-for-cargo.html">&lt;blockquote&gt;
+        <id>https://blog.rust-lang.org/2019/09/30/Security-advisory-for-cargo.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2019/09/30/Security-advisory-for-cargo.html">&lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: This is a cross-post of the &lt;a href=&quot;https://groups.google.com/forum/#!topic/rustlang-security-announcements/rVQ5e3TDnpQ&quot;&gt;official security advisory&lt;/a&gt;. The official
 post contains a signed version with our PGP key, as well.&lt;/p&gt;
 &lt;/blockquote&gt;
