@@ -199,6 +199,9 @@ h3, .post h2, header h2 {
 .post h2 {
   font-size: 2em; }
 
+.post h3 {
+  display: block; }
+
 .post img {
   display: block;
   margin-left: auto;
