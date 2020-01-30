@@ -10,8 +10,159 @@
         <name>Maintained by the Rust Team.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-01-30T16:31:20Z</updated>
+    <updated>2020-01-30T16:37:03Z</updated>
 
+    
+    <entry>
+        <title>Announcing Rust 1.41.0</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/2020/01/30/Rust-1.41.0.html" type="text/html" title="Announcing Rust 1.41.0" />
+        <published>2020-01-30T00:00:00Z</published>
+        <updated>2020-01-30T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/2020/01/30/Rust-1.41.0.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2020/01/30/Rust-1.41.0.html">&lt;p&gt;The Rust team is happy to announce a new version of Rust, 1.41.0. Rust is a
+programming language that is empowering everyone to build reliable and
+efficient software.&lt;/p&gt;
+&lt;p&gt;If you have a previous version of Rust installed via rustup, getting Rust
+1.41.0 is as easy as:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-console&quot;&gt;rustup update stable
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you don't have it already, you can &lt;a href=&quot;https://www.rust-lang.org/install.html&quot;&gt;get &lt;code&gt;rustup&lt;/code&gt;&lt;/a&gt; from the
+appropriate page on our website, and check out the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1410-2020-01-30&quot;&gt;detailed release notes for
+1.41.0&lt;/a&gt; on GitHub.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#whats-in-1.41.0-stable&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;whats-in-1.41.0-stable&quot;&gt;&lt;/a&gt;What's in 1.41.0 stable&lt;/h2&gt;
+&lt;p&gt;The highlights of Rust 1.41.0 include relaxed restrictions for trait
+implementations, improvements to &lt;code&gt;cargo install&lt;/code&gt;, a more &lt;code&gt;git&lt;/code&gt;-friendly
+&lt;code&gt;Cargo.lock&lt;/code&gt;, and new FFI-related guarantees for &lt;code&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt;. See the &lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1410-2020-01-30&quot;&gt;detailed
+release notes&lt;/a&gt; to learn about other changes not covered by this post.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#relaxed-restrictions-when-implementing-traits&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;relaxed-restrictions-when-implementing-traits&quot;&gt;&lt;/a&gt;Relaxed restrictions when implementing traits&lt;/h3&gt;
+&lt;p&gt;To prevent breakages in the ecosystem when a dependency adds a new trait
+&lt;code&gt;impl&lt;/code&gt;, Rust enforces the &lt;a href=&quot;https://doc.rust-lang.org/book/ch10-02-traits.html#implementing-a-trait-on-a-type&quot;&gt;&lt;em&gt;orphan rule&lt;/em&gt;&lt;/a&gt;. The gist of it is that
+a trait &lt;code&gt;impl&lt;/code&gt; is only allowed if either the trait or the type being
+implemented is &lt;em&gt;local&lt;/em&gt; to (defined in) the current crate as opposed to a
+&lt;em&gt;foreign&lt;/em&gt; crate. &lt;a href=&quot;https://doc.rust-lang.org/reference/items/implementations.html#trait-implementation-coherence&quot;&gt;What this means exactly&lt;/a&gt; is complicated, however,
+when generics are involved.&lt;/p&gt;
+&lt;p&gt;Before Rust 1.41.0, the orphan rule was unnecessarily strict, getting in the
+way of composition. As an example, suppose your crate defines the
+&lt;code&gt;BetterVec&amp;lt;T&amp;gt;&lt;/code&gt; struct, and you want a way to convert your struct to the
+standard library's &lt;code&gt;Vec&amp;lt;T&amp;gt;&lt;/code&gt;. The code you would write is:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;impl&amp;lt;T&amp;gt; From&amp;lt;BetterVec&amp;lt;T&amp;gt;&amp;gt; for Vec&amp;lt;T&amp;gt; {
+    // ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;...which is an instance of the pattern:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;impl&amp;lt;T&amp;gt; ForeignTrait&amp;lt;LocalType&amp;gt; for ForeignType&amp;lt;T&amp;gt; {
+    // ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In Rust 1.40.0 this &lt;code&gt;impl&lt;/code&gt; was forbidden by the orphan rule, as both &lt;code&gt;From&lt;/code&gt; and
+&lt;code&gt;Vec&lt;/code&gt; are defined in the standard library, which is foreign to the current
+crate. There were ways to work around the limitation, such as &lt;a href=&quot;https://doc.rust-lang.org/book/ch19-03-advanced-traits.html#using-the-newtype-pattern-to-implement-external-traits-on-external-types&quot;&gt;the &lt;em&gt;newtype&lt;/em&gt;
+pattern&lt;/a&gt;, but they were often cumbersome or even impossible in
+some cases.&lt;/p&gt;
+&lt;p&gt;While it's still true that both &lt;code&gt;From&lt;/code&gt; and &lt;code&gt;Vec&lt;/code&gt; were foreign, the trait (in
+this case &lt;code&gt;From&lt;/code&gt;) was parameterized by a local type. Therefore, Rust 1.41.0
+allows this &lt;code&gt;impl&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;For more details, read the &lt;a href=&quot;https://github.com/rust-lang/rust/issues/63599&quot;&gt;the stabilization report&lt;/a&gt; and &lt;a href=&quot;https://rust-lang.github.io/rfcs/2451-re-rebalancing-coherence.html&quot;&gt;the
+RFC proposing the change&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#cargo-install-updates-packages-when-outdated&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;cargo-install-updates-packages-when-outdated&quot;&gt;&lt;/a&gt;&lt;code&gt;cargo install&lt;/code&gt; updates packages when outdated&lt;/h3&gt;
+&lt;p&gt;With &lt;code&gt;cargo install&lt;/code&gt;, you can install binary crates in your system. The command
+is often used by the community to install popular CLI tools written in Rust.&lt;/p&gt;
+&lt;p&gt;Starting from Rust 1.41.0, &lt;code&gt;cargo install&lt;/code&gt; will also update existing
+installations of the crate if a new release came out since you installed it.
+Before this release the only option was to pass the &lt;code&gt;--force&lt;/code&gt; flag, which
+reinstalls the binary crate even if it's up to date.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#less-conflict-prone-cargolock-format&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;less-conflict-prone-cargolock-format&quot;&gt;&lt;/a&gt;Less conflict-prone &lt;code&gt;Cargo.lock&lt;/code&gt; format&lt;/h3&gt;
+&lt;p&gt;To ensure consistent builds, Cargo uses a file named &lt;code&gt;Cargo.lock&lt;/code&gt;, containing
+dependency versions and checksums. Unfortunately, the way the data was arranged
+in it caused unnecessary merge conflicts when changing dependencies in separate
+branches.&lt;/p&gt;
+&lt;p&gt;Rust 1.41.0 introduces a new format for the file, explicitly designed to avoid
+those conflicts. This new format will be used for all new lockfiles, while
+existing lockfiles will still rely on the previous format. You can learn about
+the choices leading to the new format &lt;a href=&quot;https://github.com/rust-lang/cargo/pull/7070&quot;&gt;in the PR adding it&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#more-guarantees-when-using-boxt&gt;-in-ffi&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;more-guarantees-when-using-boxt&gt;-in-ffi&quot;&gt;&lt;/a&gt;More guarantees when using &lt;code&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt; in FFI&lt;/h3&gt;
+&lt;p&gt;Starting with Rust 1.41.0, we have declared that a &lt;code&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt;, where &lt;code&gt;T: Sized&lt;/code&gt;
+is now ABI compatible with the C language's pointer (&lt;code&gt;T*&lt;/code&gt;) types. So if you
+have an &lt;code&gt;extern &amp;quot;C&amp;quot;&lt;/code&gt; Rust function, called from C, your Rust function can now
+use &lt;code&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt;, for some specific &lt;code&gt;T&lt;/code&gt;, while using &lt;code&gt;T*&lt;/code&gt; in C for the
+corresponding function. As an example, on the C side you may have:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-c&quot;&gt;// C header */
+
+// Returns ownership to the caller.
+struct Foo* foo_new(void);
+
+// Takes ownership from the caller; no-op when invoked with NULL.
+void foo_delete(struct Foo*);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;...while on the Rust side, you would have:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;#[repr(C)]
+pub struct Foo;
+
+#[no_mangle]
+pub extern &amp;quot;C&amp;quot; fn foo_new() -&amp;gt; Box&amp;lt;Foo&amp;gt; {
+    Box::new(Foo)
+}
+
+// The possibility of NULL is represented with the `Option&amp;lt;_&amp;gt;`.
+#[no_mangle]
+pub extern &amp;quot;C&amp;quot; fn foo_delete(_: Option&amp;lt;Box&amp;lt;Foo&amp;gt;&amp;gt;) {}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Note however that while &lt;code&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt; and &lt;code&gt;T*&lt;/code&gt; have the same representation and ABI,
+a &lt;code&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt; must still be non-null, aligned, and ready for deallocation by the
+global allocator. To ensure this, it is best to only use &lt;code&gt;Box&lt;/code&gt;es originating
+from the global allocator.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Important:&lt;/strong&gt; At least at present, you should avoid using &lt;code&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt; types for
+functions that are defined in C but invoked from Rust. In those cases, you
+should directly mirror the C types as closely as possible. Using types like
+&lt;code&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt; where the C definition is just using &lt;code&gt;T*&lt;/code&gt; can lead to undefined
+behavior.&lt;/p&gt;
+&lt;p&gt;To read more, &lt;a href=&quot;https://doc.rust-lang.org/std/boxed/index.html&quot;&gt;consult the documentation for &lt;code&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#library-changes&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;library-changes&quot;&gt;&lt;/a&gt;Library changes&lt;/h3&gt;
+&lt;p&gt;In Rust 1.41.0, we've made the following additions to the standard library:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The &lt;a href=&quot;https://doc.rust-lang.org/std/result/enum.Result.html#method.map_or&quot;&gt;&lt;code&gt;Result::map_or&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/result/enum.Result.html#method.map_or_else&quot;&gt;&lt;code&gt;Result::map_or_else&lt;/code&gt;&lt;/a&gt; methods were stabilized.&lt;/p&gt;
+&lt;p&gt;Similar to &lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.map_or&quot;&gt;&lt;code&gt;Option::map_or&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/std/option/enum.Option.html#method.map_or_else&quot;&gt;&lt;code&gt;Option::map_or_else&lt;/code&gt;&lt;/a&gt;, these methods are
+shorthands for the &lt;code&gt;.map(|val| process(val)).unwrap_or(default)&lt;/code&gt; pattern.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/66277&quot;&gt;&lt;code&gt;NonZero*&lt;/code&gt; numerics now implement &lt;code&gt;From&amp;lt;NonZero*&amp;gt;&lt;/code&gt; if it's a smaller integer
+width.&lt;/a&gt; For example, &lt;code&gt;NonZeroU16&lt;/code&gt; now implements &lt;code&gt;From&amp;lt;NonZeroU8&amp;gt;&lt;/code&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The &lt;code&gt;weak_count&lt;/code&gt; and &lt;code&gt;strong_count&lt;/code&gt; methods on &lt;code&gt;Weak&lt;/code&gt; pointers were stabilized.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/rc/struct.Weak.html#method.weak_count&quot;&gt;&lt;code&gt;std::rc::Weak::weak_count&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/rc/struct.Weak.html#method.strong_count&quot;&gt;&lt;code&gt;std::rc::Weak::strong_count&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/sync/struct.Weak.html#method.weak_count&quot;&gt;&lt;code&gt;std::sync::Weak::weak_count&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://doc.rust-lang.org/std/sync/struct.Weak.html#method.strong_count&quot;&gt;&lt;code&gt;std::sync::Weak::strong_count&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;These methods return the number of weak (&lt;code&gt;rc::Weak&amp;lt;T&amp;gt;&lt;/code&gt; and &lt;code&gt;sync::Weak&amp;lt;T&amp;gt;&lt;/code&gt;)
+or strong (&lt;code&gt;Rc&amp;lt;T&amp;gt;&lt;/code&gt; and &lt;code&gt;Arc&amp;lt;T&amp;gt;&lt;/code&gt;) pointers to the allocation respectively.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/pull/65013&quot;&gt;&lt;code&gt;MaybeUninit&amp;lt;T&amp;gt;&lt;/code&gt; now implements &lt;code&gt;fmt::Debug&lt;/code&gt;.&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;a href=&quot;#reducing-support-for-32-bit-apple-targets-soon&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;reducing-support-for-32-bit-apple-targets-soon&quot;&gt;&lt;/a&gt;Reducing support for 32-bit Apple targets soon&lt;/h3&gt;
+&lt;p&gt;Rust 1.41.0 is the last release with the current level of compiler support for
+32-bit Apple targets, including the &lt;code&gt;i686-apple-darwin&lt;/code&gt; target. Starting from
+Rust 1.42.0, these targets will be demoted to the lowest support tier.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://blog.rust-lang.org/2020/01/03/reducing-support-for-32-bit-apple-targets.html&quot;&gt;You can learn more about this change in this blog post.&lt;/a&gt;&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#other-changes&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;other-changes&quot;&gt;&lt;/a&gt;Other changes&lt;/h3&gt;
+&lt;p&gt;There are other changes in the Rust 1.41.0 release: check out what changed in
+&lt;a href=&quot;https://github.com/rust-lang/rust/blob/master/RELEASES.md#version-1410-2020-01-30&quot;&gt;Rust&lt;/a&gt;, &lt;a href=&quot;https://github.com/rust-lang/cargo/blob/master/CHANGELOG.md#cargo-141-2020-01-30&quot;&gt;Cargo&lt;/a&gt;, and &lt;a href=&quot;https://github.com/rust-lang/rust-clippy/blob/master/CHANGELOG.md#rust-141&quot;&gt;Clippy&lt;/a&gt;. We also
+have started landing MIR optimizations, which should improve compile time: you
+can learn more about them in the &lt;a href=&quot;https://blog.rust-lang.org/inside-rust/2019/12/02/const-prop-on-by-default.html&quot;&gt;&amp;quot;Inside Rust&amp;quot; blog post&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#contributors-to-141.0&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;contributors-to-141.0&quot;&gt;&lt;/a&gt;Contributors to 1.41.0&lt;/h2&gt;
+&lt;p&gt;Many people came together to create Rust 1.41.0. We couldn't have done it
+without all of you. &lt;a href=&quot;https://thanks.rust-lang.org/rust/1.41.0/&quot;&gt;Thanks!&lt;/a&gt;&lt;/p&gt;
+</content>
+
+        <author>
+            <name>The Rust Release Team</name>
+        </author>
+    </entry>
     
     <entry>
         <title>Reducing support for 32-bit Apple targets</title>
@@ -742,56 +893,6 @@ development, then you should take a look!&lt;/p&gt;
 
         <author>
             <name>Niko Matsakis</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Security advisory for Cargo</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/09/30/Security-advisory-for-cargo.html" type="text/html" title="Security advisory for Cargo" />
-        <published>2019-09-30T00:00:00Z</published>
-        <updated>2019-09-30T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/09/30/Security-advisory-for-cargo.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/09/30/Security-advisory-for-cargo.html">&lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: This is a cross-post of the &lt;a href=&quot;https://groups.google.com/forum/#!topic/rustlang-security-announcements/rVQ5e3TDnpQ&quot;&gt;official security advisory&lt;/a&gt;. The official
-post contains a signed version with our PGP key, as well.&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;The Rust team was recently notified of a security concern when using older versions of Cargo to build crates which use the package rename feature added in newer versions of Cargo. If you're using Rust 1.26.0, released on 2018-05-10, or later you're not affected.&lt;/p&gt;
-&lt;p&gt;The CVE for this vulnerability is &lt;a href=&quot;https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-16760&quot;&gt;CVE-2019-16760&lt;/a&gt;.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#overview&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;overview&quot;&gt;&lt;/a&gt;Overview&lt;/h2&gt;
-&lt;p&gt;Cargo can be configured through &lt;code&gt;Cargo.toml&lt;/code&gt; and the &lt;code&gt;[dependencies]&lt;/code&gt; section to depend on different crates, such as those from crates.io. There are multiple ways to configure how you depend on crates as well, for example if you depend on &lt;code&gt;serde&lt;/code&gt; and enable the &lt;code&gt;derive&lt;/code&gt; feature it would look like:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-toml&quot;&gt;serde = { version = &amp;quot;1.0&amp;quot;, features = ['derive'] }
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Rust 1.31.0 &lt;a href=&quot;https://blog.rust-lang.org/2018/12/06/Rust-1.31-and-rust-2018.html#cargo-features&quot;&gt;introduced a new feature of Cargo&lt;/a&gt; where one of the optional keys you can specify in this map is &lt;code&gt;package&lt;/code&gt;, a way to &lt;a href=&quot;https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#renaming-dependencies-in-cargotoml&quot;&gt;rename a crate locally&lt;/a&gt;. For example if you preferred to use &lt;code&gt;serde1&lt;/code&gt; locally instead of &lt;code&gt;serde&lt;/code&gt;, you could write:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-toml&quot;&gt;serde1 = { version = &amp;quot;1.0&amp;quot;, features = ['derive'], package = &amp;quot;serde&amp;quot; }
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;It's the addition of the &lt;code&gt;package&lt;/code&gt; key that causes Cargo to compile the crate differently. This feature was &lt;a href=&quot;https://github.com/rust-lang/cargo/pull/4953&quot;&gt;first implemented&lt;/a&gt; in Rust 1.26.0, but it was unstable at the time. For Rust 1.25.0 and prior, however, Cargo would ignore the &lt;code&gt;package&lt;/code&gt; key and and interpret the dependency line as if it were:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-toml&quot;&gt;serde1 = { version = &amp;quot;1.0&amp;quot;, features = ['derive'] }
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This means when compiled with Rust 1.25.0 and prior then it would attempt to download the &lt;code&gt;serde1&lt;/code&gt; crate. A malicious user could squat the &lt;code&gt;serde1&lt;/code&gt; name on crates.io to look like &lt;code&gt;serde 1.0.0&lt;/code&gt; but instead act maliciously when built.&lt;/p&gt;
-&lt;p&gt;In summary, usage of the &lt;code&gt;package&lt;/code&gt; key to rename dependencies in &lt;code&gt;Cargo.toml&lt;/code&gt; is ignored in Rust 1.25.0 and prior. When Rust 1.25.0 and prior is used Cargo will ignore &lt;code&gt;package&lt;/code&gt; and download the wrong dependency, which could be squatted on crates.io to be a malicious package. This not only affects manifests that you write locally yourself, but also manifests published to crates.io. If you published a crate, for example, that depends on &lt;code&gt;serde1&lt;/code&gt; to crates.io then users who depend on you may also be vulnerable if they use Rust 1.25.0 and prior.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#affected-versions&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;affected-versions&quot;&gt;&lt;/a&gt;Affected Versions&lt;/h2&gt;
-&lt;p&gt;Rust 1.0.0 through Rust 1.25.0 is affected by this advisory because Cargo will ignore the &lt;code&gt;package&lt;/code&gt; key in manifests. Rust 1.26.0 through Rust 1.30.0 are not affected and typically will emit an error because the &lt;code&gt;package&lt;/code&gt; key is unstable. Rust 1.31.0 and after are not affected because Cargo understands the &lt;code&gt;package&lt;/code&gt; key.&lt;/p&gt;
-&lt;p&gt;In terms of Cargo versions, this affects Cargo up through Cargo 0.26.0. All future versions of Cargo are unaffected.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#mitigations&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;mitigations&quot;&gt;&lt;/a&gt;Mitigations&lt;/h2&gt;
-&lt;p&gt;We strongly recommend that users of the affected versions update their compiler to the latest available one. Preventing this issue from happening requires updating your compiler to either Rust 1.26.0 or newer.&lt;/p&gt;
-&lt;p&gt;We will not be issuing a patch release for Rust versions prior to 1.26.0. Users of Rust 1.19.0 to Rust 1.25.0 can instead apply &lt;a href=&quot;https://gist.github.com/pietroalbini/0d293b24a44babbeb6187e06eebd4992&quot;&gt;the provided patches&lt;/a&gt; to mitigate the issue.&lt;/p&gt;
-&lt;p&gt;An audit of existing crates published to crates.io using the &lt;code&gt;package&lt;/code&gt; key has been performed and there is no evidence that this vulnerability has been exploited in the wild. Our audit only covers the crates currently published on crates.io: if you notice crates exploiting this vulnerability in the future please don't hesitate to email security@rust-lang.org in accordance with &lt;a href=&quot;https://www.rust-lang.org/policies/security&quot;&gt;our security policy&lt;/a&gt;.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#timeline-of-events&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;timeline-of-events&quot;&gt;&lt;/a&gt;Timeline of events&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;Wed, Sep 18, 2019 at 13:54 UTC - Bug reported to security@rust-lang.org&lt;/li&gt;
-&lt;li&gt;Wed, Sep 18, 2019 at 15:35 UTC - Response confirming the report&lt;/li&gt;
-&lt;li&gt;Wed, Sep 18, 2019 - Cargo, Core, and crates.io teams confer on how best to handle this&lt;/li&gt;
-&lt;li&gt;Thu, Sep 19, 2019 - Confirmed with Elichai plan of action and continued to audit existing crates&lt;/li&gt;
-&lt;li&gt;Mon, Sep 23, 2019 - Advisory drafted, patches developed, audit completed&lt;/li&gt;
-&lt;li&gt;Mon, Sep 30, 2019 - Advisory published, security list informed of this issue&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2&gt;&lt;a href=&quot;#acknowledgments&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;acknowledgments&quot;&gt;&lt;/a&gt;Acknowledgments&lt;/h2&gt;
-&lt;p&gt;Thanks to Elichai Turkel, who found this bug and reported it to us in accordance
-with our &lt;a href=&quot;https://www.rust-lang.org/policies/security&quot;&gt;security policy&lt;/a&gt;.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>The Rust Security Team</name>
         </author>
     </entry>
     
