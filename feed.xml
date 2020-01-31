@@ -10,8 +10,56 @@
         <name>Maintained by the Rust Team.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-01-30T16:37:03Z</updated>
+    <updated>2020-01-31T10:01:26Z</updated>
 
+    
+    <entry>
+        <title>The 2020 Rust Event Lineup</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/2020/01/31/conf-lineup.html" type="text/html" title="The 2020 Rust Event Lineup" />
+        <published>2020-01-31T00:00:00Z</published>
+        <updated>2020-01-31T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/2020/01/31/conf-lineup.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2020/01/31/conf-lineup.html">&lt;p&gt;A new decade has started, and we are excited about the Rust conferences coming up. Each conference is an opportunity to learn about Rust, share your knowledge, and to have a good time with your fellow Rustaceans. Read on to learn more about the events we know about so far.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h2&gt;&lt;a href=&quot;#fosdemfebruary-2nd-2020&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;fosdemfebruary-2nd-2020&quot;&gt;&lt;/a&gt;&lt;strong&gt;FOSDEM&lt;/strong&gt;&lt;br&gt;February 2nd, 2020&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;https://fosdem.org/2020/&quot;&gt;FOSDEM&lt;/a&gt; stands for the Free and Open Source Developers European Meeting. At this event software developers around the world will meet up, share ideas and collaborate. FOSDEM will be hosting a &lt;a href=&quot;https://fosdem.org/2020/schedule/track/rust/&quot;&gt;Rust devroom&lt;/a&gt; workshop that aims to present the features and possibilities offered by Rust, as well as some of the many exciting tools and projects in its ecosystem.&lt;/p&gt;
+&lt;h6&gt;&lt;a href=&quot;#located-in-brussels-belgium&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;located-in-brussels-belgium&quot;&gt;&lt;/a&gt;Located in &lt;em&gt;Brussels, Belgium&lt;/em&gt;&lt;/h6&gt;
+&lt;hr /&gt;
+&lt;h2&gt;&lt;a href=&quot;#rustfest-netherlandsq2-2020&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;rustfest-netherlandsq2-2020&quot;&gt;&lt;/a&gt;&lt;strong&gt;RustFest Netherlands&lt;/strong&gt;&lt;br&gt;Q2, 2020&lt;/h2&gt;
+&lt;p&gt;The &lt;a href=&quot;https://netherlands.rustfest.eu/&quot;&gt;RustFest Netherlands&lt;/a&gt; team are working hard behind the scenes on getting everything ready. We hope to tell you more soon so keep an eye on the &lt;a href=&quot;https://blog.rustfest.eu/&quot;&gt;RustFest blog&lt;/a&gt; and follow us on &lt;a href=&quot;https://twitter.com/rustfest&quot;&gt;Twitter&lt;/a&gt;!&lt;/p&gt;
+&lt;h6&gt;&lt;a href=&quot;#located-in-netherlands&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;located-in-netherlands&quot;&gt;&lt;/a&gt;Located in &lt;em&gt;Netherlands&lt;/em&gt;&lt;/h6&gt;
+&lt;hr /&gt;
+&lt;h2&gt;&lt;a href=&quot;#rustgnome-hackfestapril-29th-to-may-3rd,-2020&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;rustgnome-hackfestapril-29th-to-may-3rd,-2020&quot;&gt;&lt;/a&gt;&lt;strong&gt;Rust+GNOME Hackfest&lt;/strong&gt;&lt;br&gt;April 29th to May 3rd, 2020&lt;/h2&gt;
+&lt;p&gt;The goal of the &lt;a href=&quot;https://wiki.gnome.org/Hackfests/Rust2020&quot;&gt;Rust+GNOME hackfest&lt;/a&gt; is to improve the interactions between Rust and the GNOME libraries. During this hackfest, we will be improving the interoperability between Rust and GNOME, improving the support of &lt;a href=&quot;https://developer.gnome.org/&quot;&gt;GNOME libraries&lt;/a&gt; in Rust, and exploring solutions to create &lt;a href=&quot;https://developer.gnome.org/gobject/stable/&quot;&gt;GObject&lt;/a&gt; APIs from Rust.&lt;/p&gt;
+&lt;h6&gt;&lt;a href=&quot;#located-in-montréal-quebec&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;located-in-montréal-quebec&quot;&gt;&lt;/a&gt;Located in &lt;em&gt;Montréal, Quebec&lt;/em&gt;&lt;/h6&gt;
+&lt;hr /&gt;
+&lt;h2&gt;&lt;a href=&quot;#rust-latammay-22nd-23rd-2020&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;rust-latammay-22nd-23rd-2020&quot;&gt;&lt;/a&gt;&lt;strong&gt;Rust LATAM&lt;/strong&gt;&lt;br&gt;May 22nd-23rd, 2020&lt;/h2&gt;
+&lt;p&gt;Where Rust meets Latin America! &lt;a href=&quot;https://rustlatam.org/&quot;&gt;Rust Latam&lt;/a&gt; is Latin America's leading event for and by the Rust community. Two days of interactive sessions, hands-on activities and engaging talks to bring the community together. Schedule to be announced &lt;a href=&quot;https://rustlatam.org/#schedule&quot;&gt;at this link&lt;/a&gt;.&lt;/p&gt;
+&lt;h6&gt;&lt;a href=&quot;#located-in-mexico-city-mexico&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;located-in-mexico-city-mexico&quot;&gt;&lt;/a&gt;Located in &lt;em&gt;Mexico City, Mexico&lt;/em&gt;&lt;/h6&gt;
+&lt;hr /&gt;
+&lt;h2&gt;&lt;a href=&quot;#oxidizejuly-2020&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;oxidizejuly-2020&quot;&gt;&lt;/a&gt;&lt;strong&gt;Oxidize&lt;/strong&gt;&lt;br&gt;July, 2020&lt;/h2&gt;
+&lt;p&gt;The &lt;a href=&quot;https://oxidizeconf.com/&quot;&gt;Oxidize conference&lt;/a&gt; is about learning, and improving your programming skills with embedded systems and IoT in Rust. The conference plans on having one day of guided workshops for developers looking to start or improve their Embedded Rust skills, one day of talks by community members, and a two day development session focused on Hardware and Embedded subjects in Rust. The starting date is to be announced at a later date.&lt;/p&gt;
+&lt;h6&gt;&lt;a href=&quot;#located-in-berlin-germany&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;located-in-berlin-germany&quot;&gt;&lt;/a&gt;Located in &lt;em&gt;Berlin, Germany&lt;/em&gt;&lt;/h6&gt;
+&lt;hr /&gt;
+&lt;h2&gt;&lt;a href=&quot;#rustconfaugust-20th-21st-2020&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;rustconfaugust-20th-21st-2020&quot;&gt;&lt;/a&gt;&lt;strong&gt;RustConf&lt;/strong&gt;&lt;br&gt;August 20th-21st, 2020&lt;/h2&gt;
+&lt;p&gt;The official &lt;a href=&quot;https://rustconf.com/&quot;&gt;RustConf&lt;/a&gt; will be taking place in Portland, Oregon, USA. Last years' conference was amazing, and we are excited to see what happens next. See the &lt;a href=&quot;https://rustconf.com/&quot;&gt;website&lt;/a&gt;, and &lt;a href=&quot;https://twitter.com/rustconf&quot;&gt;Twitter&lt;/a&gt; for updates as the event date approaches!&lt;/p&gt;
+&lt;h6&gt;&lt;a href=&quot;#located-in-oregon-usa&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;located-in-oregon-usa&quot;&gt;&lt;/a&gt;Located in &lt;em&gt;Oregon, USA&lt;/em&gt;&lt;/h6&gt;
+&lt;hr /&gt;
+&lt;h2&gt;&lt;a href=&quot;#rusty-daysfall-2020&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;rusty-daysfall-2020&quot;&gt;&lt;/a&gt;&lt;strong&gt;Rusty Days&lt;/strong&gt;&lt;br&gt;Fall, 2020&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;https://rusty-days.org/&quot;&gt;Rusty Days&lt;/a&gt; is a new conference located in Wroclaw, Poland. Rustaceans of all skill levels are welcome. The conference is still being planned. Check out the information on their &lt;a href=&quot;https://rusty-days.org/&quot;&gt;site&lt;/a&gt;, and &lt;a href=&quot;https://twitter.com/rdconf&quot;&gt;twitter&lt;/a&gt; as we get closer to fall.&lt;/p&gt;
+&lt;h6&gt;&lt;a href=&quot;#located-in-wroclaw-poland&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;located-in-wroclaw-poland&quot;&gt;&lt;/a&gt;Located in &lt;em&gt;Wroclaw, Poland&lt;/em&gt;&lt;/h6&gt;
+&lt;hr /&gt;
+&lt;h2&gt;&lt;a href=&quot;#rustlaboctober-16th-17th-2020&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;rustlaboctober-16th-17th-2020&quot;&gt;&lt;/a&gt;&lt;strong&gt;RustLab&lt;/strong&gt;&lt;br&gt;October 16th-17th, 2020&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.rustlab.it&quot;&gt;RustLab 2020&lt;/a&gt; is a 2 days conference with talks and workshops. The date is set, but the talks are still being planned. We expect to learn more details as we get closer to the date of the conference.&lt;/p&gt;
+&lt;h6&gt;&lt;a href=&quot;#located-in-florence-italy&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;located-in-florence-italy&quot;&gt;&lt;/a&gt;Located in &lt;em&gt;Florence, Italy&lt;/em&gt;&lt;/h6&gt;
+&lt;hr /&gt;
+&lt;p&gt;For the most up-to-date information on events, visit &lt;a href=&quot;https://timetill.rs/&quot;&gt;timetill.rs&lt;/a&gt;. For meetups, and other events see the &lt;a href=&quot;https://calendar.google.com/calendar/embed?src=apd9vmbc22egenmtu5l6c5jbfc@group.calendar.google.com&quot;&gt;calendar&lt;/a&gt;.&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Rust Community</name>
+        </author>
+    </entry>
     
     <entry>
         <title>Announcing Rust 1.41.0</title>
@@ -875,24 +923,6 @@ goes into great detail.&lt;/p&gt;
 
         <author>
             <name>The Rustup Working Group</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Announcing the Inside Rust blog</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/10/03/inside-rust-blog.html" type="text/html" title="Announcing the Inside Rust blog" />
-        <published>2019-10-03T00:00:00Z</published>
-        <updated>2019-10-03T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/10/03/inside-rust-blog.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/10/03/inside-rust-blog.html">&lt;p&gt;Today we're happy to announce that we're starting a second blog, the
-&lt;a href=&quot;/inside-rust/index.html&quot;&gt;&lt;strong&gt;Inside Rust&lt;/strong&gt; blog&lt;/a&gt;. This blog will be used to post regular
-updates by the various Rust teams and working groups. If you're
-interested in following along with the &amp;quot;nitty gritty&amp;quot; of Rust
-development, then you should take a look!&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Niko Matsakis</name>
         </author>
     </entry>
     
