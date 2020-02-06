@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-02-06T19:28:38Z</updated>
+    <updated>2020-02-06T20:28:41Z</updated>
 
     
     <entry>
@@ -30,12 +30,13 @@ well be for you!&lt;/p&gt;
 &lt;p&gt;The &amp;quot;Cleanup Crew&amp;quot; are focused on improving bug reports. Specifically,
 the goal is to try to ensure that every bug report has all the
 information that will be needed for someone to fix it:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;- a minimal, standalone example that shows the problem
-- links to duplicates or related bugs
-- if the bug is a regression (something that used to work, but no
-  longer does), then a bisection to the PR or nightly that caused
-  the regression
-&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;a minimal, standalone example that shows the problem&lt;/li&gt;
+&lt;li&gt;links to duplicates or related bugs&lt;/li&gt;
+&lt;li&gt;if the bug is a regression (something that used to work, but no
+longer does), then a bisection to the PR or nightly that caused
+the regression&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;This kind of cleanup is invaluable in getting bugs fixed.&lt;/p&gt;
 &lt;h3&gt;&lt;a href=&quot;#who-should-join&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;who-should-join&quot;&gt;&lt;/a&gt;Who should join?&lt;/h3&gt;
 &lt;p&gt;It can be done by anybody who knows Rust, without any particularly deep
