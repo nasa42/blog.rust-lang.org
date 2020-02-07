@@ -10,8 +10,80 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-02-06T20:28:41Z</updated>
+    <updated>2020-02-07T19:57:12Z</updated>
 
+    
+    <entry>
+        <title>2020-02-06 Compiler Team Triage Meeting</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/02/07/compiler-team-meeting.html" type="text/html" title="2020-02-06 Compiler Team Triage Meeting" />
+        <published>2020-02-07T00:00:00Z</published>
+        <updated>2020-02-07T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2020/02/07/compiler-team-meeting.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/02/07/compiler-team-meeting.html">&lt;p&gt;The compiler team had our weekly triage meeting on 2020-02-06.
+You can find the &lt;a href=&quot;https://rust-lang.github.io/compiler-team/minutes/triage-meeting/2020-02-06/&quot;&gt;minutes&lt;/a&gt; on the &lt;a href=&quot;https://github.com/rust-lang/compiler-team&quot;&gt;compiler-team repository&lt;/a&gt;.
+Each week, we have general announcements from the team followed by check-ins from two of the compiler team working groups.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#announcements&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;announcements&quot;&gt;&lt;/a&gt;Announcements&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;There is a design meeting this Friday (2020-02-07) on &lt;a href=&quot;https://github.com/rust-lang/compiler-team/issues/237&quot;&gt;parser-librarification&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/davidtwco&quot;&gt;@davidtwco&lt;/a&gt; has made progress on the polymorphization effort and has posted a &lt;a href=&quot;https://rust-lang.zulipchat.com/#narrow/stream/216091-t-compiler.2Fwg-polymorphization/topic/progress.20updates/near/187461928&quot;&gt;status update&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/michaelwoerister&quot;&gt;@mw&lt;/a&gt; has posted a major change proposal to make &lt;a href=&quot;https://github.com/rust-lang/compiler-team/issues/245&quot;&gt;incremental compilation respect the &lt;code&gt;-Ccodegen-units&lt;/code&gt; setting&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Cargo report future-incompat &lt;a href=&quot;https://github.com/rust-lang/rfcs/issues/2834&quot;&gt;rfc#2834&lt;/a&gt; is on track to get an FCP merge request from the cargo team in the near future.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;&lt;a href=&quot;#working-group-sync&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;working-group-sync&quot;&gt;&lt;/a&gt;Working group sync&lt;/h2&gt;
+&lt;h3&gt;&lt;a href=&quot;#wg-rls-20&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;wg-rls-20&quot;&gt;&lt;/a&gt;&lt;a href=&quot;https://rust-lang.github.io/compiler-team/working-groups/rls-2.0/&quot;&gt;wg-rls-2.0&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The Chalk dependency has been updated which dramatically reduced crashes.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;cargo check&lt;/code&gt; handling has been moved ino the server so all editors not just VS Code benefit.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/matklad&quot;&gt;@matklad&lt;/a&gt; and &lt;a href=&quot;https://github.com/nikomatsakis&quot;&gt;@nikomatsakis&lt;/a&gt; have been working on an RFC to merge RLS and Rust Analyzer officially.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Work is proceeding on &amp;quot;production readiness&amp;quot;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Binary releases are available on the project's GitHub page.&lt;/li&gt;
+&lt;li&gt;Planning to publish to VS Code extension marketplace &amp;quot;soon&amp;quot;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;a href=&quot;#wg-self-profile&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;wg-self-profile&quot;&gt;&lt;/a&gt;&lt;a href=&quot;https://rust-lang.github.io/compiler-team/working-groups/self-profile/&quot;&gt;wg-self-profile&lt;/a&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The &lt;a href=&quot;https://github.com/rust-lang/rust/issues/58967&quot;&gt;&amp;quot;Minimum Viable Product&amp;quot;&lt;/a&gt; has been completed!&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Self-profling is enabled for all perf.rust-lang.org runs and we automatically publish the data. (&lt;a href=&quot;https://perf.rust-lang.org/detailed-query.html?commit=3761dcd3467441f78939ccb3b341b03b6a7558d7&amp;base_commit=ac2f3fa41ac5ae8425b959f955bb7433b7c57aea&amp;benchmark=await-call-tree-debug&amp;run_name=clean&quot;&gt;Example&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/michaelwoerister&quot;&gt;@mw&lt;/a&gt; implemented query-key recording so queries can now be attributed to individual query invocations.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The &lt;a href=&quot;https://github.com/rust-lang/measureme/tree/master/crox&quot;&gt;&lt;code&gt;crox&lt;/code&gt;&lt;/a&gt; utility, which generates Chromium profiler compatible trace data, can now generate profiles for entire Cargo invocations via the &lt;code&gt;--dir&lt;/code&gt; flag.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;This allows inspecting various rustc processes and their individual threads on a common timeline with full query data.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Quite a few people have tried &lt;code&gt;-Zself-profile&lt;/code&gt; and have said they found it very useful!&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+
+        <author>
+            <name>Wesley Wiser</name>
+        </author>
+    </entry>
     
     <entry>
         <title>Announcing the Cleanup Crew ICE-breaker group</title>
@@ -412,68 +484,6 @@ as well as supporting better documentation of the design process.&lt;/p&gt;
 
         <author>
             <name>Val Grimm</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>An Update from WG-Learning</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/20/wg-learning-update.html" type="text/html" title="An Update from WG-Learning" />
-        <published>2019-12-20T00:00:00Z</published>
-        <updated>2019-12-20T00:00:01Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2019/12/20/wg-learning-update.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/20/wg-learning-update.html">&lt;h1&gt;&lt;a href=&quot;#an-update-from-wg-learning&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;an-update-from-wg-learning&quot;&gt;&lt;/a&gt;An update from WG-Learning&lt;/h1&gt;
-&lt;p&gt;In our last post in &lt;a href=&quot;https://blog.rust-lang.org/inside-rust/2019/10/28/rustc-learning-working-group-introduction.html&quot;&gt;October&lt;/a&gt; we gave an overview what the Learning WG is
-and what we are doing. We have made a lot of progress since that post, and we
-have also held a meeting to decide what to work on next. So let's dig in...&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#work-completed&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;work-completed&quot;&gt;&lt;/a&gt;Work completed&lt;/h2&gt;
-&lt;p&gt;We mentioned before that we are in the process of producing &lt;a href=&quot;https://rust-lang.github.io/rustc-guide/&quot;&gt;rustc-guide&lt;/a&gt;
-chapters from the &amp;quot;Compiler Lecture Series&amp;quot; videos. The goal is to try to
-produce guide chapters that are approachable for beginners and give a good
-foundation for exploring and hacking on the compiler.&lt;/p&gt;
-&lt;p&gt;Recently, we merge a &lt;a href=&quot;https://rust-lang.github.io/rustc-guide/salsa.html&quot;&gt;chapter&lt;/a&gt; on &lt;a href=&quot;https://crates.io/crates/salsa&quot;&gt;&lt;code&gt;salsa&lt;/code&gt;&lt;/a&gt; by &lt;code&gt;@Karrq&lt;/code&gt;.
-&lt;code&gt;salsa&lt;/code&gt; is a crate that makes incremental computation easier. While it is not
-used in &lt;code&gt;rustc&lt;/code&gt; itself, it is heavily inspired by it, and it is used by
-&lt;a href=&quot;https://github.com/rust-analyzer/rust-analyzer&quot;&gt;&lt;code&gt;rust-analyzer&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;We also collectively have been working on a chapter about &lt;a href=&quot;https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/type.Ty.html&quot;&gt;&lt;code&gt;ty::Ty&lt;/code&gt;&lt;/a&gt; and
-the way that rustc represents types internally. You can find that PR
-&lt;a href=&quot;https://github.com/rust-lang/rustc-guide/pull/530&quot;&gt;here&lt;/a&gt;. This has been a big effort for a few months now, and we are excited
-to have this new chapter in the guide.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#whats-next?&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;whats-next?&quot;&gt;&lt;/a&gt;What's next?&lt;/h2&gt;
-&lt;p&gt;We just had a &lt;a href=&quot;https://rust-lang.zulipchat.com/#narrow/stream/196385-t-compiler.2Fwg-learning/topic/planning.20meeting&quot;&gt;planning meeting&lt;/a&gt; to discuss what to work on next. The
-guide has some long-standing holes and shortcomings that we would like to address.&lt;/p&gt;
-&lt;p&gt;Specifically, the Learning WG decided that we wanted to pursue the following goals next:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Write an overview chapter&lt;/li&gt;
-&lt;li&gt;Gather source material for chapters on monomorphization and LLVM&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;a href=&quot;#overview-chapter&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;overview-chapter&quot;&gt;&lt;/a&gt;Overview chapter&lt;/h3&gt;
-&lt;p&gt;One of the challenges with big software systems is understanding how everything
-fits together. We have seen this problem come up with the rustc-guide; the chapters
-tunnel down into a single part of the compiler, but it is hard to get a good
-view of all the things that happen to a piece of code between lexing and linking.&lt;/p&gt;
-&lt;p&gt;We want to remedy this problem by creating an Overview chapter that walks
-through some example from the beginning of the compiler to the end of the
-compiler at a high level.  We plan to put this chapter at the beginning of
-(part 2 of) the guide, so that it guide readers as to what part of the
-compilation they are reading about in the subsequent chapters.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#monomorphization-codegen,-llvm&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;monomorphization-codegen,-llvm&quot;&gt;&lt;/a&gt;Monomorphization, Codegen, LLVM&lt;/h3&gt;
-&lt;p&gt;One of the biggest gaps in the guide currently is what happens to your code
-after the MIR is produced. We have chapters on almost everything that happens
-before that (though many of them are pretty slim), but we have almost nothing
-after the MIR is produced, borrow checked, and optimized.&lt;/p&gt;
-&lt;p&gt;In particular, after the MIR is optimized, we need to &lt;a href=&quot;https://rust-lang.github.io/rustc-guide/appendix/glossary.html&quot;&gt;monomorphize&lt;/a&gt; it,
-produce LLVM IR from it, call LLVM to produce executable code, and then link
-everything to form a final binary object.&lt;/p&gt;
-&lt;p&gt;The Learning WG will work on collecting information to write chapters on these
-topics.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#getting-involved&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;getting-involved&quot;&gt;&lt;/a&gt;Getting involved&lt;/h2&gt;
-&lt;p&gt;Did any of this sound interesting to you? We would love for you to join us! You
-can the Learning WG on the &lt;a href=&quot;https://rust-lang.zulipchat.com/#narrow/stream/196385-t-compiler.2Fwg-learning&quot;&gt;&lt;code&gt;t-compiler/wg-learning&lt;/code&gt;&lt;/a&gt; stream on Zulip.
-Feel free to stop by and ping us.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>mark-i-m</name>
         </author>
     </entry>
     
