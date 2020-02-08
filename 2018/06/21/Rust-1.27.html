@@ -133,7 +133,7 @@ into <code>c</code>. That'd be much faster!</p>
 autovectorization, sometimes, the compiler just isn't smart enough to realize
 that we can do something like this. Additionally, not every CPU has these
 features, and so LLVM may not use them so your program can be used on a wide
-variety of hardware. So, in Rust 1.27, the addtion of <a href="https://doc.rust-lang.org/stable/std/arch/">the <code>std::arch</code>
+variety of hardware. So, in Rust 1.27, the addition of <a href="https://doc.rust-lang.org/stable/std/arch/">the <code>std::arch</code>
 module</a> allows us to use these kinds of instructions <em>directly</em>, which
 means we don't need to rely on a smart compiler. Additionally, it includes
 some features that allow us to choose a particular implementation based
@@ -152,7 +152,7 @@ fn foo() {
 }
 </code></pre>
 <p>Here, we use <code>cfg</code> flags to choose the correct version based on the machine
-we're targetting; on <code>x86</code> we use that version, and on <code>x86_64</code> we use
+we're targeting; on <code>x86</code> we use that version, and on <code>x86_64</code> we use
 its version. We can also choose at runtime:</p>
 <pre><code class="language-rust">fn foo() {
     #[cfg(any(target_arch = &quot;x86&quot;, target_arch = &quot;x86_64&quot;))]
