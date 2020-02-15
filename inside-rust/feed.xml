@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-02-14T16:51:03Z</updated>
+    <updated>2020-02-15T19:51:11Z</updated>
 
     
     <entry>
@@ -40,6 +40,50 @@ steering meeting process here&lt;/a&gt;.&lt;/p&gt;
 
         <author>
             <name>Niko Matsakis</name>
+        </author>
+    </entry>
+    
+    <entry>
+        <title>Governance Working Group Update: Meeting 11 February 2020</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/02/11/Goverance-wg.html" type="text/html" title="Governance Working Group Update: Meeting 11 February 2020" />
+        <published>2020-02-11T00:00:00Z</published>
+        <updated>2020-02-11T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2020/02/11/Goverance-wg.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/02/11/Goverance-wg.html">&lt;p&gt;Hello everyone!&lt;/p&gt;
+&lt;p&gt;The governance working group meeting of January 28th was canceled due to the Mozilla All Hands that week.
+Therefore, working group next convened on 11 February.
+The following meeting will take place on 27 February.&lt;/p&gt;
+&lt;p&gt;The agenda included&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Discuss project groups description RFC
+https://github.com/rust-lang/rfcs/pull/2856
+Decision: Determine if inactive members in scope; if not in scope, confirm RFC.&lt;/li&gt;
+&lt;li&gt;Review action items from meeting of December 3 2019
+https://github.com/rust-lang/wg-governance/blob/master/minutes/2019.12.03.md#action-items&lt;/li&gt;
+&lt;li&gt;Confirm adjustment of timeslot based on Doodle sent out in Discord channel&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;&lt;a href=&quot;#project-groups&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;project-groups&quot;&gt;&lt;/a&gt;Project groups&lt;/h2&gt;
+&lt;p&gt;You can find the &lt;a href=&quot;https://github.com/rust-lang/wg-governance/blob/master/minutes/2020.02.11.md&quot;&gt;detailed minutes&lt;/a&gt; on the &lt;a href=&quot;https://github.com/rust-lang/wg-governance/&quot;&gt;wg-governance&lt;/a&gt; repository, but here is a quick summary:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Project groups description RFC confirmed complete&lt;/li&gt;
+&lt;li&gt;Next items taken from Dec 3 backlog are access policy (NellShamrell is working on this),
+Discussion of where to discuss the pre-RFC process, and followup about moving (community, devtools, nursery) to rust-lang&lt;/li&gt;
+&lt;li&gt;XAMPPRocky is already working on a compliance bot to simplify administration&lt;/li&gt;
+&lt;li&gt;Timeslot adjusted to 19-20 CET / 1pm-2pm EST / 10-11am PST on Zulip as text chat, with the same biweekly cadence.
+Zoom (video) meetings will be used as needed, e.g. if a big RFC needs to be pushed through.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;&lt;a href=&quot;#next-meeting&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;next-meeting&quot;&gt;&lt;/a&gt;Next meeting&lt;/h2&gt;
+&lt;p&gt;Our next meeting will be 27 February 2020 via Zulip 19-20 CET / 1pm-2pm EST / 10-11am PST.
+Agenda is -&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Access policy - Nell will have something to discuss&lt;/li&gt;
+&lt;li&gt;Pre-RFC process - determine right place to talk about this&lt;/li&gt;
+&lt;li&gt;Follow-up on moving (community, devtools, nursery) to rust-lang&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+
+        <author>
+            <name>Val Grimm</name>
         </author>
     </entry>
     
@@ -422,73 +466,6 @@ of course, trying to stay on top of bugs and issues!&lt;/p&gt;
 
         <author>
             <name>Eric Huss</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Formatting the compiler tree</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2019/12/23/formatting-the-compiler.html" type="text/html" title="Formatting the compiler tree" />
-        <published>2019-12-23T00:00:00Z</published>
-        <updated>2019-12-23T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2019/12/23/formatting-the-compiler.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2019/12/23/formatting-the-compiler.html">&lt;h2&gt;&lt;a href=&quot;#what-happened&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;what-happened&quot;&gt;&lt;/a&gt;What happened&lt;/h2&gt;
-&lt;p&gt;We recently landed two PRs which together reformatted essentially all code in the compiler tree.&lt;/p&gt;
-&lt;p&gt;The first one, &lt;a href=&quot;https://github.com/rust-lang/rust/pull/65939&quot;&gt;#65939&lt;/a&gt;, contained the initial formatting infrastructure. We currently use &lt;code&gt;rustfmt&lt;/code&gt;
-directly, pinned to a version specified in &lt;code&gt;src/stage0.txt&lt;/code&gt;. We expect to update it as needed, and
-otherwise once per cycle (coinciding with the bootstrap bump, most likely).&lt;/p&gt;
-&lt;p&gt;The second one which reformatted the majority of the codebase is &lt;a href=&quot;https://github.com/rust-lang/rust/pull/67540&quot;&gt;#67540&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;This change landed with the following rustfmt config. Note that this configuration is subject
-to change (in particular, merge_derives may be removed in the future), but should be fairly stable.
-Your editor should automatically pick this configuration up inside the rust-lang/rust repository (it
-is located in the &lt;code&gt;rustfmt.toml&lt;/code&gt; file in the root).&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;version = &amp;quot;Two&amp;quot;
-use_small_heuristics = &amp;quot;Max&amp;quot;
-merge_derives = false
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h2&gt;&lt;a href=&quot;#how-to-use-formatting&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;how-to-use-formatting&quot;&gt;&lt;/a&gt;How to use formatting&lt;/h2&gt;
-&lt;p&gt;You can reformat the repository with &lt;code&gt;x.py fmt&lt;/code&gt; and &lt;code&gt;x.py fmt --check&lt;/code&gt; to verify formatting; these
-commands are unfortunately somewhat slow today. Tidy will also currently run the latter of these two
-checks (&lt;code&gt;x.py fmt --check&lt;/code&gt;) internally, but this may change in the future if we can't improve the
-speed of formatting the entire codebase.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#resolving-conflicts&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;resolving-conflicts&quot;&gt;&lt;/a&gt;Resolving conflicts&lt;/h2&gt;
-&lt;p&gt;If you have an ongoing branch, you're likely to have merge conflicts. The following should help you
-resolve them:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;#!/bin/bash
-
-set -xeo pipefail
-
-if [ &amp;quot;$1&amp;quot; = &amp;quot;from-rebase&amp;quot; ] ; then
-	git rev-parse HEAD &amp;gt; /tmp/commit
-	git rev-parse HEAD &amp;gt;&amp;gt; /tmp/old.shas
-	./x.py fmt
-	git commit -a --amend --no-edit
-	git rev-parse HEAD &amp;gt;&amp;gt; /tmp/new.shas
-	git reset --hard $(cat /tmp/commit)
-else
-	rm -f /tmp/old.shas /tmp/commit /tmp/new.shas
-	git rebase 8eb7c58dbb7 --exec '../format.sh from-rebase'
-	branch=$(git rev-parse --abbrev-ref HEAD) # get branch name
-	git reset --hard 8eb7c58dbb7
-	for sha in $(cat /tmp/new.shas); do
-		git cherry-pick $sha -Xtheirs
-	done
-  # put yourself atop the format the world PR
-  git rebase -Xtheirs a916ac22b9f7f1f0f7aba0a41a789b3ecd765018
-fi
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This script should be saved to &lt;code&gt;format.sh&lt;/code&gt; in the parent directory of your Rust
-checkout, and then run &lt;code&gt;git fetch upstream &amp;amp;&amp;amp; ../format.sh&lt;/code&gt;. &lt;code&gt;upstream&lt;/code&gt; should
-be the name of the rust-lang/rust remote.&lt;/p&gt;
-&lt;p&gt;Once the script runs, you will be based on the &lt;code&gt;a916ac22b9f7f&lt;/code&gt; commit. You
-likely want to then run &lt;code&gt;git rebase -i upstream/master&lt;/code&gt; or so to finish, but the
-script above gets you past the formatting PR at least.&lt;/p&gt;
-&lt;p&gt;This should mostly resolve conflicts correctly, but occasionally if you've edited something in
-imports (a common case I've encountered) or otherwise this will not resolve quite right. Usually
-though this will solve 99% of the problems and the rest can be fixed up manually afterwards.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Mark Rousskov</name>
         </author>
     </entry>
     
