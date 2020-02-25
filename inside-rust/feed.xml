@@ -10,8 +10,180 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-02-20T14:26:27Z</updated>
+    <updated>2020-02-25T19:29:18Z</updated>
 
+    
+    <entry>
+        <title>Intro to rustc's self profiler</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/02/25/intro-rustc-self-profile.html" type="text/html" title="Intro to rustc's self profiler" />
+        <published>2020-02-25T00:00:00Z</published>
+        <updated>2020-02-25T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2020/02/25/intro-rustc-self-profile.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/02/25/intro-rustc-self-profile.html">&lt;p&gt;Over the last year, the &lt;a href=&quot;https://rust-lang.github.io/compiler-team/working-groups/self-profile/&quot;&gt;Self-Profile Working Group&lt;/a&gt; has been building tools to profile &lt;code&gt;rustc&lt;/code&gt; because we often hear requests to know where compilation time is being spent.
+This is useful when optimizing the compiler, one of the Compiler Team's ongoing efforts to improve compile times, but it's also useful to users who want to refactor their crate so that it will compile faster.
+We've been working on a new feature that will help with that and this blog post gives a preview of how it works.
+Be warned, though: it is still experimental and we expect the interface to change over time.
+The Rust Unstable Book has &lt;a href=&quot;https://doc.rust-lang.org/unstable-book/compiler-flags/self-profile.html&quot;&gt;documentation for this feature&lt;/a&gt; and we'll keep that up to date so you can always find the latest instructions there.&lt;/p&gt;
+&lt;p&gt;In this post, we'll look at the tools currently available and use them to profile &lt;code&gt;rustc&lt;/code&gt; while it compiles an example crate.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#setup&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;setup&quot;&gt;&lt;/a&gt;Setup&lt;/h2&gt;
+&lt;p&gt;First, we'll install the tools we're going to use from the &lt;code&gt;measureme&lt;/code&gt; repository to analyze self-profile trace data.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;$ cargo install --git https://github.com/rust-lang/measureme crox flamegraph summarize
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now that we have our tools, let's download an example crate to profile its build.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;$ cd ..
+$ git clone https://github.com/rust-lang/regex.git
+$ cd regex
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We'll need to use a recent nightly compiler to get access to unstable &lt;code&gt;-Z&lt;/code&gt; flags.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;$ rustup override set nightly
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you haven't installed a nightly compiler before, this will download the nightly compiler for you.
+If you have, then update it to make sure you're on a recent version.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;$ rustup update nightly
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;&lt;a href=&quot;#profiling-the-compiler&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;profiling-the-compiler&quot;&gt;&lt;/a&gt;Profiling the compiler&lt;/h2&gt;
+&lt;p&gt;Now we can build it and tell &lt;code&gt;rustc&lt;/code&gt; to profile the build of the &lt;code&gt;regex&lt;/code&gt; crate.
+This will cause three new files to be created in the working directory which contain the profling data.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;$ cargo rustc -- -Zself-profile
+$ ls
+CHANGELOG.md        LICENSE-APACHE       UNICODE.md              regex-17088.string_data       regex-syntax         target
+Cargo.lock          LICENSE-MIT          bench                   regex-17088.string_index      rustfmt.toml         test
+Cargo.toml          PERFORMANCE.md       examples                regex-capi                    scripts              tests
+HACKING.md          README.md            regex-17088.events      regex-debug                   src
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The new files follow the format &lt;code&gt;{crate name}-{rustc process id}.{events,string_data,string_index}&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;We'll use each of the three main tools to analyze the profiling data:&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#summarize&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;summarize&quot;&gt;&lt;/a&gt;&lt;code&gt;summarize&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;As its name suggests, this tool summarizes the data found in the trace files.
+Additionally, &lt;code&gt;summarize&lt;/code&gt; can also show a &amp;quot;diff&amp;quot; between two trace files but we won't be using this mode.&lt;/p&gt;
+&lt;p&gt;Let's run the tool, passing just the file name (but not the extension) for the trace:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;$ summarize summarize regex-17088
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| Item                                          | Self time | % of total time | Time     | Item count |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| LLVM_module_codegen_emit_obj                  | 4.89s     | 42.752          | 4.89s    | 159        |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| codegen_module                                | 1.25s     | 10.967          | 1.37s    | 159        |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| LLVM_module_optimize_module_passes            | 1.15s     | 10.022          | 1.15s    | 159        |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| LLVM_module_codegen_make_bitcode              | 786.56ms  | 6.875           | 960.73ms | 159        |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| typeck_tables_of                              | 565.18ms  | 4.940           | 689.39ms | 848        |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| LLVM_module_codegen                           | 408.01ms  | 3.566           | 6.26s    | 159        |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| mir_borrowck                                  | 224.03ms  | 1.958           | 543.33ms | 848        |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| LLVM_module_codegen_emit_compressed_bitcode   | 174.17ms  | 1.522           | 174.17ms | 159        |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| optimized_mir                                 | 157.91ms  | 1.380           | 205.29ms | 1996       |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| evaluate_obligation                           | 146.50ms  | 1.281           | 184.17ms | 8304       |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| codegen_crate                                 | 139.48ms  | 1.219           | 1.58s    | 1          |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| mir_built                                     | 123.88ms  | 1.083           | 168.01ms | 848        |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| metadata_decode_entry                         | 88.36ms   | 0.772           | 117.77ms | 55642      |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| incr_comp_copy_cgu_workproducts               | 64.21ms   | 0.561           | 64.21ms  | 1          |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| monomorphization_collector_graph_walk         | 54.11ms   | 0.473           | 344.00ms | 1          |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| link_rlib                                     | 43.21ms   | 0.378           | 43.21ms  | 1          |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| check_impl_item_well_formed                   | 41.36ms   | 0.362           | 77.14ms  | 736        |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| codegen_fulfill_obligation                    | 40.36ms   | 0.353           | 51.56ms  | 1759       |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| expand_crate                                  | 37.24ms   | 0.326           | 48.52ms  | 1          |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| symbol_name                                   | 36.31ms   | 0.317           | 39.06ms  | 5513       |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+| free_global_ctxt                              | 34.34ms   | 0.300           | 34.34ms  | 1          |
++-----------------------------------------------+-----------+-----------------+----------+------------+
+...
+Total cpu time: 11.440758871s
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The output is sorted by the self time (time spent in the query or activity but not other queries or activities called by itself).
+As you can see, most of the compilation time is spent in LLVM generating the binary code for the executable.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#flamegraph&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;flamegraph&quot;&gt;&lt;/a&gt;&lt;code&gt;flamegraph&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;As you may have guessed, &lt;code&gt;flamegraph&lt;/code&gt; will produce a &lt;a href=&quot;http://www.brendangregg.com/flamegraphs.html&quot;&gt;flame graph&lt;/a&gt; of the profiling data.
+To run the tool, we'll pass just the filename without a file extension like we did for &lt;code&gt;summarize&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;$ flamegraph regex-17088
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This will create a file called &lt;code&gt;rustc.svg&lt;/code&gt; in the working directory:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;/images/inside-rust/2020-02-25-intro-rustc-self-profile/flamegraph_image.png&quot;&gt;&lt;img src=&quot;/images/inside-rust/2020-02-25-intro-rustc-self-profile/flamegraph_image.png&quot; alt=&quot;Image of flamegraph output&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;/images/inside-rust/2020-02-25-intro-rustc-self-profile/rustc.svg&quot;&gt;Click here&lt;/a&gt; to try the interactive svg.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#crox&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;crox&quot;&gt;&lt;/a&gt;&lt;code&gt;crox&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;This tool processes self-profiling data into the JSON format that the Chromium profiler understands.
+You can use it to create a graphical timeline showing exactly when various traced events occurred.&lt;/p&gt;
+&lt;p&gt;In this section, we'll cover a few different modes &lt;code&gt;crox&lt;/code&gt; can run in such as profiling an entire crate compilation including dependencies and filtering out small events.
+Let's get started with the basics!&lt;/p&gt;
+&lt;h4&gt;&lt;a href=&quot;#basic-usage&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;basic-usage&quot;&gt;&lt;/a&gt;Basic usage&lt;/h4&gt;
+&lt;p&gt;To run the tool, we'll just pass the filename without a file extension like we've done before:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;$ crox regex-17088
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This creates a file called &lt;code&gt;chrome_profiler.json&lt;/code&gt; in the working directory.
+To open it, we'll use the regular Chromium performance tools you might already be familiar with:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Open Chrome&lt;/li&gt;
+&lt;li&gt;Open the Developer Tools console by pressing &lt;code&gt;Ctrl&lt;/code&gt; + &lt;code&gt;Shift&lt;/code&gt; + &lt;code&gt;i&lt;/code&gt; (Windows/Linux) or &lt;code&gt;Cmd&lt;/code&gt; + &lt;code&gt;Option&lt;/code&gt; + &lt;code&gt;i&lt;/code&gt; (macOS)&lt;/li&gt;
+&lt;li&gt;Click the Performance tab at the top of the console.&lt;/li&gt;
+&lt;li&gt;Click the &amp;quot;Load profile&amp;quot; button which looks like an arrow pointing up.&lt;/li&gt;
+&lt;li&gt;Select the &lt;code&gt;chrome_profiler.json&lt;/code&gt; file we created.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;You should now see something similar to this:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;/images/inside-rust/2020-02-25-intro-rustc-self-profile/chrome_profiler1.png&quot;&gt;&lt;img src=&quot;/images/inside-rust/2020-02-25-intro-rustc-self-profile/chrome_profiler1.png&quot; alt=&quot;Image of chrome profiler&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;You can use the scroll wheel on a mouse or the appropriate gesture on a touchpad to zoom in or out of the timeline.&lt;/p&gt;
+&lt;h4&gt;&lt;a href=&quot;#filtering-short-events&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;filtering-short-events&quot;&gt;&lt;/a&gt;Filtering short events&lt;/h4&gt;
+&lt;p&gt;If the &lt;code&gt;chrome_profiler.json&lt;/code&gt; file gets too large, the normal Chromium performance tools have issues opening the file.
+One easy way to deal with this is to tell &lt;code&gt;crox&lt;/code&gt; to remove events shorter than a chosen duration:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;$ crox --minumum-duration 2 regex-17088
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Filtering out events less than 2 microseconds shrinks our &lt;code&gt;chrome_profiler.js&lt;/code&gt; file from 27mb to 11mb.&lt;/p&gt;
+&lt;h4&gt;&lt;a href=&quot;#capturing-event-arguments&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;capturing-event-arguments&quot;&gt;&lt;/a&gt;Capturing event arguments&lt;/h4&gt;
+&lt;p&gt;The self-profiler can be configured to record event arguments during compilation.
+For example, queries will include their query key.
+This functionality is turned off by default because it increases the self-profiler overhead.&lt;/p&gt;
+&lt;p&gt;To turn this feature on, we'll need to record a new compilation, passing an additional argument to &lt;code&gt;rustc&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;$ cargo clean
+$ cargo rustc -- -Zself-profile -Zself-profile-events=default,args
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And then process the new output files:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;$ crox regex-23649
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now in the Chromium profiler, if you click on a node, you can see additional data about many of the events at the bottom of the screen:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;/images/inside-rust/2020-02-25-intro-rustc-self-profile/chrome_profiler2.png&quot;&gt;&lt;img src=&quot;/images/inside-rust/2020-02-25-intro-rustc-self-profile/chrome_profiler2.png&quot; alt=&quot;Image of Chrome profiler details&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Which shows this &lt;code&gt;optimized_mir&lt;/code&gt; query was processing the &lt;code&gt;regex::compile::{{impl}}::new&lt;/code&gt; function body.&lt;/p&gt;
+&lt;h4&gt;&lt;a href=&quot;#profiling-an-entire-crate-graph&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;profiling-an-entire-crate-graph&quot;&gt;&lt;/a&gt;Profiling an entire crate graph&lt;/h4&gt;
+&lt;p&gt;By using the &lt;code&gt;RUSTFLAGS&lt;/code&gt; environment variable, we can profile every &lt;code&gt;rustc&lt;/code&gt; invocation, not just the final crate's.
+&lt;code&gt;crox&lt;/code&gt; can then combine all of the profiles together into one output file.
+Since this will create a lot of files, we'll first create a folder to put all the traces in.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;$ rm regex-17088.* regex-23649.* # clean up the old trace files since we're done with them
+$ mkdir profiles
+$ cargo clean
+$ RUSTFLAGS=&amp;quot;-Zself-profile=./profiles -Zself-profile-events=default,args&amp;quot; cargo build
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This creates quite a few trace files in the working directory.
+Now, we'll tell &lt;code&gt;crox&lt;/code&gt; to combine all of the trace files in the current directory together:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;$ crox --dir .
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Opening this file shows all of the crates compiled:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;/images/inside-rust/2020-02-25-intro-rustc-self-profile/chrome_profiler3.png&quot;&gt;&lt;img src=&quot;/images/inside-rust/2020-02-25-intro-rustc-self-profile/chrome_profiler3.png&quot; alt=&quot;Image of Chrome profiler with all crates&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Clicking on a crate will expand it to show the threads and event data inside it:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;/images/inside-rust/2020-02-25-intro-rustc-self-profile/chrome_profiler4.png&quot;&gt;&lt;img src=&quot;/images/inside-rust/2020-02-25-intro-rustc-self-profile/chrome_profiler4.png&quot; alt=&quot;Image of Chrome profiler with a crate expanded&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Thanks for reading!&lt;/p&gt;
+&lt;p&gt;We've been using these tools extensively ourselves over the last few months and they've helped us tremendously in understanding where the compiler spends its time.
+In the future we'll be adding more features and we'll work on making the tooling easier to use.
+If you have questions or would like to get involved with the Self-Profile Working Group, please check out the &lt;a href=&quot;https://github.com/rust-lang/measureme&quot;&gt;measureme repository&lt;/a&gt; or stop by our &lt;a href=&quot;https://rust-lang.zulipchat.com/#narrow/stream/187831-t-compiler.2Fwg-self-profile&quot;&gt;Zulip stream&lt;/a&gt;.&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Wesley Wiser</name>
+        </author>
+    </entry>
     
     <entry>
         <title>Please welcome jtgeibel as crates.io team co-lead!</title>
@@ -349,62 +521,6 @@ and then focus on reviewing action items from the meeting of December 3rd.&lt;/p
 
         <author>
             <name>Val Grimm</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Lang Team Design Meetings</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/10/lang-team-design-meetings.html" type="text/html" title="Lang Team Design Meetings" />
-        <published>2020-01-10T00:00:00Z</published>
-        <updated>2020-01-10T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2020/01/10/lang-team-design-meetings.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/10/lang-team-design-meetings.html">&lt;p&gt;Hi all! I wanted to give a quick update about the lang team. We're
-starting something new this year: a regular &lt;strong&gt;design meeting&lt;/strong&gt;.  The
-idea of the design meeting is that it's a time for us to have in-depth
-discussions on some particular topic. This might be a burning problem
-that we've discovered, an update on some existing design work, or a
-forward looking proposal.&lt;/p&gt;
-&lt;p&gt;The meetings will be scheduled in advance. Ideally, each meeting
-should also have a blog post before-hand giving background material,
-although that may be difficult to achieve in practice. Similarly,
-after each meeting, we'll typically post minutes and a recording, and
-ideally try to write up a summary blog post with major
-points. (Sometimes recordings are hard to achieve, either for
-technical reasons or because we wanted the ability to discuss more
-sensitive topics.)&lt;/p&gt;
-&lt;p&gt;The meetings are open for anyone to listen in and attend. They
-generally take place on Mondays at &amp;quot;noon Boston time&amp;quot; -- but for the
-precise scheduling you should check the &lt;a href=&quot;https://github.com/rust-lang/lang-team/#meeting-calendar&quot;&gt;lang team calendar&lt;/a&gt;. We'll
-try to keep the calendar up to date with the topic to be discussed in
-each meeting, as well.  Meetings might not happen every week, if we
-don't have a topic in mind.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#first-design-meeting&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;first-design-meeting&quot;&gt;&lt;/a&gt;First design meeting&lt;/h2&gt;
-&lt;p&gt;Our first design meeting was actually last Monday! We discussed the
-soundness hole that was found some time ago in &lt;code&gt;Pin&lt;/code&gt;.  You can read
-the &lt;a href=&quot;https://github.com/rust-lang/lang-team/blob/master/design-meeting-minutes/2020-01-06-Pin-unsoundness.md&quot;&gt;minutes&lt;/a&gt; from our discussion and a &lt;a href=&quot;https://youtu.be/MX_GRNLhlY8&quot;&gt;recording&lt;/a&gt; is also
-available. You might also find it easier to read the &lt;a href=&quot;https://internals.rust-lang.org/t/unsoundness-in-pin/11311/112?u=nikomatsakis&quot;&gt;comments in the
-internals thread&lt;/a&gt;. The good news is that we seem to be
-centralizing on a &lt;a href=&quot;https://internals.rust-lang.org/t/explicit-negative-impls-to-fix-pin-soundness-hole/11587&quot;&gt;solution based on negative impls&lt;/a&gt;.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#next-design-meeting&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;next-design-meeting&quot;&gt;&lt;/a&gt;Next design meeting&lt;/h2&gt;
-&lt;p&gt;The next design meeting will take place this coming Monday. The topic
-will be how to fix &lt;a href=&quot;https://github.com/rust-lang/rust/issues/57893&quot;&gt;rust-lang/rust#57893&lt;/a&gt;, which is a soundness bug
-related to &lt;code&gt;dyn&lt;/code&gt; types. There is a &lt;a href=&quot;https://gist.github.com/0cf84ac05ce7751b5759cbf335c4d327&quot;&gt;prepared writeup describing the
-problem and a possible solution&lt;/a&gt; to guide the meeting. It is
-maybe worth noting that one of the proposed solutions involved a Rust
-2021 edition as well (although there are smaller, more targeted fixes
-that do not require a new edition).&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#design-meetings-after-that&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;design-meetings-after-that&quot;&gt;&lt;/a&gt;Design meetings after that&lt;/h2&gt;
-&lt;p&gt;The next two weeks are likely to not have design meetings:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;January 20th is Martin Luther King, Jr. day in the US.&lt;/li&gt;
-&lt;li&gt;January 27th is the Mozilla All Hands.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;As a result, in both cases, many of the lang team members will be
-unable to attend.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Niko Matsakis</name>
         </author>
     </entry>
     
