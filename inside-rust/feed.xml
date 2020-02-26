@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-02-26T13:59:51Z</updated>
+    <updated>2020-02-26T20:45:24Z</updated>
 
     
     <entry>
@@ -246,7 +246,7 @@ To open it, we'll use the regular Chromium performance tools you might already b
 &lt;h4&gt;&lt;a href=&quot;#filtering-short-events&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;filtering-short-events&quot;&gt;&lt;/a&gt;Filtering short events&lt;/h4&gt;
 &lt;p&gt;If the &lt;code&gt;chrome_profiler.json&lt;/code&gt; file gets too large, the normal Chromium performance tools have issues opening the file.
 One easy way to deal with this is to tell &lt;code&gt;crox&lt;/code&gt; to remove events shorter than a chosen duration:&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;$ crox --minumum-duration 2 regex-17088
+&lt;pre&gt;&lt;code class=&quot;language-sh&quot;&gt;$ crox --minimum-duration 2 regex-17088
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Filtering out events less than 2 microseconds shrinks our &lt;code&gt;chrome_profiler.js&lt;/code&gt; file from 27mb to 11mb.&lt;/p&gt;
 &lt;h4&gt;&lt;a href=&quot;#capturing-event-arguments&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;capturing-event-arguments&quot;&gt;&lt;/a&gt;Capturing event arguments&lt;/h4&gt;

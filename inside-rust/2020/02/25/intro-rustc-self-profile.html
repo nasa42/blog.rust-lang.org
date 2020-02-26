@@ -202,7 +202,7 @@ To open it, we'll use the regular Chromium performance tools you might already b
 <h4><a href="#filtering-short-events" aria-hidden="true" class="anchor" id="filtering-short-events"></a>Filtering short events</h4>
 <p>If the <code>chrome_profiler.json</code> file gets too large, the normal Chromium performance tools have issues opening the file.
 One easy way to deal with this is to tell <code>crox</code> to remove events shorter than a chosen duration:</p>
-<pre><code class="language-sh">$ crox --minumum-duration 2 regex-17088
+<pre><code class="language-sh">$ crox --minimum-duration 2 regex-17088
 </code></pre>
 <p>Filtering out events less than 2 microseconds shrinks our <code>chrome_profiler.js</code> file from 27mb to 11mb.</p>
 <h4><a href="#capturing-event-arguments" aria-hidden="true" class="anchor" id="capturing-event-arguments"></a>Capturing event arguments</h4>
