@@ -10,8 +10,114 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-02-25T19:29:18Z</updated>
+    <updated>2020-02-26T13:59:51Z</updated>
 
+    
+    <entry>
+        <title>crates.io incident report for 2020-02-20</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/02/26/crates-io-incident-report.html" type="text/html" title="crates.io incident report for 2020-02-20" />
+        <published>2020-02-26T00:00:00Z</published>
+        <updated>2020-02-26T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2020/02/26/crates-io-incident-report.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/02/26/crates-io-incident-report.html">&lt;p&gt;On 2020-02-20 at 21:28 UTC we received a report from an user of crates.io that
+their crate was not available on the index even after 10 minutes since the
+upload. This was a bug in the crates.io webapp exposed by a GitHub outage.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#root-cause-of-the-outage&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;root-cause-of-the-outage&quot;&gt;&lt;/a&gt;Root cause of the outage&lt;/h2&gt;
+&lt;p&gt;In some corner cases the code that uploads new commits to the GitHub repository
+of the index was returning a successful status even though the push itself
+failed. The bug caused the job scheduler to think the upload was actually
+successful, causing the job to be removed from the queue and producing a data
+loss.&lt;/p&gt;
+&lt;p&gt;The outage was caused by that bug, triggered by an unexpected response during
+&lt;a href=&quot;https://www.githubstatus.com/incidents/bd29l6zgr43g&quot;&gt;the GitHub outage&lt;/a&gt; happening at the same time.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#resolution&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;resolution&quot;&gt;&lt;/a&gt;Resolution&lt;/h2&gt;
+&lt;p&gt;The team analyzed the code of the background job uploading commits to the
+index, and found a possible cause of the misreported success. A team member
+&lt;a href=&quot;https://github.com/rust-lang/crates.io/pull/2207&quot;&gt;wrote the fix&lt;/a&gt;, another one reviewed it and we then deployed the patch
+directly to production.&lt;/p&gt;
+&lt;p&gt;At the same time, once we saw the index started to be updated again, we removed
+the broken entries in the database manually and asked the reporter to upload
+their crates again.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#affected-crates&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;affected-crates&quot;&gt;&lt;/a&gt;Affected crates&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://crates.io/crates/kaze&quot;&gt;&lt;code&gt;kaze&lt;/code&gt;&lt;/a&gt; 0.1.6&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://crates.io/crates/wasmer-runtime-core&quot;&gt;&lt;code&gt;wasmer-runtime-core&lt;/code&gt;&lt;/a&gt; 0.14.0&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://crates.io/crates/wasmer-win-exception-handler&quot;&gt;&lt;code&gt;wasmer-win-exception-handler&lt;/code&gt;&lt;/a&gt; 0.14.0&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;&lt;a href=&quot;#postmortem&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;postmortem&quot;&gt;&lt;/a&gt;Postmortem&lt;/h2&gt;
+&lt;p&gt;Deploying the change took way longer than expected: there were changes landed
+in master but waiting to be deployed on production, increasing the length of
+the build process and the risks of the deploy. In the future we should deploy
+hotfixes by branching off the current deployed commit, and cherry-picking the
+fix on top of that. We should also strive to reduce the amount of time PRs sit
+in master without being live.&lt;/p&gt;
+&lt;p&gt;Nobody was paged due to this incident, as our monitoring and alerting system
+wasn’t able to catch the problem: we have monitoring in place for jobs failing
+to execute, but in this case the job was mistakenly marked as correct. We
+should implement periodic checks that ensure the database and the index are
+correctly synchronized.&lt;/p&gt;
+&lt;p&gt;We were lucky that two members of the team with access to both the support
+email and the production environment were online during the outage: without
+paging available we could’ve noticed it way later than we did.&lt;/p&gt;
+&lt;p&gt;During the incident investigation we also found that our logging was not good
+enough to properly diagnose the problem: there is no message logged when a
+commit is pushed to the index, nor when a background job is executed. Also, the
+API call to publish new crates doesn’t include the crate name in its line. We
+should enhance our logging capabilities to find the root cause of issues
+quickly during future incidents.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#timeline-of-events&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;timeline-of-events&quot;&gt;&lt;/a&gt;Timeline of events&lt;/h2&gt;
+&lt;p&gt;It took 1 hour and 31 minutes from the start of the incident to the deploy of
+the fix.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#2020-02-20&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;2020-02-20&quot;&gt;&lt;/a&gt;2020-02-20&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;21:17 UTC: the authors of &lt;code&gt;kaze&lt;/code&gt;, &lt;code&gt;wasmer-runtime-core&lt;/code&gt;
+and &lt;code&gt;wasmer-win-exception-handler&lt;/code&gt; published them on crates.io&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;21:28 UTC: the author of &lt;code&gt;wasmer-runtime-core&lt;/code&gt; and
+&lt;code&gt;wasmer-win-exception-handler&lt;/code&gt; reports the issue to help@crates.io&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;21:31 UTC: GitHub updates their status page to report an outage&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;21:33 UTC: Pietro notices the support mail, pings Sean on Discord, Sean
+starts investigating&lt;/li&gt;
+&lt;li&gt;21:35 UTC: Pietro got back to the author saying that the team was
+investigating&lt;/li&gt;
+&lt;li&gt;21:37 UTC: Sean and Pietro find the symptoms of the incident&lt;/li&gt;
+&lt;li&gt;21:50 UTC: Sean finds a possible cause for the bug&lt;/li&gt;
+&lt;li&gt;22:01 UTC: Sean deletes the affected versions from the database&lt;/li&gt;
+&lt;li&gt;22:09 UTC: Sean opens up &lt;a href=&quot;https://github.com/rust-lang/crates.io/pull/2207&quot;&gt;PR 2207&lt;/a&gt; with the fix&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;22:16 UTC: GitHub updates their status page to say the problem is fixed&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;22:17 UTC: Pietro asks for changes on the PR&lt;/li&gt;
+&lt;li&gt;22:20 UTC: Sean addresses Pietro’s concerns in the PR&lt;/li&gt;
+&lt;li&gt;22:23 UTC: PR merged, Sean deploys it directly to master&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;22:48 UTC: Fix deployed on production&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;&lt;a href=&quot;#2020-02-21&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;2020-02-21&quot;&gt;&lt;/a&gt;2020-02-21&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;09:27 UTC: the author of &lt;code&gt;kaze&lt;/code&gt; reports their crate was affected to
+help@crates.io&lt;/li&gt;
+&lt;li&gt;12:55 UTC: Pietro deletes the affected version of &lt;code&gt;kaze&lt;/code&gt; from the database
+and gets back to the author of the crate&lt;/li&gt;
+&lt;li&gt;14:10 UTC: Pietro analyzes the crates.io database and finds out no other
+crate was affected&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;&lt;a href=&quot;#action-items&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;action-items&quot;&gt;&lt;/a&gt;Action items&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/crates.io/issues/2226&quot;&gt;#2226&lt;/a&gt;: Add simple logging when we start the index publishing process.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/crates.io/issues/2227&quot;&gt;#2227&lt;/a&gt;: Add a periodic job that checks the index and the database for
+consistency, paging the on-call person if there are any mismatches. The job
+will need to account for the crates not yet published on the index but in the
+queue.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/crates.io/issues/2228&quot;&gt;#2228&lt;/a&gt;: Include the crate name in the HTTP log entry for the publish API
+call.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/crates.io/issues/2229&quot;&gt;#2229&lt;/a&gt;: Add in-depth logging for swirl background jobs, with information
+such as the job name or the parameters.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/crates.io/issues/2230&quot;&gt;#2230&lt;/a&gt;: Investigate whether we want to implement a self-healing feature to
+automatically synchronize the index in cases of mismatch.&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+
+        <author>
+            <name>Pietro Albini</name>
+        </author>
+    </entry>
     
     <entry>
         <title>Intro to rustc's self profiler</title>
@@ -496,31 +602,6 @@ cancelation. In that case, the calendar events will be updated.&lt;/p&gt;
 
         <author>
             <name>Tony Arcieri</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Governance Working Group Update: Meeting 14 January 2020</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/14/Goverance-wg-cfp.html" type="text/html" title="Governance Working Group Update: Meeting 14 January 2020" />
-        <published>2020-01-14T00:00:00Z</published>
-        <updated>2020-01-14T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2020/01/14/Goverance-wg-cfp.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/14/Goverance-wg-cfp.html">&lt;p&gt;Hello everyone!&lt;/p&gt;
-&lt;p&gt;On Tuesday 14 January the working group met and discussed the RFC
-https://github.com/rust-lang/wg-governance/blob/project-wg-rfc-next/draft-rfcs/working-group-terminology.md.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#project-groups&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;project-groups&quot;&gt;&lt;/a&gt;Project groups&lt;/h2&gt;
-&lt;p&gt;You can see the &lt;a href=&quot;https://github.com/rust-lang/wg-governance/blob/master/minutes/2020.01.14.md&quot;&gt;detailed minutes&lt;/a&gt; on the &lt;a href=&quot;https://github.com/rust-lang/wg-governance/&quot;&gt;wg-governance&lt;/a&gt; repository, but here is a quick summary:&lt;/p&gt;
-&lt;p&gt;*Decision for specifics of working group creation is to remain with what was described in https://internals.rust-lang.org/t/enabling-the-formation-of-new-working-groups/10218
-*Group status will be Active or Archived
-*Future work will be done to lighten the RFC process (an issue has been submitted)
-*A project group lifecycle chart was created and a flowchart based on this will be integrated in the RFC&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#next-meeting&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;next-meeting&quot;&gt;&lt;/a&gt;Next meeting&lt;/h2&gt;
-&lt;p&gt;Our next meeting will be 28 January 2020. We will discuss the status of the project groups RFC for no more than 15 minutes,
-and then focus on reviewing action items from the meeting of December 3rd.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Val Grimm</name>
         </author>
     </entry>
     
