@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-02-26T20:45:24Z</updated>
+    <updated>2020-02-26T21:57:23Z</updated>
 
     
     <entry>
@@ -19,7 +19,7 @@
         <published>2020-02-26T00:00:00Z</published>
         <updated>2020-02-26T00:00:00Z</updated>
         <id>https://blog.rust-lang.org/inside-rust/2020/02/26/crates-io-incident-report.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/02/26/crates-io-incident-report.html">&lt;p&gt;On 2020-02-20 at 21:28 UTC we received a report from an user of crates.io that
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/02/26/crates-io-incident-report.html">&lt;p&gt;On 2020-02-20 at 21:28 UTC we received a report from a user of crates.io that
 their crate was not available on the index even after 10 minutes since the
 upload. This was a bug in the crates.io webapp exposed by a GitHub outage.&lt;/p&gt;
 &lt;h2&gt;&lt;a href=&quot;#root-cause-of-the-outage&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;root-cause-of-the-outage&quot;&gt;&lt;/a&gt;Root cause of the outage&lt;/h2&gt;
