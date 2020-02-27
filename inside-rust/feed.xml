@@ -10,8 +10,278 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-02-27T15:15:00Z</updated>
+    <updated>2020-02-27T20:42:49Z</updated>
 
+    
+    <entry>
+        <title>Announcing the first FFI-unwind project design meeting</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/02/27/ffi-unwind-design-meeting.html" type="text/html" title="Announcing the first FFI-unwind project design meeting" />
+        <published>2020-02-27T00:00:00Z</published>
+        <updated>2020-02-27T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2020/02/27/ffi-unwind-design-meeting.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/02/27/ffi-unwind-design-meeting.html">&lt;p&gt;The FFI-unwind project group, announced in &lt;a href=&quot;https://github.com/rust-lang/rfcs/pull/2797&quot;&gt;this RFC&lt;/a&gt;, is
+working to extend the language to support unwinding that crosses FFI
+boundaries.&lt;/p&gt;
+&lt;p&gt;We have reached our first technical decision point, on a question we have been
+discussing internally for quite a while. This blog post lays out the arguments
+on each side of the issue and invites the Rust community to join us at an
+upcoming meeting to help finalize our decision, which will be formalized and
+published as our first language-change RFC. This RFC will propose an &amp;quot;MVP&amp;quot;
+specification for well-defined cross-language unwinding.&lt;/p&gt;
+&lt;p&gt;The meeting will be on &lt;a href=&quot;https://arewemeetingyet.com/UTC/2020-03-02/17:00/Lang%20Team%20Design%20Meeting:%20FFI-unwind#eyJ1cmwiOiJodHRwczovL21vemlsbGEuem9vbS51cy9qLzc2ODIzMTc2MCJ9&quot;&gt;March 2nd&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#background-what-is-unwinding?&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;background-what-is-unwinding?&quot;&gt;&lt;/a&gt;Background: what is unwinding?&lt;/h2&gt;
+&lt;p&gt;Exceptions are a familiar control flow mechanism in many programming languages.
+They are particularly commonplace in managed languages such as Java, but they
+are also part of the C++ language, which introduced them to the world of
+unmanaged systems programming.&lt;/p&gt;
+&lt;p&gt;When an exception is thrown, the runtime &lt;em&gt;unwinds&lt;/em&gt; the stack, essentially
+traversing it backwards and calling clean-up or error-recovery code such as
+destructors or &lt;code&gt;catch&lt;/code&gt; blocks.&lt;/p&gt;
+&lt;p&gt;Compilers may implement their own unwinding mechanisms, but in native code such
+as Rust binaries, the mechanism is more commonly provided by the platform ABI.&lt;/p&gt;
+&lt;p&gt;It is well known that Rust does not have exceptions as such. But Rust &lt;em&gt;does&lt;/em&gt;
+support unwinding! There are two scenarios that will cause unwinding to occur:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;By default, Rust's &lt;code&gt;panic!()&lt;/code&gt; unwinds the stack.&lt;/li&gt;
+&lt;li&gt;Using FFI, Rust can call functions in other languages (such as C++) that can
+unwind the stack.
+&lt;ul&gt;
+&lt;li&gt;There are some special cases where C libraries can actually cause
+unwinding.  For instance, on Microsoft platforms, &lt;code&gt;longjmp&lt;/code&gt; is implemented
+as &amp;quot;forced unwinding&amp;quot; (see below)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Currently, when foreign (non-Rust) code invokes Rust code, the behavior of a
+&lt;code&gt;panic!()&lt;/code&gt; unwind that &amp;quot;escapes&amp;quot; from Rust is explicitly undefined. Similarly,
+when Rust calls a foreign function that unwinds, the behavior once the unwind
+operation encounters Rust frames is undefined. The primary reason for this is
+to ensure that Rust implementations may use their own unwinding mechanism,
+which may not be compatible with the platform-provided &amp;quot;native&amp;quot; unwinding
+mechanism. Currently, however, &lt;code&gt;rustc&lt;/code&gt; uses the native mechanism, and there are
+no plans to change this.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#forced-unwinding&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;forced-unwinding&quot;&gt;&lt;/a&gt;Forced unwinding&lt;/h3&gt;
+&lt;p&gt;Platform ABIs can define a special kind of unwinding called &amp;quot;forced unwinding.&amp;quot;
+This type of unwinding works regardless of whether the code being unwound
+supports unwinding or not. However, destructors may not be executed if the
+frames being unwound do not have unwinding support.&lt;/p&gt;
+&lt;p&gt;There are two common examples of forced unwinding:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;On Windows platforms, &lt;code&gt;longjmp&lt;/code&gt; is implemented as a forced unwind.&lt;/li&gt;
+&lt;li&gt;On glibc Linux, &lt;code&gt;pthread_exit&lt;/code&gt; and &lt;code&gt;pthread_cancel&lt;/code&gt; are implemented as a forced unwind.
+&lt;ul&gt;
+&lt;li&gt;In fact, &lt;code&gt;pthread_cancel&lt;/code&gt; can cause all manner of C functions to unwind,
+including common functions like &lt;code&gt;read&lt;/code&gt; and &lt;code&gt;write&lt;/code&gt;.  (For a complete list,
+search for &amp;quot;cancellation points&amp;quot; in the &lt;a href=&quot;http://man7.org/linux/man-pages/man7/pthreads.7.html&quot;&gt;pthreads man page&lt;/a&gt;.)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;&lt;a href=&quot;#requirements-for-any-cross-language-unwinding-specification&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;requirements-for-any-cross-language-unwinding-specification&quot;&gt;&lt;/a&gt;Requirements for any cross-language unwinding specification&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Unwinding between Rust functions (and in particular unwinding of Rust panics)
+may not necessarily use the system unwinding mechanism
+&lt;ul&gt;
+&lt;li&gt;In practice, we do use the system mechanism today, but we would like to
+reserve the freedom to change this.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;If you enable &lt;code&gt;-Cpanic=abort&lt;/code&gt;, we are able to optimize the size of binaries
+to remove most code related to unwinding.
+&lt;ul&gt;
+&lt;li&gt;Even with &lt;code&gt;-Cpanic=unwind&lt;/code&gt; it should be possible to optimize away code when
+unwinding is known to never occur.&lt;/li&gt;
+&lt;li&gt;In practice, most &amp;quot;C&amp;quot; functions are never expected to unwind (because they
+are written in C, for example, and not in C++).
+&lt;ul&gt;
+&lt;li&gt;However, because unwinding is now part of most system ABIs, even C
+functions can unwind — most notably cancellation points triggered
+by &lt;code&gt;pthread_cancel&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Changing the behavior from &lt;code&gt;-Cpanic=unwind&lt;/code&gt; to &lt;code&gt;-Cpanic=abort&lt;/code&gt; should not
+cause Undefined Behavior.
+&lt;ul&gt;
+&lt;li&gt;However, this may not be tenable, or at least not without making binaries
+much larger. See the discussion below for more details.&lt;/li&gt;
+&lt;li&gt;It may, of course, cause programs to abort that used to execute
+successfully. This could occur if a panic would've been caught and
+recovered.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;We cannot change the ABI (the &lt;code&gt;&amp;quot;C&amp;quot;&lt;/code&gt; in &lt;code&gt;extern &amp;quot;C&amp;quot;&lt;/code&gt;) of functions in the libc
+crate, because this would be a breaking change: function pointers of different
+ABIs have different types.
+&lt;ul&gt;
+&lt;li&gt;This is relevant for the libc functions which may perform forced unwinding
+when &lt;code&gt;pthread_cancel&lt;/code&gt; is called.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;&lt;a href=&quot;#the-primary-question-introduce-a-new-abi,-or-let-the-&quot;c&quot;-abi-permit-unwinding?&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;the-primary-question-introduce-a-new-abi,-or-let-the-&quot;c&quot;-abi-permit-unwinding?&quot;&gt;&lt;/a&gt;The primary question: introduce a new ABI, or let the &lt;code&gt;&amp;quot;C&amp;quot;&lt;/code&gt; ABI permit unwinding?&lt;/h2&gt;
+&lt;p&gt;The core question that we would like to decide is whether the &lt;code&gt;&amp;quot;C&amp;quot;&lt;/code&gt; ABI, as
+defined by Rust, should permit unwinding.&lt;/p&gt;
+&lt;p&gt;This is not a question we expected to be debating. We've long declared that
+unwinding through Rust's &lt;code&gt;&amp;quot;C&amp;quot;&lt;/code&gt; ABI is undefined behavior. In part, this is
+because nobody had spent the time to figure out what the correct behavior would
+be, or how to implement it, although (as we'll see shortly) there are other
+good reasons for this choice.&lt;/p&gt;
+&lt;p&gt;In any case, in PR #65646, @Amanieu proposed that we could, in fact, simply
+define the behavior of unwinding across &lt;code&gt;&amp;quot;C&amp;quot;&lt;/code&gt; boundaries. In discussing this,
+discovered that the question of whether the &lt;code&gt;&amp;quot;C&amp;quot;&lt;/code&gt; ABI should permit unwinding was
+less clear-cut than we had assumed.&lt;/p&gt;
+&lt;p&gt;If the &lt;code&gt;&amp;quot;C&amp;quot;&lt;/code&gt; ABI does not permit unwinding, a new ABI, called &lt;code&gt;&amp;quot;C unwind&amp;quot;&lt;/code&gt;,
+will be introduced specifically to support unwinding.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#three-specific-proposals&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;three-specific-proposals&quot;&gt;&lt;/a&gt;Three specific proposals&lt;/h2&gt;
+&lt;p&gt;The project group has narrowed the design space down to three specific
+proposals. Two of these introduce the new &lt;code&gt;&amp;quot;C unwind&amp;quot;&lt;/code&gt; ABI, and one does not.&lt;/p&gt;
+&lt;p&gt;Each proposal specifies the behavior of each type of unwind (Rust &lt;code&gt;panic!&lt;/code&gt;,
+foreign (e.g. C++), and forced (e.g. &lt;code&gt;pthread_exit&lt;/code&gt;)) when it encounters an
+ABI boundary under either the &lt;code&gt;panic=unwind&lt;/code&gt; or &lt;code&gt;panic=abort&lt;/code&gt; compile-mode.&lt;/p&gt;
+&lt;p&gt;Note that currently, &lt;code&gt;catch_unwind&lt;/code&gt; does not intercept foreign unwinding
+(forced or unforced), and our initial RFCs will not change that. We may decide
+at a later date to define a way for Rust code to intercept foreign exceptions.&lt;/p&gt;
+&lt;p&gt;Throughout, the  unwind generated by &lt;code&gt;panic!&lt;/code&gt; will be referred to as
+&lt;code&gt;panic&lt;/code&gt;-unwind.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#proposal-1-introduce-&quot;c-unwind&quot;,-minimal-specification&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;proposal-1-introduce-&quot;c-unwind&quot;,-minimal-specification&quot;&gt;&lt;/a&gt;Proposal 1: Introduce &lt;code&gt;&amp;quot;C unwind&amp;quot;&lt;/code&gt;, minimal specification&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;&amp;quot;C&amp;quot;&lt;/code&gt; ABI boundary, &lt;code&gt;panic=&amp;lt;any&amp;gt;&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;panic&lt;/code&gt;-unwind: program aborts&lt;/li&gt;
+&lt;li&gt;forced unwinding, no destructors: unwind behaves normally&lt;/li&gt;
+&lt;li&gt;other foreign unwinding: undefined behavior&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;&amp;quot;C unwind&amp;quot;&lt;/code&gt; ABI boundary
+&lt;ul&gt;
+&lt;li&gt;With &lt;code&gt;panic=unwind&lt;/code&gt;: all types of unwinding behave normally&lt;/li&gt;
+&lt;li&gt;With &lt;code&gt;panic=abort&lt;/code&gt;: all types of unwinding abort the program&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This proposal provides 2 ABIs, each suited for different purposes: you would
+generally use &lt;code&gt;extern &amp;quot;C&amp;quot;&lt;/code&gt; when interacting with C APIs (making sure to avoid
+destructors where &lt;code&gt;longjmp&lt;/code&gt; might be used), and &lt;code&gt;extern &amp;quot;C unwind&amp;quot;&lt;/code&gt;
+when interacting with C++ APIs. The main advantage of this proposal is that
+switching between &lt;code&gt;panic=unwind&lt;/code&gt; and &lt;code&gt;panic=abort&lt;/code&gt; does not introduce UB if you
+have correctly marked all potential unwinding calls as &lt;code&gt;&amp;quot;C unwind&amp;quot;&lt;/code&gt; (your
+program will abort instead).&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#proposal-2-introduce-&quot;c-unwind&quot;,-forced-unwinding-always-permitted&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;proposal-2-introduce-&quot;c-unwind&quot;,-forced-unwinding-always-permitted&quot;&gt;&lt;/a&gt;Proposal 2: Introduce &lt;code&gt;&amp;quot;C unwind&amp;quot;&lt;/code&gt;, forced unwinding always permitted&lt;/h3&gt;
+&lt;p&gt;This is the same as the previous design, except that when compiled with
+&lt;code&gt;panic=abort&lt;/code&gt;, forced unwinding would &lt;em&gt;not&lt;/em&gt; be intercepted at &lt;code&gt;&amp;quot;C unwind&amp;quot;&lt;/code&gt; ABI
+boundaries; that is, they would behave normally (though still UB if there are
+any destructors), without causing the program to abort. &lt;code&gt;panic&lt;/code&gt;-unwind and
+non-forced foreign exceptions would still cause the program to abort.&lt;/p&gt;
+&lt;p&gt;The advantage of treating forced unwinding differently is that it reduces
+portability incompatibilities. Specifically, it ensures that using &lt;code&gt;&amp;quot;C unwind&amp;quot;&lt;/code&gt;
+cannot cause &lt;code&gt;longjmp&lt;/code&gt; or &lt;code&gt;pthread_exit&lt;/code&gt; to stop working (abort the program)
+when the target platform and/or compile flags are changed.  With proposal 1,
+&lt;code&gt;longjmp&lt;/code&gt; will be able to cross &lt;code&gt;&amp;quot;C unwind&amp;quot;&lt;/code&gt; boundaries &lt;em&gt;except&lt;/em&gt; on Windows
+with MSVC under &lt;code&gt;panic=abort&lt;/code&gt;, and &lt;code&gt;pthread_exit&lt;/code&gt; will work inside &lt;code&gt;&amp;quot;C unwind&amp;quot;&lt;/code&gt;
+functions &lt;em&gt;except&lt;/em&gt; when linked with glibc under &lt;code&gt;panic=abort&lt;/code&gt;. The downside of
+this proposal is that the abort stubs around &lt;code&gt;&amp;quot;C unwind&amp;quot;&lt;/code&gt; calls in &lt;code&gt;panic=abort&lt;/code&gt;
+become more complicated since they need to distinguish between different types
+of foreign exceptions.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#proposal-3-no-new-abi&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;proposal-3-no-new-abi&quot;&gt;&lt;/a&gt;Proposal 3: No new ABI&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;panic=unwind&lt;/code&gt;: unwind behaves normally&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;panic=abort&lt;/code&gt;:
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;panic&lt;/code&gt;-unwind: does not exist; &lt;code&gt;panic!&lt;/code&gt; aborts the program&lt;/li&gt;
+&lt;li&gt;forced unwinding, no destructors: unwind behaves normally&lt;/li&gt;
+&lt;li&gt;other foreign unwinding: undefined behavior&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The main advantage of this proposal is its simplicity: there is only one ABI and
+the behavior of &lt;code&gt;panic=abort&lt;/code&gt; is identical to that of &lt;code&gt;-fno-exceptions&lt;/code&gt; in C++.
+However this comes with the downside that switching to &lt;code&gt;panic=abort&lt;/code&gt; may in some
+cases introduce UB (though only in unsafe code) if FFI calls unwind through Rust
+code.&lt;/p&gt;
+&lt;p&gt;Another advantage is that forced unwinding from existing functions defined in
+the &lt;code&gt;libc&lt;/code&gt; crate such as &lt;code&gt;pthread_exit&lt;/code&gt; and &lt;code&gt;longjmp&lt;/code&gt; will be able to unwind
+frames with destructors when compiled with &lt;code&gt;panic=unwind&lt;/code&gt;, which is not possible
+with the other proposals.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#comparison-table-for-the-proposed-designs&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;comparison-table-for-the-proposed-designs&quot;&gt;&lt;/a&gt;Comparison table for the proposed designs&lt;/h2&gt;
+&lt;p&gt;In this table, &amp;quot;UB&amp;quot; stands for &amp;quot;undefined behavior&amp;quot;. We believe that all of
+these instances of undefined behavior could be detected at runtime, but the
+code to do so would impose an undesirable code-size penalty, entirely negating
+the optimizations made possible by using &lt;code&gt;panic=unwind&lt;/code&gt; or the non-unwinding
+&lt;code&gt;&amp;quot;C&amp;quot;&lt;/code&gt; ABI. This code would therefore only be appropriate for debug builds.
+Additionally, the complexity of implementing such checks may outweight their
+benefits.&lt;/p&gt;
+&lt;p&gt;Note that unwinding through a frame that has destructors without running those
+destructors (e.g. because they have been optimized out by &lt;code&gt;panic=abort&lt;/code&gt;) is
+always undefined behavior.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;&lt;code&gt;panic&lt;/code&gt;-unwind&lt;/th&gt;
+&lt;th&gt;Forced unwind, no destructors&lt;/th&gt;
+&lt;th&gt;Forced unwind with destructors&lt;/th&gt;
+&lt;th&gt;Other foreign unwind&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Proposals 1 &amp;amp; 2, &lt;code&gt;&quot;C&quot;&lt;/code&gt; boundary, &lt;code&gt;panic=unwind&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;abort&lt;/td&gt;
+&lt;td&gt;unwind&lt;/td&gt;
+&lt;td&gt;UB&lt;/td&gt;
+&lt;td&gt;UB&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Proposals 1 &amp;amp; 2, &lt;code&gt;&quot;C&quot;&lt;/code&gt; boundary, &lt;code&gt;panic=abort&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;panic!&lt;/code&gt; aborts (no unwinding occurs)&lt;/td&gt;
+&lt;td&gt;unwind&lt;/td&gt;
+&lt;td&gt;UB&lt;/td&gt;
+&lt;td&gt;UB&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Proposals 1 &amp;amp; 2, &lt;code&gt;&quot;C unwind&quot;&lt;/code&gt; boundary, &lt;code&gt;panic=unwind&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;unwind&lt;/td&gt;
+&lt;td&gt;unwind&lt;/td&gt;
+&lt;td&gt;unwind&lt;/td&gt;
+&lt;td&gt;unwind&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Proposal 1, &lt;code&gt;&quot;C unwind&quot;&lt;/code&gt; boundary, &lt;code&gt;panic=abort&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;panic!&lt;/code&gt; aborts&lt;/td&gt;
+&lt;td&gt;abort&lt;/td&gt;
+&lt;td&gt;abort&lt;/td&gt;
+&lt;td&gt;abort&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Proposal 2, &lt;code&gt;&quot;C unwind&quot;&lt;/code&gt; boundary, &lt;code&gt;panic=abort&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;panic!&lt;/code&gt; aborts&lt;/td&gt;
+&lt;td&gt;unwind&lt;/td&gt;
+&lt;td&gt;UB&lt;/td&gt;
+&lt;td&gt;abort&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Proposal 3,  &lt;code&gt;&quot;C&quot;&lt;/code&gt; boundary, &lt;code&gt;panic=unwind&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;unwind&lt;/td&gt;
+&lt;td&gt;unwind&lt;/td&gt;
+&lt;td&gt;unwind&lt;/td&gt;
+&lt;td&gt;unwind&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Proposal 3, &lt;code&gt;&quot;C&quot;&lt;/code&gt; boundary, &lt;code&gt;panic=abort&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;panic!&lt;/code&gt; aborts&lt;/td&gt;
+&lt;td&gt;unwind&lt;/td&gt;
+&lt;td&gt;UB&lt;/td&gt;
+&lt;td&gt;UB&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+</content>
+
+        <author>
+            <name>Kyle Strand, Niko Matsakis, and Amanieu d'Antras</name>
+        </author>
+    </entry>
     
     <entry>
         <title>crates.io incident report for 2020-02-20</title>
@@ -562,45 +832,6 @@ cancelation. In that case, the calendar events will be updated.&lt;/p&gt;
 
         <author>
             <name>Niko Matsakis</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>cargo-audit v0.11: Introducing the `fix` feature, yanked crate detection, and more</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/23/Introducing-cargo-audit-fix-and-more.html" type="text/html" title="cargo-audit v0.11: Introducing the `fix` feature, yanked crate detection, and more" />
-        <published>2020-01-23T00:00:00Z</published>
-        <updated>2020-01-23T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2020/01/23/Introducing-cargo-audit-fix-and-more.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/23/Introducing-cargo-audit-fix-and-more.html">&lt;p&gt;&lt;a href=&quot;https://github.com/rustsec/cargo-audit&quot;&gt;cargo-audit&lt;/a&gt; is a command-line utility which inspects &lt;code&gt;Cargo.lock&lt;/code&gt; files and compares them against the &lt;a href=&quot;https://rustsec.org&quot;&gt;RustSec Advisory Database&lt;/a&gt;, a community database of security vulnerabilities maintained by the &lt;a href=&quot;https://github.com/rust-secure-code/wg&quot;&gt;Rust Secure Code Working Group&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;This post describes the new features in the 0.11 release of &lt;code&gt;cargo-audit&lt;/code&gt;.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#cargo-audit-fix-automatically-update-vulnerable-dependencies&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;cargo-audit-fix-automatically-update-vulnerable-dependencies&quot;&gt;&lt;/a&gt;&lt;code&gt;cargo audit fix&lt;/code&gt;: automatically update vulnerable dependencies&lt;/h2&gt;
-&lt;p&gt;One of our &lt;a href=&quot;https://github.com/RustSec/cargo-audit/issues/23&quot;&gt;most requested features&lt;/a&gt; (especially by fans of the similar &lt;a href=&quot;https://docs.npmjs.com/cli/audit&quot;&gt;&lt;code&gt;npm audit fix&lt;/code&gt;&lt;/a&gt; command), the &lt;a href=&quot;https://github.com/RustSec/cargo-audit#cargo-audit-fix-subcommand&quot;&gt;new &lt;code&gt;cargo audit fix&lt;/code&gt; subcommand&lt;/a&gt; will attempt to automatically update version requirements for vulnerable dependencies to non-vulnerable versions.&lt;/p&gt;
-&lt;p&gt;Note that this is an experimental new feature which isn't enabled by default. To try it out, install &lt;code&gt;cargo-audit&lt;/code&gt; with the following:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ cargo install cargo-audit --features=fix
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This will perform the same audit process as &lt;code&gt;cargo audit&lt;/code&gt; initially, and then attempt to apply fixes to your &lt;code&gt;Cargo.toml&lt;/code&gt;:&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/RustSec/cargo-audit/c857beb/img/screenshot-fix.png&quot; alt=&quot;cargo audit fix screenshot&quot; /&gt;&lt;/p&gt;
-&lt;p&gt;Under the hood, it uses &lt;a href=&quot;https://github.com/killercup/cargo-edit&quot;&gt;cargo-edit&lt;/a&gt; (as a library) to perform modifications to your &lt;code&gt;Cargo.toml&lt;/code&gt; file, using the fixed version requirements listed in the advisory to try to perform an automatic upgrade to a non-vulnerable version of a dependency for each advisory.&lt;/p&gt;
-&lt;p&gt;Note once more that this is a &lt;em&gt;new, experimental feature&lt;/em&gt; and as such it's bound to have bugs. If you're worried, you can use &lt;code&gt;cargo audit fix --dry-run&lt;/code&gt; to perform a dry run only. And if you do encounter bugs, please &lt;a href=&quot;https://github.com/rustsec/cargo-audit/issues&quot;&gt;file a bug report&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;We'd like to thank Reza Fatahi and Hanif Ariffin for their work in contributing this feature.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#warnings-for-yanked-crates&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;warnings-for-yanked-crates&quot;&gt;&lt;/a&gt;Warnings for yanked crates&lt;/h2&gt;
-&lt;p&gt;As you can see in the screenshot above, &lt;code&gt;cargo audit&lt;/code&gt; now checks each of the crates in your &lt;code&gt;Cargo.lock&lt;/code&gt; file against the &lt;a href=&quot;https://crates.io&quot;&gt;crates.io&lt;/a&gt; index to determine if any of them have been yanked. If they have, it will emit a warning as per above.&lt;/p&gt;
-&lt;p&gt;If you'd like for yanked crates to be a hard failure, you can run &lt;code&gt;cargo audit&lt;/code&gt; with the &lt;code&gt;-D&lt;/code&gt; command-line argument:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ cargo audit -D
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;or if you prefer to be more explicit:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;$ cargo audit --deny-warnings
-&lt;/code&gt;&lt;/pre&gt;
-&lt;h2&gt;&lt;a href=&quot;#compatibility-with-the-new-v2&quot;-format-for-cargo.lock&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;compatibility-with-the-new-v2&quot;-format-for-cargo.lock&quot;&gt;&lt;/a&gt;Compatibility with the new &amp;quot;V2&amp;quot; format for &lt;code&gt;Cargo.lock&lt;/code&gt;&lt;/h2&gt;
-&lt;p&gt;Rust 1.39 shipped support for a new &lt;a href=&quot;https://github.com/rust-lang/cargo/pull/7070&quot;&gt;merge-friendly &lt;code&gt;Cargo.lock&lt;/code&gt; format&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;cargo audit&lt;/code&gt; consumes &lt;code&gt;Cargo.lock&lt;/code&gt; directly, and while the V2 format change didn't break the core vulnerability-auditing functionality of &lt;code&gt;cargo audit&lt;/code&gt;, several minor features regressed because of this, such as displaying dependency trees for vulnerable dependencies.&lt;/p&gt;
-&lt;p&gt;This release also upgrades to version 4.0 of the &lt;a href=&quot;https://github.com/RustSec/cargo-lock&quot;&gt;&lt;code&gt;cargo-lock&lt;/code&gt; crate&lt;/a&gt;, which includes full support for the V2 &lt;code&gt;Cargo.lock&lt;/code&gt; format and constructs a representation of a lockfile which is the same across the V1 and V2 formats.&lt;/p&gt;
-&lt;p&gt;If you noticed dependency trees failing to display after upgrading to the V2 &lt;code&gt;Cargo.lock&lt;/code&gt; format, they should now be working again!&lt;/p&gt;
-&lt;p&gt;Thanks for reading, and we hope you enjoy &lt;code&gt;cargo-audit&lt;/code&gt; 0.11!&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Tony Arcieri</name>
         </author>
     </entry>
     
