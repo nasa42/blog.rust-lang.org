@@ -140,8 +140,7 @@ fn main() {
 </code></pre>
 <p>In Rust 1.41.1, this issue was fixed <a href="https://github.com/rust-lang/rust/pull/69145">by the same PR as the one above</a>.
 Compiling the program now produces the following error:</p>
-<pre><code class="language-rust">
-error[E0597]: `temporary` does not live long enough
+<pre><code class="language-rust">error[E0597]: `temporary` does not live long enough
   --&gt; src/main.rs:7:20
    |
 7  |     let foo = (Foo(&amp;temporary),);
