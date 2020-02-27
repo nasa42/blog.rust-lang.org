@@ -10,8 +10,107 @@
         <name>Maintained by the Rust Team.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-02-27T11:27:52Z</updated>
+    <updated>2020-02-27T14:57:40Z</updated>
 
+    
+    <entry>
+        <title>Announcing Rust 1.41.1</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/2020/02/27/Rust-1.41.1.html" type="text/html" title="Announcing Rust 1.41.1" />
+        <published>2020-02-27T00:00:00Z</published>
+        <updated>2020-02-27T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/2020/02/27/Rust-1.41.1.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2020/02/27/Rust-1.41.1.html">&lt;p&gt;The Rust team has published a new point release of Rust, 1.41.1.
+Rust is a programming language that is empowering everyone to build reliable and efficient software.&lt;/p&gt;
+&lt;p&gt;If you have a previous version of Rust installed via rustup, getting Rust 1.41.1 is as easy as:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-console&quot;&gt;rustup update stable
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If you don't have it already, you can &lt;a href=&quot;https://www.rust-lang.org/tools/install&quot;&gt;get &lt;code&gt;rustup&lt;/code&gt;&lt;/a&gt; from the appropriate page on our website.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#whats-in-1.41.1-stable&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;whats-in-1.41.1-stable&quot;&gt;&lt;/a&gt;What's in 1.41.1 stable&lt;/h2&gt;
+&lt;p&gt;Rust 1.41.1 addresses two critical regressions introduced in Rust 1.41.0:
+a soundness hole related to static lifetimes, and a miscompilation causing segfaults.
+These regressions do not affect earlier releases of Rust,
+and we recommend users of Rust 1.41.0 to upgrade as soon as possible.
+Another issue related to interactions between &lt;code&gt;'static&lt;/code&gt; and &lt;code&gt;Copy&lt;/code&gt; implementations,
+dating back to Rust 1.0, was also addressed by this release.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#a-soundness-hole-in-checking-static-items&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;a-soundness-hole-in-checking-static-items&quot;&gt;&lt;/a&gt;A soundness hole in checking &lt;code&gt;static&lt;/code&gt; items&lt;/h3&gt;
+&lt;p&gt;In Rust 1.41.0, due to some changes in the internal representation of &lt;code&gt;static&lt;/code&gt; values,
+the borrow checker accidentally allowed some unsound programs.
+Specifically, the borrow checker would not check that &lt;code&gt;static&lt;/code&gt; items had the correct type.
+This in turn would allow the assignment of a temporary,
+with a lifetime less than &lt;code&gt;'static&lt;/code&gt;, to a &lt;code&gt;static&lt;/code&gt; variable:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;static mut MY_STATIC: &amp;amp;'static u8 = &amp;amp;0;
+
+fn main() {
+    let my_temporary = 42;
+    unsafe {
+        // Erroneously allowed in 1.41.0:
+        MY_STATIC = &amp;amp;my_temporary;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This was addressed in 1.41.1, with the program failing to compile:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;error[E0597]: `my_temporary` does not live long enough
+ --&amp;gt; src/main.rs:6:21
+  |
+6 |         MY_STATIC = &amp;amp;my_temporary;
+  |         ------------^^^^^^^^^^^^^
+  |         |           |
+  |         |           borrowed value does not live long enough
+  |         assignment requires that `my_temporary` is borrowed for `'static`
+7 |     }
+8 | }
+  | - `my_temporary` dropped here while still borrowed
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You can learn more about this bug in &lt;a href=&quot;https://github.com/rust-lang/rust/issues/69114&quot;&gt;issue #69114&lt;/a&gt; and the &lt;a href=&quot;https://github.com/rust-lang/rust/pull/69145&quot;&gt;PR that fixed it&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#respecting-a-static-lifetime-in-a-copy-implementation&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;respecting-a-static-lifetime-in-a-copy-implementation&quot;&gt;&lt;/a&gt;Respecting a &lt;code&gt;'static&lt;/code&gt; lifetime in a &lt;code&gt;Copy&lt;/code&gt; implementation&lt;/h3&gt;
+&lt;p&gt;Ever since Rust 1.0, the following erroneous program has been compiling:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;#[derive(Clone)]
+struct Foo&amp;lt;'a&amp;gt;(&amp;amp;'a u32);
+impl Copy for Foo&amp;lt;'static&amp;gt; {}
+
+fn main() {
+    let temporary = 2;
+    let foo = (Foo(&amp;amp;temporary),);
+    drop(foo.0); // Accessing a part of `foo` is necessary.
+    drop(foo.0); // Indexing an array would also work.
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In Rust 1.41.1, this issue was fixed &lt;a href=&quot;https://github.com/rust-lang/rust/pull/69145&quot;&gt;by the same PR as the one above&lt;/a&gt;.
+Compiling the program now produces the following error:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;
+error[E0597]: `temporary` does not live long enough
+  --&amp;gt; src/main.rs:7:20
+   |
+7  |     let foo = (Foo(&amp;amp;temporary),);
+   |                    ^^^^^^^^^^ borrowed value does not live long enough
+8  |     drop(foo.0);
+   |          ----- copying this value requires that
+   |                `temporary` is borrowed for `'static`
+9  |     drop(foo.0);
+10 | }
+   | - `temporary` dropped here while still borrowed
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This error occurs because &lt;code&gt;Foo&amp;lt;'a&amp;gt;&lt;/code&gt;, for some &lt;code&gt;'a&lt;/code&gt;, only implements &lt;code&gt;Copy&lt;/code&gt; when &lt;code&gt;'a: 'static&lt;/code&gt;.
+However, the &lt;code&gt;temporary&lt;/code&gt; variable,
+with some lifetime &lt;code&gt;'0&lt;/code&gt; does not outlive &lt;code&gt;'static&lt;/code&gt; and hence &lt;code&gt;Foo&amp;lt;'0&amp;gt;&lt;/code&gt; is not &lt;code&gt;Copy&lt;/code&gt;,
+so using &lt;code&gt;drop&lt;/code&gt; the second time around should be an error.&lt;/p&gt;
+&lt;h3&gt;&lt;a href=&quot;#miscompiled-bound-checks-leading-to-segfaults&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;miscompiled-bound-checks-leading-to-segfaults&quot;&gt;&lt;/a&gt;Miscompiled bound checks leading to segfaults&lt;/h3&gt;
+&lt;p&gt;In a few cases, programs compiled with Rust 1.41.0 were omitting bound checks in the memory allocation code.
+This caused segfaults if out of bound values were provided.
+The root cause of the miscompilation was a change in a LLVM optimization pass,
+introduced in LLVM 9 and reverted in LLVM 10.&lt;/p&gt;
+&lt;p&gt;Rust 1.41.0 uses a snapshot of LLVM 9, so we cherry-picked the revert into Rust 1.41.1,
+addressing the miscompilation. &lt;a href=&quot;https://github.com/rust-lang/rust/issues/69225&quot;&gt;You can learn more about this bug in issue #69225&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#contributors-to-141.1&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;contributors-to-141.1&quot;&gt;&lt;/a&gt;Contributors to 1.41.1&lt;/h2&gt;
+&lt;p&gt;Many people came together to create Rust 1.41.1.
+We couldn't have done it without all of you. &lt;a href=&quot;https://thanks.rust-lang.org/rust/1.41.1/&quot;&gt;Thanks!&lt;/a&gt;&lt;/p&gt;
+</content>
+
+        <author>
+            <name>The Rust Release Team</name>
+        </author>
+    </entry>
     
     <entry>
         <title>The 2020 Rust Event Lineup</title>
@@ -864,65 +963,6 @@ goes into great detail.&lt;/p&gt;
 
         <author>
             <name>The Rust Core Team</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Announcing Rustup 1.20.0</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/10/15/Rustup-1.20.0.html" type="text/html" title="Announcing Rustup 1.20.0" />
-        <published>2019-10-15T00:00:00Z</published>
-        <updated>2019-10-15T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/10/15/Rustup-1.20.0.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/10/15/Rustup-1.20.0.html">&lt;p&gt;The rustup working group is happy to announce the release of rustup version 1.20.0. &lt;a href=&quot;https://rustup.rs&quot;&gt;Rustup&lt;/a&gt; is the recommended tool to install &lt;a href=&quot;https://www.rust-lang.org&quot;&gt;Rust&lt;/a&gt;, a programming language that is empowering everyone to build reliable and efficient software.&lt;/p&gt;
-&lt;p&gt;If you have a previous version of rustup installed, getting rustup 1.20.0 is as easy as:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;rustup self update
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Rustup will also automatically update itself at the end of a normal toolchain update:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;rustup update
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If you don't have it already, you can &lt;a href=&quot;https://rustup.rs&quot;&gt;get rustup&lt;/a&gt; from the appropriate page on our website.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#whats-new-in-rustup-1.20.0&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;whats-new-in-rustup-1.20.0&quot;&gt;&lt;/a&gt;What's new in rustup 1.20.0&lt;/h2&gt;
-&lt;p&gt;The highlights of this release are profiles support, the ability to get the latest available nightly with all the components you need, and improvements to the &lt;code&gt;rustup doc&lt;/code&gt; command. You can also check out &lt;a href=&quot;https://github.com/rust-lang/rustup.rs/blob/master/CHANGELOG.md&quot;&gt;the changelog&lt;/a&gt; for a list of all the changes included in this release.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#profiles&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;profiles&quot;&gt;&lt;/a&gt;Profiles&lt;/h3&gt;
-&lt;p&gt;Previous versions of rustup installed a few components by default along with each toolchain: the compiler (&lt;code&gt;rustc&lt;/code&gt;), the package manager (&lt;code&gt;cargo&lt;/code&gt;), the standard library (&lt;code&gt;rust-std&lt;/code&gt;), and offline documentation (&lt;code&gt;rust-docs&lt;/code&gt;). While this approach is fine while developing software locally, some of the components (like &lt;code&gt;rust-docs&lt;/code&gt;) slowed down the installation, either because they're not used on build servers, or on Windows due to the large amount of installed files.&lt;/p&gt;
-&lt;p&gt;To address this problem, rustup 1.20.0 introduces the concept of &amp;quot;profiles&amp;quot;. They are groups of components you can choose to download while installing a new Rust toolchain. The profiles available at this time are &lt;code&gt;minimal&lt;/code&gt;, &lt;code&gt;default&lt;/code&gt;, and &lt;code&gt;complete&lt;/code&gt;:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;The &lt;strong&gt;minimal&lt;/strong&gt; profile includes as few components as possible to get a working compiler (&lt;code&gt;rustc&lt;/code&gt;, &lt;code&gt;rust-std&lt;/code&gt;, and &lt;code&gt;cargo&lt;/code&gt;). It's recommended to use this component on Windows systems if you don't use local documentation, and in CI.&lt;/li&gt;
-&lt;li&gt;The &lt;strong&gt;default&lt;/strong&gt; profile includes all the components previously installed by default (&lt;code&gt;rustc&lt;/code&gt;, &lt;code&gt;rust-std&lt;/code&gt;, &lt;code&gt;cargo&lt;/code&gt;, and &lt;code&gt;rust-docs&lt;/code&gt;) plus &lt;code&gt;rustfmt&lt;/code&gt; and &lt;code&gt;clippy&lt;/code&gt;. This profile will be used by rustup by default, and it's the one recommended for general use.&lt;/li&gt;
-&lt;li&gt;The &lt;strong&gt;complete&lt;/strong&gt; profile includes all the components available through rustup, including &lt;code&gt;miri&lt;/code&gt; and IDE integration tools (&lt;code&gt;rls&lt;/code&gt; and &lt;code&gt;rust-analysis&lt;/code&gt;).&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;To change the rustup profile you can use the &lt;code&gt;rustup set profile&lt;/code&gt; command. For example, to select the minimal profile you can use:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;rustup set profile minimal
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;It's also possible to choose the profile when installing rustup for the first time, either interactively by choosing the &amp;quot;Customize installation&amp;quot; option or programmaticaly by passing the &lt;code&gt;--profile=&amp;lt;name&amp;gt;&lt;/code&gt; flag. Profiles will only affect newly installed toolchains: as usual it will be possible to install individual components later with: &lt;code&gt;rustup component add&lt;/code&gt;.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#installing-the-latest-compatible-nightly&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;installing-the-latest-compatible-nightly&quot;&gt;&lt;/a&gt;Installing the latest compatible nightly&lt;/h3&gt;
-&lt;p&gt;While most components are guaranteed to be present on stable releases of &lt;a href=&quot;https://forge.rust-lang.org/release/platform-support.html&quot;&gt;tier 1 platforms&lt;/a&gt;, the same guarantee doesn't apply to nightly builds. Frequently, tools such as &lt;code&gt;rustfmt&lt;/code&gt;, &lt;code&gt;clippy&lt;/code&gt;, or &lt;code&gt;rls&lt;/code&gt; are missing in the latest nightly. If you depend on these tools, that makes updating nighties hard, as rustup will prevent the upgrade if a component you previously installed is missing.&lt;/p&gt;
-&lt;p&gt;Starting from rustup 1.20.0, if a component you previously installed is missing in the latest nightly, &lt;code&gt;rustup update&lt;/code&gt; will walk backwards in time to find the most recent release with all the components you need. If there are no new nightlies with all the components you need you'll either need to wait or remove some of them.&lt;/p&gt;
-&lt;p&gt;Along with this change, rustup 1.20.0 introduces the &lt;code&gt;--component&lt;/code&gt;/&lt;code&gt;-c&lt;/code&gt; and &lt;code&gt;--target&lt;/code&gt;/&lt;code&gt;-t&lt;/code&gt; options to the &lt;code&gt;rustup toolchain install&lt;/code&gt; command, allowing you to add components and targets as the toolchain is installed. These flags will also search past nightlies if the current one does not feature all the requested components.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#improvements-to-rustup-doc&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;improvements-to-rustup-doc&quot;&gt;&lt;/a&gt;Improvements to &lt;code&gt;rustup doc&lt;/code&gt;&lt;/h3&gt;
-&lt;p&gt;The &lt;code&gt;rustup doc&lt;/code&gt; command opens the locally installed documentation on your browser, without any Internet connection required. rustup 1.20.0 enhances the command allowing you to open directly the API documentation of a specific item. For example to look at the documentation of &lt;a href=&quot;https://doc.rust-lang.org/std/iter/trait.Iterator.html&quot;&gt;&lt;code&gt;Iterator&lt;/code&gt;&lt;/a&gt; you can use:&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;rustup doc std::iter::Iterator
-&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This works for traits, structs/enums, macros, and modules, and can take you to the &lt;code&gt;std&lt;/code&gt;, &lt;code&gt;alloc&lt;/code&gt;, and &lt;code&gt;core&lt;/code&gt; crates. Note, however, that this functionality will only work if you have the &lt;code&gt;rust-docs&lt;/code&gt; component installed in your toolchain. We will be improving the command's UX over time, so if you have ideas, please do let us know!&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#thanks&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;thanks&quot;&gt;&lt;/a&gt;Thanks&lt;/h2&gt;
-&lt;p&gt;Thanks to all the contributors who made rustup 1.20.0 possible!&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Andy McCaffrey&lt;/li&gt;
-&lt;li&gt;Artem Borisovskiy&lt;/li&gt;
-&lt;li&gt;Benjamin Chen&lt;/li&gt;
-&lt;li&gt;Daniel Silverstone&lt;/li&gt;
-&lt;li&gt;Jon Gjengset&lt;/li&gt;
-&lt;li&gt;Lzu Tao&lt;/li&gt;
-&lt;li&gt;Matt Kantor&lt;/li&gt;
-&lt;li&gt;Mitchell Hynes&lt;/li&gt;
-&lt;li&gt;Nick Cameron&lt;/li&gt;
-&lt;li&gt;PicoJr&lt;/li&gt;
-&lt;li&gt;Pietro Albini&lt;/li&gt;
-&lt;/ul&gt;
-</content>
-
-        <author>
-            <name>The Rustup Working Group</name>
         </author>
     </entry>
     
