@@ -222,15 +222,14 @@ $ cargo rustc -- -Zself-profile -Zself-profile-events=default,args
 <h4><a href="#profiling-an-entire-crate-graph" aria-hidden="true" class="anchor" id="profiling-an-entire-crate-graph"></a>Profiling an entire crate graph</h4>
 <p>By using the <code>RUSTFLAGS</code> environment variable, we can profile every <code>rustc</code> invocation, not just the final crate's.
 <code>crox</code> can then combine all of the profiles together into one output file.
-Since this will create a lot of files, we'll first create a folder to put all the traces in.</p>
+Since this will create a lot of files, we'll tell <code>rustc</code> to create a folder to put all the traces in.</p>
 <pre><code class="language-sh">$ rm regex-17088.* regex-23649.* # clean up the old trace files since we're done with them
-$ mkdir profiles
 $ cargo clean
 $ RUSTFLAGS=&quot;-Zself-profile=./profiles -Zself-profile-events=default,args&quot; cargo build
 </code></pre>
 <p>This creates quite a few trace files in the working directory.
 Now, we'll tell <code>crox</code> to combine all of the trace files in the current directory together:</p>
-<pre><code class="language-sh">$ crox --dir .
+<pre><code class="language-sh">$ crox --dir profiles
 </code></pre>
 <p>Opening this file shows all of the crates compiled:</p>
 <p><a href="/images/inside-rust/2020-02-25-intro-rustc-self-profile/chrome_profiler3.png"><img src="/images/inside-rust/2020-02-25-intro-rustc-self-profile/chrome_profiler3.png" alt="Image of Chrome profiler with all crates" /></a></p>
