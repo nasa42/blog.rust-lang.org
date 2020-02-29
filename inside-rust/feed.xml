@@ -10,14 +10,31 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-02-27T20:42:49Z</updated>
+    <updated>2020-02-29T22:32:16Z</updated>
 
+    
+    <entry>
+        <title>Pietro Albini has joined the core team</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/02/27/pietro-joins-core-team.html" type="text/html" title="Pietro Albini has joined the core team" />
+        <published>2020-02-27T00:00:00Z</published>
+        <updated>2020-02-27T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2020/02/27/pietro-joins-core-team.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/02/27/pietro-joins-core-team.html">&lt;p&gt;We are very happy to announce that &lt;a href=&quot;https://github.com/pietroalbini&quot;&gt;Pietro Albini&lt;/a&gt; has joined the core team. Pietro joined us back on December 24th 2019 (a Christmas present for the core team!), but we have been a bit late in announcing it (sorry Pietro!).&lt;/p&gt;
+&lt;p&gt;Pietro co-leads the infrastructure and docs.rs teams, and is a member of the crates.io and release teams, and the security response working group. He has been instrumental in setting up and maintaining the various services and technology which keeps the Rust project moving quickly and smoothly.&lt;/p&gt;
+&lt;p&gt;Pietro will continue to focus on infrastructure issues, starting with setting up a team to coordinate Rust's web presence - the website, crates.io, docs.rs, etc.&lt;/p&gt;
+&lt;p&gt;Aidan will co-lead the infrastructure team and gradually hand over full leadership to Pietro.&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Nick Cameron</name>
+        </author>
+    </entry>
     
     <entry>
         <title>Announcing the first FFI-unwind project design meeting</title>
         <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/02/27/ffi-unwind-design-meeting.html" type="text/html" title="Announcing the first FFI-unwind project design meeting" />
         <published>2020-02-27T00:00:00Z</published>
-        <updated>2020-02-27T00:00:00Z</updated>
+        <updated>2020-02-27T00:00:01Z</updated>
         <id>https://blog.rust-lang.org/inside-rust/2020/02/27/ffi-unwind-design-meeting.html</id>
         <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/02/27/ffi-unwind-design-meeting.html">&lt;p&gt;The FFI-unwind project group, announced in &lt;a href=&quot;https://github.com/rust-lang/rfcs/pull/2797&quot;&gt;this RFC&lt;/a&gt;, is
 working to extend the language to support unwinding that crosses FFI
@@ -797,37 +814,6 @@ meetings take place on Zulip and are open to all. Every 4 weeks, we do
 a planning meeting to pick the next few meetings from the list of open
 proposals. You can find &lt;a href=&quot;https://rust-lang.github.io/compiler-team/about/steering-meeting/&quot;&gt;more details about how the compiler-team
 steering meeting process here&lt;/a&gt;.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Niko Matsakis</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>February Lang Team Design Meetings</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/24/feb-lang-team-design-meetings.html" type="text/html" title="February Lang Team Design Meetings" />
-        <published>2020-01-24T00:00:00Z</published>
-        <updated>2020-01-24T00:00:01Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2020/01/24/feb-lang-team-design-meetings.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/24/feb-lang-team-design-meetings.html">&lt;p&gt;We've scheduled our &lt;strong&gt;language team design meetings&lt;/strong&gt; for February. The current plans are as follows:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;February 3rd -- we will do an overview of &lt;strong&gt;specialization&lt;/strong&gt;. We'll cover details from the RFC but in particular talk about the &lt;a href=&quot;http://aturon.github.io/tech/2018/04/05/sound-specialization/&quot;&gt;as-yet-unimplemented plans to make it sound&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;February 10th -- we will cover interactions between the &lt;code&gt;&amp;amp;T&lt;/code&gt; type and LLVM's dereferenceable attribute, such as &lt;a href=&quot;https://github.com/rust-lang/rust/issues/55005&quot;&gt;rust-lang/rust#55005&lt;/a&gt; and &lt;a href=&quot;https://github.com/japaric/volatile-register/issues/10&quot;&gt;problems modeling MMIO&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;February 17th -- no meeting, it is President's Day in the US and many of us are absent&lt;/li&gt;
-&lt;li&gt;February 24th -- we will summarize discussions from &lt;a href=&quot;https://github.com/rust-lang/project-ffi-unwind&quot;&gt;the ffi-unwind project group&lt;/a&gt; about whether we should permit foreign exceptions to propagate across the &amp;quot;C&amp;quot; ABI boundary, or establish a separate ABI (e.g., &amp;quot;C unwind&amp;quot;) for such cases.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2&gt;&lt;a href=&quot;#about-the-language-team-design-meetings&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;about-the-language-team-design-meetings&quot;&gt;&lt;/a&gt;About the language team design meetings&lt;/h2&gt;
-&lt;p&gt;The idea of the design meeting is that it's a time for us to have
-in-depth discussions on some particular topic. This might be a burning
-problem that we've discovered, an update on some existing design work,
-or a forward looking proposal.&lt;/p&gt;
-&lt;p&gt;The meetings are open for anyone to listen in and attend. They are
-typically also recorded and posted online, along with minutes, after
-the fact. They generally take place on Mondays at &amp;quot;noon Boston time&amp;quot;
--- but for the precise scheduling you should check the &lt;a href=&quot;https://github.com/rust-lang/lang-team/#meeting-calendar&quot;&gt;lang team
-calendar&lt;/a&gt;. Scheduled meetings are subject to change and
-cancelation. In that case, the calendar events will be updated.&lt;/p&gt;
 </content>
 
         <author>
