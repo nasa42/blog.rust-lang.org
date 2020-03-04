@@ -10,8 +10,178 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-03-01T19:36:10Z</updated>
+    <updated>2020-03-04T00:06:29Z</updated>
 
+    
+    <entry>
+        <title>Recent and future pattern matching improvements</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/03/04/recent-future-pattern-matching-improvements.html" type="text/html" title="Recent and future pattern matching improvements" />
+        <published>2020-03-04T00:00:00Z</published>
+        <updated>2020-03-04T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2020/03/04/recent-future-pattern-matching-improvements.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/03/04/recent-future-pattern-matching-improvements.html">&lt;p&gt;Much of writing software revolves around checking if some data has some shape (&amp;quot;pattern&amp;quot;), extracting information from it, and then reacting if there was a match. To facilitate this, many modern languages, Rust included, support what is known as &amp;quot;pattern matching&amp;quot;.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If you are new to Rust or want to refresh your knowledge, you may first want to read chapters &lt;a href=&quot;https://doc.rust-lang.org/book/ch06-00-enums.html&quot;&gt;6, Enums and Pattern Matching&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/book/ch18-00-patterns.html&quot;&gt;18, Patterns and Matching&lt;/a&gt; in the book, or read more about &lt;a href=&quot;https://doc.rust-lang.org/reference/expressions/match-expr.html&quot;&gt;&lt;code&gt;match&lt;/code&gt; expressions&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/reference/patterns.html&quot;&gt;patterns&lt;/a&gt; in the reference.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Pattern matching in Rust works by checking if a &lt;a href=&quot;https://doc.rust-lang.org/reference/expressions.html#place-expressions-and-value-expressions&quot;&gt;&lt;em&gt;place&lt;/em&gt;&lt;/a&gt; in memory (the &amp;quot;data&amp;quot;) matches a certain &lt;em&gt;pattern&lt;/em&gt;. In this post, we will look at some recent improvements to patterns soon available in stable Rust as well as some more in already available in nightly.&lt;/p&gt;
+&lt;p&gt;If you are familiar with the nightly features discussed and would like to help out with the efforts to drive them to stable, jump ahead to &lt;a href=&quot;#how-can-i-help?&quot;&gt;*How can I help?&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#subslice-patterns-[head,-tail-@-..]&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;subslice-patterns-[head,-tail-@-..]&quot;&gt;&lt;/a&gt;Subslice patterns, &lt;code&gt;[head, tail @ ..]&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;Lists are one of the most basic and common data structures found in software. In Rust, lists are usually a contiguous sequence of elements in memory, or a &lt;em&gt;slice&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Since slices are so commonplace, it is important that working with them is easy. To that end, we stabilized &lt;a href=&quot;https://blog.rust-lang.org/2018/05/10/Rust-1.26.html#basic-slice-patterns&quot;&gt;&lt;em&gt;fixed-length slice patterns&lt;/em&gt; in Rust 1.26.0&lt;/a&gt;. So now it is possible to e.g., write &lt;code&gt;let [a, b, c] = my_array;&lt;/code&gt; to destructure an array of 3 elements. Oftentimes, however, we're working with a slice of unknown length, so given only fixed-length slice patterns, we have to provide a fallback &lt;code&gt;match&lt;/code&gt; arm with e.g. &lt;code&gt;_&lt;/code&gt; as the pattern.&lt;/p&gt;
+&lt;p&gt;In Rust 1.42.0, &lt;a href=&quot;https://github.com/rust-lang/rust/pull/67712&quot;&gt;we are stabilizing &lt;em&gt;subslice patterns&lt;/em&gt;&lt;/a&gt;. To introduce a subslice pattern, we use &lt;code&gt;..&lt;/code&gt; which denotes a variable-length gap, matching as many elements as possible not matched by the patterns before and after the &lt;code&gt;..&lt;/code&gt;. For example, in a parser, we would like to error when a list of attributes, &lt;code&gt;attrs&lt;/code&gt;, is not followed by an item, &lt;a href=&quot;https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/parser/struct.Parser.html#method.recover_attrs_no_item&quot;&gt;so we write&lt;/a&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;/// Recover if we parsed attributes and expected an item but there was none.
+fn recover_attrs_no_item(&amp;amp;mut self, attrs: &amp;amp;[Attribute]) -&amp;gt; PResult&amp;lt;'a, ()&amp;gt; {
+    let (start, end) = match attrs {
+        [] =&amp;gt; return Ok(()),
+        [x0] =&amp;gt; (x0, x0),
+        [x0, .., xn] =&amp;gt; (x0, xn),
+    };
+    let msg = if end.is_doc_comment() {
+        &amp;quot;expected item after doc comment&amp;quot;
+    } else {
+        &amp;quot;expected item after attributes&amp;quot;
+    };
+    let mut err = self.struct_span_err(end.span, msg);
+    if end.is_doc_comment() {
+        err.span_label(end.span, &amp;quot;this doc comment doesn't document anything&amp;quot;);
+    }
+    if let [.., penultimate, _] = attrs {
+        err.span_label(start.span.to(penultimate.span), &amp;quot;other attributes here&amp;quot;);
+    }
+    Err(err)
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here we have two subslice patterns, the first one being &lt;code&gt;[x0, .., xn]&lt;/code&gt;. In this case, the pattern binds &lt;code&gt;x0&lt;/code&gt;, the first element, and &lt;code&gt;xn&lt;/code&gt;, the last element, and ignores everything in the middle, matching a slice with at least two elements in total. Meanwhile, &lt;code&gt;[]&lt;/code&gt; and &lt;code&gt;[x0]&lt;/code&gt; match cases with fewer than two elements, so the compiler knows that we have covered all possibilities. In the latter case, we extract the &lt;code&gt;penultimate&lt;/code&gt; element of the slice, which, as the name suggests, also requires that the slice has at least two elements.&lt;/p&gt;
+&lt;p&gt;We can also bind a subslice to a variable. For example, suppose we want to disallow &lt;code&gt;...&lt;/code&gt; in all but the last parameter of a function. If so, we can write:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;match &amp;amp;*fn_decl.inputs {
+    ... // other arms
+    [ps @ .., _] =&amp;gt; {
+        for Param { ty, span, .. } in ps {
+            if let TyKind::CVarArgs = ty.kind {
+                self.err_handler().span_err(
+                    *span,
+                    &amp;quot;`...` must be the last argument of a C-variadic function&amp;quot;,
+                );
+            }
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here, &lt;code&gt;ps @ ..&lt;/code&gt; will bind the initial elements of the slice to &lt;code&gt;ps&lt;/code&gt; and ignore the last element.&lt;/p&gt;
+&lt;p&gt;After more than 7 years of baking in nightly, with many twists and turns, subslice patterns will finally be stable. To get here, we've had to redesign the feature, plug soundness holes in the borrow checker, and substantially refactor the exhaustiveness checker. For more on how we got here, &lt;a href=&quot;https://github.com/rust-lang/rust/pull/67712&quot;&gt;read the stabilization report&lt;/a&gt;, &lt;a href=&quot;https://thomashartmann.dev/blog/feature(slice_patterns)/&quot;&gt;Thomas Hartmann's blog post&lt;/a&gt;, and stay tuned for the 1.42.0 release announcement  on the 12th of March.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#nested-or-patterns&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;nested-or-patterns&quot;&gt;&lt;/a&gt;Nested OR-patterns&lt;/h2&gt;
+&lt;p&gt;When pattern matching on an &lt;code&gt;enum&lt;/code&gt;, the logic for some of the variants may be exactly the same. To avoid repeating ourselves, the &lt;code&gt;|&lt;/code&gt; separator in &lt;code&gt;match&lt;/code&gt;, &lt;code&gt;if let&lt;/code&gt;, or &lt;code&gt;while let&lt;/code&gt; expressions can be used to say that the branch should be taken if any of the &lt;code&gt;|&lt;/code&gt;-separated patterns match. For example, we may write:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;// Any local node that may call something in its body block should be explored.
+fn should_explore(tcx: TyCtxt&amp;lt;'_&amp;gt;, hir_id: hir::HirId) -&amp;gt; bool {
+    match tcx.hir().find(hir_id) {
+        Some(Node::Item(..))
+        | Some(Node::ImplItem(..))
+        | Some(Node::ForeignItem(..))
+        | Some(Node::TraitItem(..))
+        | Some(Node::Variant(..))
+        | Some(Node::AnonConst(..))
+        | Some(Node::Pat(..)) =&amp;gt; true,
+        _ =&amp;gt; false,
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This is serviceable, but &lt;code&gt;Some(_)&lt;/code&gt; is still repeated several times. With &lt;a href=&quot;https://github.com/rust-lang/rust/issues/54883&quot;&gt;&lt;code&gt;#![feature(or_patterns)]&lt;/code&gt;&lt;/a&gt;, which recently became usable on nightly, this repetition can be avoided:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;// Any local node that may call something in its body block should be explored.
+fn should_explore(tcx: TyCtxt&amp;lt;'_&amp;gt;, hir_id: hir::HirId) -&amp;gt; bool {
+    match tcx.hir().find(hir_id) {
+        Some(
+            Node::Item(..)
+            | Node::ImplItem(..)
+            | Node::ForeignItem(..)
+            | Node::TraitItem(..)
+            | Node::Variant(..)
+            | Node::AnonConst(..)
+            | Node::Pat(..),
+        ) =&amp;gt; true,
+        _ =&amp;gt; false,
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Previously, when using &lt;code&gt;|&lt;/code&gt; in a &lt;code&gt;match&lt;/code&gt; expression, the &lt;code&gt;|&lt;/code&gt; syntax was part of &lt;code&gt;match&lt;/code&gt; itelf. With &lt;code&gt;or_patterns&lt;/code&gt;, this is now part of patterns themselves, so you can nest OR-patterns arbitrarily, and use them in &lt;code&gt;let&lt;/code&gt; statements too:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;let Ok(x) | Err(x) = foo();
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;An OR-pattern covers the &lt;em&gt;union&lt;/em&gt; of all the &lt;code&gt;|&lt;/code&gt;-ed (&amp;quot;or-ed&amp;quot;) patterns. To ensure that whatever alternative matched, all bindings are consistent and initialized, each or-ed pattern must include the exact same set of bindings, with the same types, and the same binding modes.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#bindings-after-&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;bindings-after-&quot;&gt;&lt;/a&gt;Bindings after &lt;code&gt;@&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;When matching on a certain substructure, you sometimes want to hold on to the whole. For example, given &lt;code&gt;Some(Expr { .. })&lt;/code&gt;, you would like to bind the outer &lt;code&gt;Some(_)&lt;/code&gt; layer. In Rust, this can be done using e.g., &lt;code&gt;expr @ Some(Expr { .. })&lt;/code&gt;, which binds the matched place to &lt;code&gt;expr&lt;/code&gt; while also ensuring that it matches &lt;code&gt;Some(Expr { .. })&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Suppose also that &lt;code&gt;Expr&lt;/code&gt; has a field &lt;code&gt;span&lt;/code&gt; that you would also use. In ancient times, that is before Rust 1.0, this was possible, but today, it results in an error:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;error[E0303]: pattern bindings are not allowed after an `@`
+ --&amp;gt; src/lib.rs:L:C
+  |
+L |         bar @ Some(Expr { span }) =&amp;gt; {}
+  |                           ^^^^ not allowed after `@`
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This was turned into an error in &lt;a href=&quot;https://github.com/rust-lang/rust/pull/16053&quot;&gt;#16053&lt;/a&gt;, mainly due to the difficulties of encoding borrow checking rules in a sound way in the old AST based borrow checker.&lt;/p&gt;
+&lt;p&gt;Since then, we have &lt;a href=&quot;https://github.com/rust-lang/rust/pull/64790&quot;&gt;removed the old borrow checker&lt;/a&gt; in favor of one based on &lt;a href=&quot;https://rust-lang.github.io/rustc-guide/mir/index.html&quot;&gt;MIR&lt;/a&gt;, which is a simpler, and more appropriate data structure for borrow checking. Specifically, in the case of a statement like &lt;code&gt;let ref x @ ref y = a;&lt;/code&gt;, we would get roughly the same MIR as if we had used &lt;code&gt;let x = &amp;amp;a; let y = &amp;amp;a;&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;So now that having bindings to the right of &lt;code&gt;@&lt;/code&gt; is handled uniformly and correctly by the borrow checker (e.g., the compiler won't allow &lt;code&gt;ref x @ ref mut y&lt;/code&gt;), we have decided to allow them under &lt;a href=&quot;https://github.com/rust-lang/rust/issues/65490&quot;&gt;&lt;code&gt;#![feature(bindings_after_at)]&lt;/code&gt;&lt;/a&gt;, now available on nightly. With the feature gate enabled, you may for example write:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;#![feature(bindings_after_at)]
+
+fn main() {
+    if let x @ Some(y) = Some(0) {
+        dbg!(x, y);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Our hope is that with providing this feature, we remove one surprising corner of the language.&lt;/p&gt;
+&lt;h2&gt;&lt;a href=&quot;#combining-by-move-and-by-ref-bindings&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;combining-by-move-and-by-ref-bindings&quot;&gt;&lt;/a&gt;Combining by-move and by-&lt;code&gt;ref&lt;/code&gt; bindings&lt;/h2&gt;
+&lt;p&gt;For similar reasons as noted in the case of bindings after &lt;code&gt;@&lt;/code&gt;, Rust does not currently allow you to combine normal by-move bindings with those that are by-&lt;code&gt;ref&lt;/code&gt;. For example, should you write...:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;fn main() {
+    let tup = (&amp;quot;foo&amp;quot;.to_string(), 0);
+    let (x, ref y) = tup;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;... you would get an error:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;error[E0009]: cannot bind by-move and by-ref in the same pattern
+ --&amp;gt; src/main.rs:3:10
+  |
+3 |     let (x, ref y) = tup;
+  |          ^  ----- by-ref pattern here
+  |          |
+  |          by-move pattern here
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;At the same time, however, the compiler is perfectly happy to allow...:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;fn main() {
+    let tup = (&amp;quot;foo&amp;quot;.to_string(), 0);
+    let x = tup.0;
+    let ref y = tup.1;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;... even though there is no semantic difference between these programs.&lt;/p&gt;
+&lt;p&gt;Now that we have moved to the new borrow checker, as outlined in the previous section, we have relaxed this restriction on nightly as well, so under &lt;a href=&quot;https://github.com/rust-lang/rust/pull/68376&quot;&gt;&lt;code&gt;#![feature(move_ref_pattern)]&lt;/code&gt;&lt;/a&gt;, you may write:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;#![feature(move_ref_pattern)]
+
+fn main() {
+    let tup = (&amp;quot;foo&amp;quot;.to_string(), 0);
+    let (x, ref y) = tup;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;&lt;a href=&quot;#how-can-i-help&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;how-can-i-help&quot;&gt;&lt;/a&gt;How can I help?&lt;/h2&gt;
+&lt;p&gt;To recap, we have three unstable features, all improving pattern matching in different ways:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;#![feature(or_patterns)]&lt;/code&gt;, which allows you to arbitrarily nest or-patterns e.g. &lt;code&gt;Some(Foo | Bar)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;#![feature(bindings_after_at)]&lt;/code&gt;, which allows e.g., &lt;code&gt;ref x @ Some(ref y)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;#![feature(move_ref_pattern)]&lt;/code&gt;, which allows e.g., &lt;code&gt;(x, ref y)&lt;/code&gt; where &lt;code&gt;x&lt;/code&gt; is by-move and &lt;code&gt;y&lt;/code&gt; is by-reference&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To help us transition these features over to stable Rust, we need your help to ensure that they meet the expected quality standards. To help out, consider:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Using the features in your code where applicable, if a nightly compiler is something you are OK with, and reporting any bugs, problems, deficiencies in diagnostics, etc. as issues.&lt;/li&gt;
+&lt;li&gt;Looking through the reported issues under the feature gate labels (e.g., &lt;a href=&quot;https://github.com/rust-lang/rust/labels/F-or_patterns&quot;&gt;&lt;code&gt;F-or_patterns&lt;/code&gt;&lt;/a&gt;) and seeing if you can help out with any of them.
+&lt;ul&gt;
+&lt;li&gt;In particular, if you can help out with writing tests, that is appreciated.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Thanks for reading, and happy pattern matching!&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Mazdak &quot;Centril&quot; Farrokhzad</name>
+        </author>
+    </entry>
     
     <entry>
         <title>Pietro Albini has joined the core team</title>
@@ -790,34 +960,6 @@ section&lt;/a&gt;.&lt;/p&gt;
 
         <author>
             <name>Santiago Pastorino</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Upcoming compiler-team design meetings</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/01/24/upcoming-compiler-team-design-meetings.html" type="text/html" title="Upcoming compiler-team design meetings" />
-        <published>2020-01-24T00:00:00Z</published>
-        <updated>2020-01-24T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2020/01/24/upcoming-compiler-team-design-meetings.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/01/24/upcoming-compiler-team-design-meetings.html">&lt;p&gt;In our &lt;a href=&quot;https://rust-lang.zulipchat.com/#narrow/stream/131828-t-compiler/topic/planning.20meeting.202019.2E01.2E17&quot;&gt;planning meeting on January 17&lt;/a&gt;, the &lt;a href=&quot;https://www.rust-lang.org/governance/teams/compiler&quot;&gt;compiler team&lt;/a&gt; has scheduled our
-next batch of upcoming design meetings. You can find the exact times
-on the compiler team's &lt;a href=&quot;https://rust-lang.github.io/compiler-team/#meeting-calendar&quot;&gt;meeting calendar&lt;/a&gt;:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;On Feb 7th (&lt;a href=&quot;https://calendar.google.com/event?action=TEMPLATE&amp;tmeid=Mmk4NmZqaWVtcHVmZDRmanZob3ZrMXJ1N28gNnU1cnJ0Y2U2bHJ0djA3cGZpM2RhbWdqdXNAZw&amp;tmsrc=6u5rrtce6lrtv07pfi3damgjus%40group.calendar.google.com&quot;&gt;calendar event&lt;/a&gt;), we will discuss
-&lt;a href=&quot;https://github.com/rust-lang/compiler-team/issues/237&quot;&gt;rust-lang/compiler-team#237&lt;/a&gt;, which describes some potential ways
-to extract a Rust parser that can be shared between rustc and
-rust-analyzer.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;a href=&quot;#did-you-know&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;did-you-know&quot;&gt;&lt;/a&gt;Did you know?&lt;/h3&gt;
-&lt;p&gt;Most weeks, the compiler team has some sort of design meeting. These
-meetings take place on Zulip and are open to all. Every 4 weeks, we do
-a planning meeting to pick the next few meetings from the list of open
-proposals. You can find &lt;a href=&quot;https://rust-lang.github.io/compiler-team/about/steering-meeting/&quot;&gt;more details about how the compiler-team
-steering meeting process here&lt;/a&gt;.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Niko Matsakis</name>
         </author>
     </entry>
     
