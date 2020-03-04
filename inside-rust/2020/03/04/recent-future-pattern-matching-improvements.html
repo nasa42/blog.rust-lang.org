@@ -213,7 +213,7 @@ fn main() {
 }
 </code></pre>
 <p>... even though there is no semantic difference between these programs.</p>
-<p>Now that we have moved to the new borrow checker, as outlined in the previous section, we have relaxed this restriction on nightly as well, so under <a href="https://github.com/rust-lang/rust/pull/68376"><code>#![feature(move_ref_pattern)]</code></a>, you may write:</p>
+<p>Now that we have moved to the new borrow checker, as outlined in the previous section, we have relaxed this restriction on nightly as well, so under <a href="https://github.com/rust-lang/rust/issues/68354"><code>#![feature(move_ref_pattern)]</code></a>, you may write:</p>
 <pre><code class="language-rust">#![feature(move_ref_pattern)]
 
 fn main() {
@@ -224,9 +224,9 @@ fn main() {
 <h2><a href="#how-can-i-help" aria-hidden="true" class="anchor" id="how-can-i-help"></a>How can I help?</h2>
 <p>To recap, we have three unstable features, all improving pattern matching in different ways:</p>
 <ul>
-<li><code>#![feature(or_patterns)]</code>, which allows you to arbitrarily nest or-patterns e.g. <code>Some(Foo | Bar)</code></li>
-<li><code>#![feature(bindings_after_at)]</code>, which allows e.g., <code>ref x @ Some(ref y)</code></li>
-<li><code>#![feature(move_ref_pattern)]</code>, which allows e.g., <code>(x, ref y)</code> where <code>x</code> is by-move and <code>y</code> is by-reference</li>
+<li><a href="https://github.com/rust-lang/rust/issues/54883"><code>#![feature(or_patterns)]</code></a>, which allows you to arbitrarily nest or-patterns e.g. <code>Some(Foo | Bar)</code></li>
+<li><a href="https://github.com/rust-lang/rust/issues/65490"><code>#![feature(bindings_after_at)]</code></a>, which allows e.g., <code>ref x @ Some(ref y)</code></li>
+<li><a href="https://github.com/rust-lang/rust/issues/68354"><code>#![feature(move_ref_pattern)]</code></a>, which allows e.g., <code>(x, ref y)</code> where <code>x</code> is by-move and <code>y</code> is by-reference</li>
 </ul>
 <p>To help us transition these features over to stable Rust, we need your help to ensure that they meet the expected quality standards. To help out, consider:</p>
 <ul>

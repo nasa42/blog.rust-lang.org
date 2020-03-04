@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-03-04T00:34:46Z</updated>
+    <updated>2020-03-04T02:07:40Z</updated>
 
     
     <entry>
@@ -151,7 +151,7 @@ fn main() {
 }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;... even though there is no semantic difference between these programs.&lt;/p&gt;
-&lt;p&gt;Now that we have moved to the new borrow checker, as outlined in the previous section, we have relaxed this restriction on nightly as well, so under &lt;a href=&quot;https://github.com/rust-lang/rust/pull/68376&quot;&gt;&lt;code&gt;#![feature(move_ref_pattern)]&lt;/code&gt;&lt;/a&gt;, you may write:&lt;/p&gt;
+&lt;p&gt;Now that we have moved to the new borrow checker, as outlined in the previous section, we have relaxed this restriction on nightly as well, so under &lt;a href=&quot;https://github.com/rust-lang/rust/issues/68354&quot;&gt;&lt;code&gt;#![feature(move_ref_pattern)]&lt;/code&gt;&lt;/a&gt;, you may write:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;#![feature(move_ref_pattern)]
 
 fn main() {
@@ -162,9 +162,9 @@ fn main() {
 &lt;h2&gt;&lt;a href=&quot;#how-can-i-help&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;how-can-i-help&quot;&gt;&lt;/a&gt;How can I help?&lt;/h2&gt;
 &lt;p&gt;To recap, we have three unstable features, all improving pattern matching in different ways:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;code&gt;#![feature(or_patterns)]&lt;/code&gt;, which allows you to arbitrarily nest or-patterns e.g. &lt;code&gt;Some(Foo | Bar)&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;#![feature(bindings_after_at)]&lt;/code&gt;, which allows e.g., &lt;code&gt;ref x @ Some(ref y)&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;#![feature(move_ref_pattern)]&lt;/code&gt;, which allows e.g., &lt;code&gt;(x, ref y)&lt;/code&gt; where &lt;code&gt;x&lt;/code&gt; is by-move and &lt;code&gt;y&lt;/code&gt; is by-reference&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/issues/54883&quot;&gt;&lt;code&gt;#![feature(or_patterns)]&lt;/code&gt;&lt;/a&gt;, which allows you to arbitrarily nest or-patterns e.g. &lt;code&gt;Some(Foo | Bar)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/issues/65490&quot;&gt;&lt;code&gt;#![feature(bindings_after_at)]&lt;/code&gt;&lt;/a&gt;, which allows e.g., &lt;code&gt;ref x @ Some(ref y)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/rust-lang/rust/issues/68354&quot;&gt;&lt;code&gt;#![feature(move_ref_pattern)]&lt;/code&gt;&lt;/a&gt;, which allows e.g., &lt;code&gt;(x, ref y)&lt;/code&gt; where &lt;code&gt;x&lt;/code&gt; is by-move and &lt;code&gt;y&lt;/code&gt; is by-reference&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;To help us transition these features over to stable Rust, we need your help to ensure that they meet the expected quality standards. To help out, consider:&lt;/p&gt;
 &lt;ul&gt;
