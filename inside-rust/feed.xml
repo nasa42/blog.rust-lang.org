@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-03-04T02:07:40Z</updated>
+    <updated>2020-03-04T07:14:12Z</updated>
 
     
     <entry>
@@ -102,7 +102,7 @@ fn should_explore(tcx: TyCtxt&amp;lt;'_&amp;gt;, hir_id: hir::HirId) -&amp;gt; b
     }
 }
 &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Previously, when using &lt;code&gt;|&lt;/code&gt; in a &lt;code&gt;match&lt;/code&gt; expression, the &lt;code&gt;|&lt;/code&gt; syntax was part of &lt;code&gt;match&lt;/code&gt; itelf. With &lt;code&gt;or_patterns&lt;/code&gt;, this is now part of patterns themselves, so you can nest OR-patterns arbitrarily, and use them in &lt;code&gt;let&lt;/code&gt; statements too:&lt;/p&gt;
+&lt;p&gt;Previously, when using &lt;code&gt;|&lt;/code&gt; in a &lt;code&gt;match&lt;/code&gt; expression, the &lt;code&gt;|&lt;/code&gt; syntax was part of &lt;code&gt;match&lt;/code&gt; itself. With &lt;code&gt;or_patterns&lt;/code&gt;, this is now part of patterns themselves, so you can nest OR-patterns arbitrarily, and use them in &lt;code&gt;let&lt;/code&gt; statements too:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;let Ok(x) | Err(x) = foo();
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;An OR-pattern covers the &lt;em&gt;union&lt;/em&gt; of all the &lt;code&gt;|&lt;/code&gt;-ed (&amp;quot;or-ed&amp;quot;) patterns. To ensure that whatever alternative matched, all bindings are consistent and initialized, each or-ed pattern must include the exact same set of bindings, with the same types, and the same binding modes.&lt;/p&gt;

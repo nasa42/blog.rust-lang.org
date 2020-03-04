@@ -164,7 +164,7 @@ fn should_explore(tcx: TyCtxt&lt;'_&gt;, hir_id: hir::HirId) -&gt; bool {
     }
 }
 </code></pre>
-<p>Previously, when using <code>|</code> in a <code>match</code> expression, the <code>|</code> syntax was part of <code>match</code> itelf. With <code>or_patterns</code>, this is now part of patterns themselves, so you can nest OR-patterns arbitrarily, and use them in <code>let</code> statements too:</p>
+<p>Previously, when using <code>|</code> in a <code>match</code> expression, the <code>|</code> syntax was part of <code>match</code> itself. With <code>or_patterns</code>, this is now part of patterns themselves, so you can nest OR-patterns arbitrarily, and use them in <code>let</code> statements too:</p>
 <pre><code class="language-rust">let Ok(x) | Err(x) = foo();
 </code></pre>
 <p>An OR-pattern covers the <em>union</em> of all the <code>|</code>-ed (&quot;or-ed&quot;) patterns. To ensure that whatever alternative matched, all bindings are consistent and initialized, each or-ed pattern must include the exact same set of bindings, with the same types, and the same binding modes.</p>
