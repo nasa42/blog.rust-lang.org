@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-03-10T19:02:52Z</updated>
+    <updated>2020-03-10T21:48:45Z</updated>
 
     
     <entry>
@@ -23,7 +23,7 @@
 &lt;blockquote&gt;
 &lt;p&gt;If you are new to Rust or want to refresh your knowledge, you may first want to read chapters &lt;a href=&quot;https://doc.rust-lang.org/book/ch06-00-enums.html&quot;&gt;6, Enums and Pattern Matching&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/book/ch18-00-patterns.html&quot;&gt;18, Patterns and Matching&lt;/a&gt; in the book, or read more about &lt;a href=&quot;https://doc.rust-lang.org/reference/expressions/match-expr.html&quot;&gt;&lt;code&gt;match&lt;/code&gt; expressions&lt;/a&gt; and &lt;a href=&quot;https://doc.rust-lang.org/reference/patterns.html&quot;&gt;patterns&lt;/a&gt; in the reference.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;Pattern matching in Rust works by checking if a &lt;a href=&quot;https://doc.rust-lang.org/reference/expressions.html#place-expressions-and-value-expressions&quot;&gt;&lt;em&gt;place&lt;/em&gt;&lt;/a&gt; in memory (the &amp;quot;data&amp;quot;) matches a certain &lt;em&gt;pattern&lt;/em&gt;. In this post, we will look at some recent improvements to patterns soon available in stable Rust as well as some more in already available in nightly.&lt;/p&gt;
+&lt;p&gt;Pattern matching in Rust works by checking if a &lt;a href=&quot;https://doc.rust-lang.org/reference/expressions.html#place-expressions-and-value-expressions&quot;&gt;&lt;em&gt;place&lt;/em&gt;&lt;/a&gt; in memory (the &amp;quot;data&amp;quot;) matches a certain &lt;em&gt;pattern&lt;/em&gt;. In this post, we will look at some recent improvements to patterns soon available in stable Rust as well as some more already available in nightly.&lt;/p&gt;
 &lt;p&gt;If you are familiar with the nightly features discussed and would like to help out with the efforts to drive them to stable, jump ahead to &lt;a href=&quot;#how-can-i-help?&quot;&gt;*How can I help?&lt;/a&gt;.&lt;/p&gt;
 &lt;h2&gt;&lt;a href=&quot;#subslice-patterns-[head,-tail-@-..]&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;subslice-patterns-[head,-tail-@-..]&quot;&gt;&lt;/a&gt;Subslice patterns, &lt;code&gt;[head, tail @ ..]&lt;/code&gt;&lt;/h2&gt;
 &lt;p&gt;Lists are one of the most basic and common data structures found in software. In Rust, lists are usually a contiguous sequence of elements in memory, or a &lt;em&gt;slice&lt;/em&gt;.&lt;/p&gt;
