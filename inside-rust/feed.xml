@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-03-10T13:49:44Z</updated>
+    <updated>2020-03-10T18:56:52Z</updated>
 
     
     <entry>
@@ -201,10 +201,90 @@ fn main() {
     </entry>
     
     <entry>
+        <title>Governance Working Group Update: Meeting 27 February 2020</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/02/27/Goverance-wg.html" type="text/html" title="Governance Working Group Update: Meeting 27 February 2020" />
+        <published>2020-02-27T00:00:00Z</published>
+        <updated>2020-02-27T00:00:01Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2020/02/27/Goverance-wg.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/02/27/Goverance-wg.html">&lt;p&gt;Hello everyone!&lt;/p&gt;
+&lt;p&gt;This was the first governance working group meeting on Zulip.
+The following meeting will take place on 12 March.
+Reminder that EST &amp;amp; PST have changed to DST (summer time) as of 8 March, and CET will not change to DST until 29 March. These are most active timezones at present in governance wg so other timezones not evaluated.&lt;/p&gt;
+&lt;p&gt;The agenda included&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Access policy RFC draft from Nell&lt;/li&gt;
+&lt;li&gt;Pre-RFC process - determine right place to talk about this&lt;/li&gt;
+&lt;li&gt;Follow-up on moving (community, devtools, nursery) to rust-lang&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;You can find the &lt;a href=&quot;https://github.com/rust-lang/wg-governance/blob/master/minutes/2020.02.27&quot;&gt;detailed minutes&lt;/a&gt; on the &lt;a href=&quot;https://github.com/rust-lang/wg-governance/&quot;&gt;wg-governance&lt;/a&gt; repository, but here is a quick summary:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Access policy RFC draft
+&lt;ul&gt;
+&lt;li&gt;Approved to submit as RFC&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Pre-RFC process
+&lt;ul&gt;
+&lt;li&gt;Discussing on 12 March&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Follow-up on moving (community, devtools, nursery) to rust-lang
+&lt;ul&gt;
+&lt;li&gt;Not complete, but some items discussed, list in official minutes&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;There was additional off-agenda discussion after meeting about&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Meeting Length&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Outcome: 45-60 minutes&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Handling Alumni&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Need to define what info is needed&lt;/li&gt;
+&lt;li&gt;How talk about team Alumni who are not project alumni&lt;/li&gt;
+&lt;li&gt;Further discussion between XAMPPRocky and PietroAlbini, needs to be reported&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Intro to contributing&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Need a general intro as current info focused on main groups&lt;/li&gt;
+&lt;li&gt;Needs followup&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Followup items not addressed on 12 March can be addressed in later meetings or async on Zulip, outcomes will be reported. &lt;a href=&quot;https://rust-lang.zulipchat.com/#narrow/stream/223182-wg-governance/topic/meeting.202020-02-27&quot;&gt;Zulip thread&lt;/a&gt; links will be included in meeting summary blog posts in future.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;&lt;a href=&quot;#next-meeting&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;next-meeting&quot;&gt;&lt;/a&gt;Next meeting&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Our next meeting will be 12 March 2020 via Zulip 18-19 CET / 1pm-2pm EST / 10-11am PST.&lt;/li&gt;
+&lt;li&gt;In 2020 the agenda is always at https://hackmd.io/ATj1rZJaRimaIfIWfAOYfQ&lt;/li&gt;
+&lt;li&gt;Current plan is:
+&lt;ol&gt;
+&lt;li&gt;Pre-RFC process&lt;/li&gt;
+&lt;li&gt;How to manage RFC discussion&lt;/li&gt;
+&lt;li&gt;Plan agenda for next time, see Action Items in minutes from Feb 27&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+
+        <author>
+            <name>Val Grimm</name>
+        </author>
+    </entry>
+    
+    <entry>
         <title>Announcing the first FFI-unwind project design meeting</title>
         <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/02/27/ffi-unwind-design-meeting.html" type="text/html" title="Announcing the first FFI-unwind project design meeting" />
         <published>2020-02-27T00:00:00Z</published>
-        <updated>2020-02-27T00:00:01Z</updated>
+        <updated>2020-02-27T00:00:02Z</updated>
         <id>https://blog.rust-lang.org/inside-rust/2020/02/27/ffi-unwind-design-meeting.html</id>
         <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/02/27/ffi-unwind-design-meeting.html">&lt;p&gt;The FFI-unwind project group, announced in &lt;a href=&quot;https://github.com/rust-lang/rfcs/pull/2797&quot;&gt;this RFC&lt;/a&gt;, is
 working to extend the language to support unwinding that crosses FFI
@@ -919,47 +999,6 @@ Each week, we have general announcements from the team followed by check-ins fro
 
         <author>
             <name>Wesley Wiser</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>Announcing the Cleanup Crew ICE-breaker group</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/02/06/Cleanup-Crew-ICE-breakers.html" type="text/html" title="Announcing the Cleanup Crew ICE-breaker group" />
-        <published>2020-02-06T00:00:00Z</published>
-        <updated>2020-02-06T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2020/02/06/Cleanup-Crew-ICE-breakers.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/02/06/Cleanup-Crew-ICE-breakers.html">&lt;p&gt;Following Niko Matsakis' announcement of the &lt;a href=&quot;https://blog.rust-lang.org/inside-rust/2019/10/22/LLVM-ICE-breakers.html&quot;&gt;&lt;strong&gt;LLVM ICE-breaker
-group&lt;/strong&gt;&lt;/a&gt;,
-I'm pleased to announce the &lt;strong&gt;Cleanup Crew ICE-breaker group&lt;/strong&gt;. It
-follows the same principle, if you know Rust and would like to
-contribute to rustc -- but without knowing about the compiler or taking
-on a large commitment -- then the Cleanup Crew ICE-breaker group might
-well be for you!&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#what-is-the-cleanup-crew-ice-breaker-group&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;what-is-the-cleanup-crew-ice-breaker-group&quot;&gt;&lt;/a&gt;What is the Cleanup Crew ICE-breaker group?&lt;/h3&gt;
-&lt;p&gt;The &amp;quot;Cleanup Crew&amp;quot; are focused on improving bug reports. Specifically,
-the goal is to try to ensure that every bug report has all the
-information that will be needed for someone to fix it:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;a minimal, standalone example that shows the problem&lt;/li&gt;
-&lt;li&gt;links to duplicates or related bugs&lt;/li&gt;
-&lt;li&gt;if the bug is a regression (something that used to work, but no
-longer does), then a bisection to the PR or nightly that caused
-the regression&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;This kind of cleanup is invaluable in getting bugs fixed.&lt;/p&gt;
-&lt;h3&gt;&lt;a href=&quot;#who-should-join&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;who-should-join&quot;&gt;&lt;/a&gt;Who should join?&lt;/h3&gt;
-&lt;p&gt;It can be done by anybody who knows Rust, without any particularly deep
-knowledge of the compiler.  If you want to be part of it and be notified
-about things to do, just &lt;a href=&quot;https://rustc-dev-guide.rust-lang.org/ice-breaker/about.html#join&quot;&gt;add yourself to the list&lt;/a&gt;! When we come across a suitable
-bug, we'll write a message that &lt;code&gt;@&lt;/code&gt;-mentions every Github user on that
-team. If you have some time, maybe you can provide some useful
-information.&lt;/p&gt;
-&lt;p&gt;You can find more information about the group on it's &lt;a href=&quot;https://rustc-dev-guide.rust-lang.org/ice-breaker/cleanup-crew.html&quot;&gt;rustc-dev-guide
-section&lt;/a&gt;.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>Santiago Pastorino</name>
         </author>
     </entry>
     
