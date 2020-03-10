@@ -10,8 +10,26 @@
         <name>Maintained by the Rust Team.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-03-10T18:56:52Z</updated>
+    <updated>2020-03-10T19:02:52Z</updated>
 
+    
+    <entry>
+        <title>The 2020 RustConf CFP is Now Open!</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/2020/03/10/rustconf-cfp.html" type="text/html" title="The 2020 RustConf CFP is Now Open!" />
+        <published>2020-03-10T00:00:00Z</published>
+        <updated>2020-03-10T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/2020/03/10/rustconf-cfp.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/2020/03/10/rustconf-cfp.html">&lt;p&gt;Greetings fellow Rustaceans!&lt;/p&gt;
+&lt;p&gt;The 2020 RustConf Call for Proposals is now open!&lt;/p&gt;
+&lt;p&gt;Got something to share about Rust? Want to talk about the experience of learning and using Rust? Want to dive deep into an aspect of the language? Got something different in mind? We want to hear from you! The &lt;a href=&quot;https://cfp.rustconf.com/events/rustconf-2020&quot;&gt;RustConf 2020 CFP site&lt;/a&gt; is now up and accepting proposals.&lt;/p&gt;
+&lt;p&gt;If you may be interested in speaking but aren't quite ready to submit a proposal yet, we are here to help you. We will be holding speaker office hours regularly throughout the proposal process, after the proposal process, and up to RustConf itself on August 20 and 21, 2020. We are available to brainstorm ideas for proposals, talk through proposals, and provide support throughout the entire speaking journey. We need a variety of perspectives, interests, and experience levels for RustConf to be the best that it can be - if you have questions or want to talk through things please don't hesitate to reach out to us! Watch this blog for more details on speaker office hours - they will be posted very soon.&lt;/p&gt;
+&lt;p&gt;The RustConf CFP will be open through Monday, April 5th, 2020, hope to see your proposal soon!&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Rust Community</name>
+        </author>
+    </entry>
     
     <entry>
         <title>Announcing Rust 1.41.1</title>
@@ -924,44 +942,6 @@ goes into great detail.&lt;/p&gt;
 
         <author>
             <name>Niko Matsakis</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>A call for blogs 2020</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/2019/10/29/A-call-for-blogs-2020.html" type="text/html" title="A call for blogs 2020" />
-        <published>2019-10-29T00:00:00Z</published>
-        <updated>2019-10-29T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/2019/10/29/A-call-for-blogs-2020.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/2019/10/29/A-call-for-blogs-2020.html">&lt;p&gt;What will Rust development look like in 2020? That's partially up to you! Here's how it works:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Anyone and everyone in the Rust community writes a blog post about what they'd like Rust development to be like in 2020.&lt;/li&gt;
-&lt;li&gt;The core team reads all the posts, and writes up a &amp;quot;Roadmap RFC&amp;quot; to make a formal proposal.&lt;/li&gt;
-&lt;li&gt;The RFC is reviewed by everyone, comments are made, adjustments are made, and eventually it is accepted.&lt;/li&gt;
-&lt;li&gt;This RFC is a guide to either accept or postpone RFCs for 2020. If a proposal fits into the themes of what we want to accomplish, we'll take it, but if it doesn't, we'll put it off until the next year.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;This process takes time, and it won't &lt;em&gt;quite&lt;/em&gt; be complete before 2020 starts.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;We'll review the posts December 1. That gives you a month to think about Rust in 2020 and write something up.&lt;/li&gt;
-&lt;li&gt;We'll aim to produce the RFC draft in the week or two after&lt;/li&gt;
-&lt;li&gt;Depending on how many comments the RFC gets, we may not end up accepting it until early January.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2&gt;&lt;a href=&quot;#what-were-looking-for&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;what-were-looking-for&quot;&gt;&lt;/a&gt;What we're looking for&lt;/h2&gt;
-&lt;p&gt;We are accepting ideas about almost anything having to do with Rust: language features, tooling needs, community programs, ecosystem needs... if it's related to Rust, we want to hear about it.&lt;/p&gt;
-&lt;p&gt;One big question for this year: will there be a Rust 2021 edition? If so, 2020 would be the year to do a lot of associated work and plan the details. What would the edition's theme be?&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Rust 2015: Stability&lt;/li&gt;
-&lt;li&gt;Rust 2018: Productivity&lt;/li&gt;
-&lt;li&gt;Rust 2021: ?&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Let us know what you think!&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#please-share-these-posts-with-us&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;please-share-these-posts-with-us&quot;&gt;&lt;/a&gt;Please share these posts with us&lt;/h2&gt;
-&lt;p&gt;You can write up these posts and email them to community@rust-lang.org or tweet them with the hashtag #rust2020. If you'd prefer to not participate publicly, emailing something to community@rust-lang.org is fine as well.&lt;/p&gt;
-&lt;p&gt;Thanks for helping make Rust awesome! We are looking forward to doing amazing things in 2020.&lt;/p&gt;
-</content>
-
-        <author>
-            <name>The Rust Core Team</name>
         </author>
     </entry>
     
