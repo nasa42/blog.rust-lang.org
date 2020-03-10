@@ -178,7 +178,7 @@ L |         bar @ Some(Expr { span }) =&gt; {}
   |                           ^^^^ not allowed after `@`
 </code></pre>
 <p>This was turned into an error in <a href="https://github.com/rust-lang/rust/pull/16053">#16053</a>, mainly due to the difficulties of encoding borrow checking rules in a sound way in the old AST based borrow checker.</p>
-<p>Since then, we have <a href="https://github.com/rust-lang/rust/pull/64790">removed the old borrow checker</a> in favor of one based on <a href="https://rust-lang.github.io/rustc-guide/mir/index.html">MIR</a>, which is a simpler, and more appropriate data structure for borrow checking. Specifically, in the case of a statement like <code>let ref x @ ref y = a;</code>, we would get roughly the same MIR as if we had used <code>let x = &amp;a; let y = &amp;a;</code>.</p>
+<p>Since then, we have <a href="https://github.com/rust-lang/rust/pull/64790">removed the old borrow checker</a> in favor of one based on <a href="https://rustc-dev-guide.rust-lang.org/mir/index.html">MIR</a>, which is a simpler, and more appropriate data structure for borrow checking. Specifically, in the case of a statement like <code>let ref x @ ref y = a;</code>, we would get roughly the same MIR as if we had used <code>let x = &amp;a; let y = &amp;a;</code>.</p>
 <p>So now that having bindings to the right of <code>@</code> is handled uniformly and correctly by the borrow checker (e.g., the compiler won't allow <code>ref x @ ref mut y</code>), we have decided to allow them under <a href="https://github.com/rust-lang/rust/issues/65490"><code>#![feature(bindings_after_at)]</code></a>, now available on nightly. With the feature gate enabled, you may for example write:</p>
 <pre><code class="language-rust">#![feature(bindings_after_at)]
 

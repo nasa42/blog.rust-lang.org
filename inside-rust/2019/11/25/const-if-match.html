@@ -160,7 +160,7 @@ types with <code>Drop</code> impls into places they shouldn't be allowed, blow u
 stack with poorly implemented recursive functions (see <code>gcd</code> above), and let
 us know if something goes horribly wrong.</p>
 <h2><a href="#what-took-you-so-long" aria-hidden="true" class="anchor" id="what-took-you-so-long"></a>What took you so long?</h2>
-<p><a href="https://rust-lang.github.io/rustc-guide/miri.html">The Miri engine</a>, which rust uses under the hood for compile-time
+<p><a href="https://rustc-dev-guide.rust-lang.org/miri.html">The Miri engine</a>, which rust uses under the hood for compile-time
 function evaluation, has been capable of this for a while now. However, rust
 needs to statically guarantee certain properties about variables in a <code>const</code>,
 such as whether they allow for interior mutability or whether they have a

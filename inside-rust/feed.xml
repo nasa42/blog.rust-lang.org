@@ -10,7 +10,7 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-03-04T07:14:12Z</updated>
+    <updated>2020-03-10T13:49:44Z</updated>
 
     
     <entry>
@@ -116,7 +116,7 @@ L |         bar @ Some(Expr { span }) =&amp;gt; {}
   |                           ^^^^ not allowed after `@`
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;This was turned into an error in &lt;a href=&quot;https://github.com/rust-lang/rust/pull/16053&quot;&gt;#16053&lt;/a&gt;, mainly due to the difficulties of encoding borrow checking rules in a sound way in the old AST based borrow checker.&lt;/p&gt;
-&lt;p&gt;Since then, we have &lt;a href=&quot;https://github.com/rust-lang/rust/pull/64790&quot;&gt;removed the old borrow checker&lt;/a&gt; in favor of one based on &lt;a href=&quot;https://rust-lang.github.io/rustc-guide/mir/index.html&quot;&gt;MIR&lt;/a&gt;, which is a simpler, and more appropriate data structure for borrow checking. Specifically, in the case of a statement like &lt;code&gt;let ref x @ ref y = a;&lt;/code&gt;, we would get roughly the same MIR as if we had used &lt;code&gt;let x = &amp;amp;a; let y = &amp;amp;a;&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Since then, we have &lt;a href=&quot;https://github.com/rust-lang/rust/pull/64790&quot;&gt;removed the old borrow checker&lt;/a&gt; in favor of one based on &lt;a href=&quot;https://rustc-dev-guide.rust-lang.org/mir/index.html&quot;&gt;MIR&lt;/a&gt;, which is a simpler, and more appropriate data structure for borrow checking. Specifically, in the case of a statement like &lt;code&gt;let ref x @ ref y = a;&lt;/code&gt;, we would get roughly the same MIR as if we had used &lt;code&gt;let x = &amp;amp;a; let y = &amp;amp;a;&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;So now that having bindings to the right of &lt;code&gt;@&lt;/code&gt; is handled uniformly and correctly by the borrow checker (e.g., the compiler won't allow &lt;code&gt;ref x @ ref mut y&lt;/code&gt;), we have decided to allow them under &lt;a href=&quot;https://github.com/rust-lang/rust/issues/65490&quot;&gt;&lt;code&gt;#![feature(bindings_after_at)]&lt;/code&gt;&lt;/a&gt;, now available on nightly. With the feature gate enabled, you may for example write:&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&quot;language-rust&quot;&gt;#![feature(bindings_after_at)]
 
@@ -950,11 +950,11 @@ the regression&lt;/li&gt;
 &lt;h3&gt;&lt;a href=&quot;#who-should-join&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;who-should-join&quot;&gt;&lt;/a&gt;Who should join?&lt;/h3&gt;
 &lt;p&gt;It can be done by anybody who knows Rust, without any particularly deep
 knowledge of the compiler.  If you want to be part of it and be notified
-about things to do, just &lt;a href=&quot;https://rust-lang.github.io/rustc-guide/ice-breaker/about.html#join&quot;&gt;add yourself to the list&lt;/a&gt;! When we come across a suitable
+about things to do, just &lt;a href=&quot;https://rustc-dev-guide.rust-lang.org/ice-breaker/about.html#join&quot;&gt;add yourself to the list&lt;/a&gt;! When we come across a suitable
 bug, we'll write a message that &lt;code&gt;@&lt;/code&gt;-mentions every Github user on that
 team. If you have some time, maybe you can provide some useful
 information.&lt;/p&gt;
-&lt;p&gt;You can find more information about the group on it's &lt;a href=&quot;https://rust-lang.github.io/rustc-guide/ice-breaker/cleanup-crew.html&quot;&gt;rustc-guide
+&lt;p&gt;You can find more information about the group on it's &lt;a href=&quot;https://rustc-dev-guide.rust-lang.org/ice-breaker/cleanup-crew.html&quot;&gt;rustc-dev-guide
 section&lt;/a&gt;.&lt;/p&gt;
 </content>
 
