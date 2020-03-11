@@ -10,8 +10,37 @@
         <name>Maintained by the Rust Teams.</name>
         <uri>https://github.com/rust-lang/blog.rust-lang.org/</uri>
     </author>
-    <updated>2020-03-11T17:48:11Z</updated>
+    <updated>2020-03-11T23:26:59Z</updated>
 
+    
+    <entry>
+        <title>March Lang Team Design Meetings</title>
+        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/03/11/lang-team-design-meetings.html" type="text/html" title="March Lang Team Design Meetings" />
+        <published>2020-03-11T00:00:00Z</published>
+        <updated>2020-03-11T00:00:00Z</updated>
+        <id>https://blog.rust-lang.org/inside-rust/2020/03/11/lang-team-design-meetings.html</id>
+        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/03/11/lang-team-design-meetings.html">&lt;p&gt;We've scheduled our &lt;strong&gt;language team design meetings&lt;/strong&gt; for March. We have plans for two meetings:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;March 16th -- we will summarize discussions from &lt;a href=&quot;https://github.com/rust-lang/project-ffi-unwind&quot;&gt;the ffi-unwind project group&lt;/a&gt; about whether we should permit foreign exceptions to propagate across the &amp;quot;C&amp;quot; ABI boundary, or establish a separate ABI (e.g., &amp;quot;C unwind&amp;quot;) for such cases.&lt;/li&gt;
+&lt;li&gt;March 23rd -- we will talk with James Munns about Sealed Rust (see the blog posts &lt;a href=&quot;https://ferrous-systems.com/blog/sealed-rust-the-pitch/&quot;&gt;The Pitch&lt;/a&gt; and &lt;a href=&quot;https://ferrous-systems.com/blog/sealed-rust-the-plan/&quot;&gt;The Plan&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;&lt;a href=&quot;#about-the-language-team-design-meetings&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;about-the-language-team-design-meetings&quot;&gt;&lt;/a&gt;About the language team design meetings&lt;/h2&gt;
+&lt;p&gt;The idea of the design meeting is that it's a time for us to have
+in-depth discussions on some particular topic. This might be a burning
+problem that we've discovered, an update on some existing design work,
+or a forward looking proposal.&lt;/p&gt;
+&lt;p&gt;The meetings are open for anyone to listen in and attend. They are
+typically also recorded and posted online, along with minutes, after
+the fact. They generally take place on Mondays at &amp;quot;noon Boston time&amp;quot;
+-- but for the precise scheduling you should check the &lt;a href=&quot;https://github.com/rust-lang/lang-team/#meeting-calendar&quot;&gt;lang team
+calendar&lt;/a&gt;. Scheduled meetings are subject to change and
+cancelation. In that case, the calendar events will be updated.&lt;/p&gt;
+</content>
+
+        <author>
+            <name>Niko Matsakis</name>
+        </author>
+    </entry>
     
     <entry>
         <title>Recent and future pattern matching improvements</title>
@@ -927,78 +956,6 @@ Agenda is -&lt;/p&gt;
 
         <author>
             <name>Val Grimm</name>
-        </author>
-    </entry>
-    
-    <entry>
-        <title>2020-02-06 Compiler Team Triage Meeting</title>
-        <link rel="alternate" href="https://blog.rust-lang.org/inside-rust/2020/02/07/compiler-team-meeting.html" type="text/html" title="2020-02-06 Compiler Team Triage Meeting" />
-        <published>2020-02-07T00:00:00Z</published>
-        <updated>2020-02-07T00:00:00Z</updated>
-        <id>https://blog.rust-lang.org/inside-rust/2020/02/07/compiler-team-meeting.html</id>
-        <content type="html" xml:base="https://blog.rust-lang.org/inside-rust/2020/02/07/compiler-team-meeting.html">&lt;p&gt;The compiler team had our weekly triage meeting on 2020-02-06.
-You can find the &lt;a href=&quot;https://rust-lang.github.io/compiler-team/minutes/triage-meeting/2020-02-06/&quot;&gt;minutes&lt;/a&gt; on the &lt;a href=&quot;https://github.com/rust-lang/compiler-team&quot;&gt;compiler-team repository&lt;/a&gt;.
-Each week, we have general announcements from the team followed by check-ins from two of the compiler team working groups.&lt;/p&gt;
-&lt;h2&gt;&lt;a href=&quot;#announcements&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;announcements&quot;&gt;&lt;/a&gt;Announcements&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;There is a design meeting this Friday (2020-02-07) on &lt;a href=&quot;https://github.com/rust-lang/compiler-team/issues/237&quot;&gt;parser-librarification&lt;/a&gt;.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/davidtwco&quot;&gt;@davidtwco&lt;/a&gt; has made progress on the polymorphization effort and has posted a &lt;a href=&quot;https://rust-lang.zulipchat.com/#narrow/stream/216091-t-compiler.2Fwg-polymorphization/topic/progress.20updates/near/187461928&quot;&gt;status update&lt;/a&gt;.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/michaelwoerister&quot;&gt;@mw&lt;/a&gt; has posted a major change proposal to make &lt;a href=&quot;https://github.com/rust-lang/compiler-team/issues/245&quot;&gt;incremental compilation respect the &lt;code&gt;-Ccodegen-units&lt;/code&gt; setting&lt;/a&gt;.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Cargo report future-incompat &lt;a href=&quot;https://github.com/rust-lang/rfcs/issues/2834&quot;&gt;rfc#2834&lt;/a&gt; is on track to get an FCP merge request from the cargo team in the near future.&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2&gt;&lt;a href=&quot;#working-group-sync&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;working-group-sync&quot;&gt;&lt;/a&gt;Working group sync&lt;/h2&gt;
-&lt;h3&gt;&lt;a href=&quot;#wg-rls-20&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;wg-rls-20&quot;&gt;&lt;/a&gt;&lt;a href=&quot;https://rust-lang.github.io/compiler-team/working-groups/rls-2.0/&quot;&gt;wg-rls-2.0&lt;/a&gt;&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;The Chalk dependency has been updated which dramatically reduced crashes.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;code&gt;cargo check&lt;/code&gt; handling has been moved ino the server so all editors not just VS Code benefit.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/matklad&quot;&gt;@matklad&lt;/a&gt; and &lt;a href=&quot;https://github.com/nikomatsakis&quot;&gt;@nikomatsakis&lt;/a&gt; have been working on an RFC to merge RLS and Rust Analyzer officially.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Work is proceeding on &amp;quot;production readiness&amp;quot;.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Binary releases are available on the project's GitHub page.&lt;/li&gt;
-&lt;li&gt;Planning to publish to VS Code extension marketplace &amp;quot;soon&amp;quot;.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3&gt;&lt;a href=&quot;#wg-self-profile&quot; aria-hidden=&quot;true&quot; class=&quot;anchor&quot; id=&quot;wg-self-profile&quot;&gt;&lt;/a&gt;&lt;a href=&quot;https://rust-lang.github.io/compiler-team/working-groups/self-profile/&quot;&gt;wg-self-profile&lt;/a&gt;&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;The &lt;a href=&quot;https://github.com/rust-lang/rust/issues/58967&quot;&gt;&amp;quot;Minimum Viable Product&amp;quot;&lt;/a&gt; has been completed!&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Self-profling is enabled for all perf.rust-lang.org runs and we automatically publish the data. (&lt;a href=&quot;https://perf.rust-lang.org/detailed-query.html?commit=3761dcd3467441f78939ccb3b341b03b6a7558d7&amp;base_commit=ac2f3fa41ac5ae8425b959f955bb7433b7c57aea&amp;benchmark=await-call-tree-debug&amp;run_name=clean&quot;&gt;Example&lt;/a&gt;)&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/michaelwoerister&quot;&gt;@mw&lt;/a&gt; implemented query-key recording so queries can now be attributed to individual query invocations.&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;The &lt;a href=&quot;https://github.com/rust-lang/measureme/tree/master/crox&quot;&gt;&lt;code&gt;crox&lt;/code&gt;&lt;/a&gt; utility, which generates Chromium profiler compatible trace data, can now generate profiles for entire Cargo invocations via the &lt;code&gt;--dir&lt;/code&gt; flag.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;This allows inspecting various rustc processes and their individual threads on a common timeline with full query data.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Quite a few people have tried &lt;code&gt;-Zself-profile&lt;/code&gt; and have said they found it very useful!&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-</content>
-
-        <author>
-            <name>Wesley Wiser</name>
         </author>
     </entry>
     
